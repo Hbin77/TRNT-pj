@@ -1,0 +1,36 @@
+# Docx extraction (temporary, used only to read .docx content)
+etc/docx_extract/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Env / secrets
+.env
+.env.local
+.env.*.local
+*.pem
+
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+
+# Build / output
+dist/
+build/
+.next/
+out/
+*.egg-info/
+*.egg
