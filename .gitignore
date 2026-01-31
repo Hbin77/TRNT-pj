@@ -1,5 +1,5 @@
 # Docx extraction (temporary, used only to read .docx content)
-etc/docx_extract/
+docs/docx_extract/
 
 # OS
 .DS_Store
