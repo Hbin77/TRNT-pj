@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import health
+from app.api import health, users, scenarios  # scenarios 추가
 
 app = FastAPI(
     title="TRNT API",
@@ -9,7 +9,7 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# CORS 설정 (프론트엔드 연동용)
+# CORS 설정
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000", "https://*.vercel.app"],
@@ -20,6 +20,8 @@ app.add_middleware(
 
 # 라우터 등록
 app.include_router(health.router, tags=["Health"])
+app.include_router(users.router, prefix="/api/v1")
+app.include_router(scenarios.router, prefix="/api/v1")  # 추가!
 
 
 @app.get("/")
