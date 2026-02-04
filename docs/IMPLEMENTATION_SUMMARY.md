@@ -165,12 +165,42 @@ http://localhost:8000/docs
 curl -X POST http://localhost:8000/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{
+    "email": "user@example.com",
+    "password": "stringst",
+    "name": "string",
+    "birth_year": 0,
+    "gender": "string",
+    "occupation": "string",
+    "education": "string",
+    "major": "string",
+    "residence": "string",
+    "relationship_status": "string",
+    "life_background": "string",
+    "key_events": "string",
+    "personality": "string",
+    "values": "string"
+  }'
+```
+
+**실제 사용 예시:**
+```bash
+curl -X POST http://localhost:8000/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
     "email": "test@test.com",
     "password": "12345678",
-    "name": "테스트",
+    "name": "홍길동",
     "birth_year": 1995,
-    "occupation": "개발자",
-    "life_background": "백엔드 개발 중"
+    "gender": "남성",
+    "occupation": "백엔드 개발자",
+    "education": "4년제 대학 졸업",
+    "major": "컴퓨터공학",
+    "residence": "서울",
+    "relationship_status": "single",
+    "life_background": "스타트업에서 5년째 백엔드 개발 중. 새로운 기술 학습에 관심이 많음.",
+    "key_events": "2020년 첫 취업, 2022년 이직",
+    "personality": "INTJ, 논리적이고 계획적",
+    "values": "성장과 도전"
   }'
 ```
 
