@@ -1,4 +1,5 @@
-from typing import Optional, Literal
+from datetime import datetime
+from typing import Optional, Literal, List
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -14,9 +15,9 @@ class BranchInput(BaseModel):
 
 class ScenarioRequest(BaseModel):
     """시나리오 생성 요청"""
-    user_id: UUID
+    user_id: Optional[UUID] = None  # 인증 도입 후 토큰에서 추출, 비인증 시 직접 전달
     branch: BranchInput
-    
+
     # 커스터마이징 옵션
     tone: Literal["optimistic", "realistic", "pessimistic"] = "realistic"
     genre: Literal["romance", "success", "healing", "drama"] = "drama"
@@ -26,6 +27,7 @@ class ScenarioRequest(BaseModel):
 
 class ScenarioResponse(BaseModel):
     """시나리오 생성 응답"""
+    scenario_id: Optional[UUID] = None
     user_id: UUID
     branch: BranchInput
     tone: str
@@ -34,3 +36,42 @@ class ScenarioResponse(BaseModel):
     scope: str
     scenario_text: str
     word_count: int
+
+
+class ScenarioDBResponse(BaseModel):
+    """DB에서 조회한 시나리오 상세 응답"""
+    id: UUID
+    user_id: UUID
+    branch_data: dict
+    tone: str
+    genre: str
+    detail_level: str
+    scope: str
+    scenario_text: str
+    word_count: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class ScenarioListItem(BaseModel):
+    """시나리오 목록 아이템 (scenario_text 제외)"""
+    id: UUID
+    user_id: UUID
+    branch_data: dict
+    tone: str
+    genre: str
+    detail_level: str
+    scope: str
+    word_count: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class ScenarioListResponse(BaseModel):
+    """시나리오 목록 응답"""
+    total: int
+    scenarios: List[ScenarioListItem]
