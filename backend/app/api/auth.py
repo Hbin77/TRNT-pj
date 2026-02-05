@@ -44,7 +44,16 @@ def register(request: RegisterRequest, db: Session = Depends(get_db)):
     # 이메일 중복 체크
     existing = db.query(User).filter(User.email == request.email).first()
     if existing:
-        raise DuplicateEmailException(email=request.email)
+        # 이미 인증된 계정이면 에러
+        if existing.is_verified:
+            raise DuplicateEmailException(email=request.email)
+        
+        # 소셜 로그인 계정이면 에러 (정책상 분리)
+        if existing.auth_provider != "email":
+            raise DuplicateEmailException(email=request.email)
+            
+        # 미인증 계정이면 업데이트 진행 (재가입 허용)
+        # 기존 user 객체를 new logic에서 재사용하기 위해 아래에서 처리
 
     # Turnstile 검증
     import httpx
@@ -77,17 +86,43 @@ def register(request: RegisterRequest, db: Session = Depends(get_db)):
     import secrets
     verification_code = "".join([str(secrets.randbelow(10)) for _ in range(6)])
 
-    # 사용자 생성 (미인증 상태)
-    user_data = request.model_dump(exclude={"password", "turnstile_token"})
-    user = User(
-        **user_data,
-        hashed_password=hashed_password,
-        auth_provider="email",
-        is_active=True,
-        is_verified=False,  # 미인증
-        verification_code=verification_code
-    )
-    db.add(user)
+    if existing:
+        # 기존 미인증 사용자 업데이트
+        user = existing
+        user.hashed_password = hashed_password
+        user.name = request.name
+        user.birth_year = request.birth_year
+        user.occupation = request.occupation
+        user.life_background = request.life_background
+        
+        # 선택 필드 업데이트
+        user.gender = request.gender
+        user.education = request.education
+        user.major = request.major
+        user.residence = request.residence
+        user.relationship_status = request.relationship_status
+        user.key_events = request.key_events
+        user.personality = request.personality
+        user.values = request.values
+        
+        # 인증 코드 갱신
+        user.verification_code = verification_code
+        # 혹시 비활성화 되어있다면 활성화
+        user.is_active = True
+        
+    else:
+        # 신규 사용자 생성 (미인증 상태)
+        user_data = request.model_dump(exclude={"password", "turnstile_token"})
+        user = User(
+            **user_data,
+            hashed_password=hashed_password,
+            auth_provider="email",
+            is_active=True,
+            is_verified=False,  # 미인증
+            verification_code=verification_code
+        )
+        db.add(user)
+
     db.commit()
     db.refresh(user)
 
