@@ -34,7 +34,23 @@ export const translations = {
             terms: "이용약관",
             privacy: "개인정보처리방침",
             contact: "문의하기",
-            rights: "© 2026 TRNT Team. All rights reserved."
+            rights: "© 2026 TRNT Team. All rights reserved.",
+            about: "서비스 소개 및 이용가이드"
+        },
+        about: {
+            title: "The Road Not Taken",
+            subtitle: "두 갈래 길이 숲속으로 나 있었고, 나는—\n사람이 적게 간 길을 택했습니다.",
+            story_title: "TRNT의 시작",
+            story_desc: "로버트 프로스트의 시 '가지 않은 길(The Road Not Taken)'은 우리의 인생과 선택에 대한 깊은 성찰을 담고 있습니다. 우리는 매 순간 선택의 기로에 서며, 선택하지 않은 길에 대해 궁금해하고 때로는 후회하기도 합니다.\n\nTRNT(The Road Not Taken)는 이러한 인간의 근원적인 호기심에서 출발했습니다. '만약 그때 다른 선택을 했다면?'이라는 질문에 AI가 답을 제시하며, 가지 않은 길을 생생하게 경험하게 해줍니다.",
+            guide_title: "서비스 이용 가이드",
+            step1_title: "회원가입 및 로그인",
+            step1_desc: "이메일 또는 소셜 로그인을 통해 간편하게 시작하세요.",
+            step2_title: "분기점 생성",
+            step2_desc: "과거의 중요한 선택 순간을 입력하고, 다른 선택지를 설정합니다.",
+            step3_title: "AI 시나리오 생성",
+            step3_desc: "당신의 성향과 선택을 분석하여 AI가 새로운 평행세계 이야기를 들려줍니다.",
+            step4_title: "탐험 및 성찰",
+            step4_desc: "생성된 이야기를 읽으며 현재의 삶을 되돌아보고 새로운 영감을 얻으세요."
         }
     },
     en: {
@@ -70,7 +86,23 @@ export const translations = {
             terms: "Terms of Service",
             privacy: "Privacy Policy",
             contact: "Contact Us",
-            rights: "© 2026 TRNT Team. All rights reserved."
+            rights: "© 2026 TRNT Team. All rights reserved.",
+            about: "Service Guide & Story"
+        },
+        about: {
+            title: "The Road Not Taken",
+            subtitle: "Two roads diverged in a wood, and I—\nI took the one less traveled by.",
+            story_title: "Origin of TRNT",
+            story_desc: "Robert Frost's poem 'The Road Not Taken' reflects deeply on our lives and choices. At every moment, we stand at a crossroads, wondering about the paths we didn't take.\n\nTRNT (The Road Not Taken) began with this fundamental human curiosity. AI answers the question 'What if?' allowing you to vividly experience the road not taken.",
+            guide_title: "User Guide",
+            step1_title: "Sign Up & Login",
+            step1_desc: "Start easily with email or social login.",
+            step2_title: "Create Branch Point",
+            step2_desc: "Input a crucial past choice and define an alternative option.",
+            step3_title: "AI Scenario Generation",
+            step3_desc: "AI analyzes your traits and choices to tell a new multiverse story.",
+            step4_title: "Explore & Reflect",
+            step4_desc: "Read the generated story to reflect on your current life and gain new inspiration."
         }
     },
     ja: {
@@ -106,7 +138,23 @@ export const translations = {
             terms: "利用規約",
             privacy: "プライバシーポリシー",
             contact: "お問い合わせ",
-            rights: "© 2026 TRNT Team. All rights reserved."
+            rights: "© 2026 TRNT Team. All rights reserved.",
+            about: "サービス紹介・ガイド"
+        },
+        about: {
+            title: "The Road Not Taken",
+            subtitle: "森の中で道が二つに分かれていた、そして私は—\n人があまり通らない道を選んだ。",
+            story_title: "TRNTの始まり",
+            story_desc: "ロバート・フロストの詩「選ばれざる道（The Road Not Taken）」は、私たちの人生と選択について深く省察しています。私たちは常に選択の岐路に立っており、選ばなかった道について思いを巡らせます。\n\nTRNT（The Road Not Taken）は、人間の根源的な好奇心から始まりました。「もしあの時、違う選択をしていたら？」という問いにAIが答えを出し、選ばれざる道を鮮やかに体験させてくれます。",
+            guide_title: "ご利用ガイド",
+            step1_title: "会員登録・ログイン",
+            step1_desc: "メールまたはソーシャルログインで簡単に始められます。",
+            step2_title: "分岐点作成",
+            step2_desc: "過去の重要な選択の瞬間を入力し、別の選択肢を設定します。",
+            step3_title: "AIシナリオ生成",
+            step3_desc: "あなたの性格と選択を分析し、AIが新しい並行世界の物語を語ります。",
+            step4_title: "探求と省察",
+            step4_desc: "生成された物語を読みながら現在の人生を振り返り、新しいインスピレーションを得てください。"
         }
     },
     zh: {
@@ -142,7 +190,23 @@ export const translations = {
             terms: "使用条款",
             privacy: "隐私政策",
             contact: "联系我们",
-            rights: "© 2026 TRNT Team. All rights reserved."
+            rights: "© 2026 TRNT Team. All rights reserved.",
+            about: "服务介绍与指南"
+        },
+        about: {
+            title: "The Road Not Taken",
+            subtitle: "林中分出了两条路，而我—\n我选择了人迹更少的一条。",
+            story_title: "TRNT的起源",
+            story_desc: "罗伯特·弗罗斯特的诗《未选择的路 (The Road Not Taken)》对我们的人生和选择进行了深刻的思考。我们每时每刻都站在选择的十字路口，对自己未选择的路充满好奇。\n\nTRNT (The Road Not Taken) 正是源于这种人类根本的好奇心。AI将回答“如果当时做了不同的选择会怎样？”，让您生动地体验那条未走过的路。",
+            guide_title: "使用指南",
+            step1_title: "注册与登录",
+            step1_desc: "通过电子邮件或社交登录轻松开始。",
+            step2_title: "创建分岔点",
+            step2_desc: "输入过去重要的选择时刻，并设定另一个选项。",
+            step3_title: "AI 剧本生成",
+            step3_desc: "分析您的性格和选择，AI将为您讲述新的平行世界故事。",
+            step4_title: "探索与反思",
+            step4_desc: "阅读生成的故事，回顾当前的生活并获得新的灵感。"
         }
     }
 };

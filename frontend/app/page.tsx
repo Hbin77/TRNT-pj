@@ -120,21 +120,25 @@ export default function Home() {
               <motion.div
                 animate={{ y: [0, 25, 0] }}
                 transition={{ repeat: Infinity, duration: 7, ease: "easeInOut", delay: 1 }}
-                className="absolute -bottom-10 -right-10 w-72 z-30"
+                className="absolute -bottom-10 -right-10 w-80 z-30"
               >
-                <GlassCard className="bg-white/5 backdrop-blur-md border-white/10 p-6">
-                  <div className="flex items-center space-x-3 mb-3">
-                    <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                      <GitBranch className="text-purple-400" />
-                    </div>
-                    <div>
-                      <div className="text-sm text-gray-400">Current Timeline</div>
-                      <div className="font-semibold text-white">평범한 직장인</div>
+                <GlassCard className="bg-[#0A0A0F]/80 backdrop-blur-xl border-white/10 p-6 shadow-2xl">
+                  <div className="flex flex-col relative">
+                    <Quote className="w-8 h-8 text-blue-400/50 absolute -top-2 -left-2 rotate-180" />
+                    <blockquote className="text-white/90 text-sm leading-relaxed font-medium italic pl-6 pt-2 mb-4 font-serif">
+                      &quot;Two roads diverged in a wood, and I—<br />
+                      I took the one less traveled by.&quot;
+                    </blockquote>
+                    <div className="flex items-center justify-end space-x-3 border-t border-white/5 pt-3">
+                      <div className="text-right">
+                        <div className="text-xs text-blue-300 font-bold tracking-wide">Robert Frost</div>
+                        <div className="text-[10px] text-white/40 uppercase tracking-widest">The Road Not Taken</div>
+                      </div>
+                      <div className="w-8 h-8 rounded-full bg-blue-900/30 flex items-center justify-center border border-blue-500/20">
+                        <span className="text-xs">🍂</span>
+                      </div>
                     </div>
                   </div>
-                  <p className="text-xs text-gray-400 leading-relaxed">
-                    &quot;매일 아침 7시 기상을 반복하며 주말만을 기다리는 삶. 하지만 마음 한편에는...&quot;
-                  </p>
                 </GlassCard>
               </motion.div>
 
@@ -232,11 +236,11 @@ export default function Home() {
             <Sparkles className="w-5 h-5" />
             <span className="font-bold text-lg">TRNT</span>
           </div>
-          <p className="mb-4">Time Reversal Narrative Therapy</p>
+          <p className="mb-4">The Road Not Taken</p>
           <div className="flex justify-center space-x-6 text-sm mb-8">
-            <a href="#" className="hover:text-white transition-colors">{t('footer.terms')}</a>
-            <a href="#" className="hover:text-white transition-colors">{t('footer.privacy')}</a>
-            <a href="#" className="hover:text-white transition-colors">{t('footer.contact')}</a>
+            <Link href="/terms" className="hover:text-white transition-colors">{t('footer.terms')}</Link>
+            <Link href="/privacy" className="hover:text-white transition-colors">{t('footer.privacy')}</Link>
+            <Link href="/about" className="hover:text-white transition-colors">{t('footer.about')}</Link>
           </div>
           <p className="text-xs">{t('footer.rights')}</p>
         </footer>
