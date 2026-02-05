@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Logo } from '@/components/ui/Logo';
 import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles, BookOpen, Compass, Quote, GitBranch, PlayCircle } from 'lucide-react';
+import { ArrowRight, Sparkles, BookOpen, Compass, PlayCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
@@ -116,69 +116,29 @@ export default function Home() {
             className="relative hidden lg:block"
           >
             <div className="relative w-full aspect-[4/3] max-w-[600px] mx-auto perspective-1000">
-              {/* Floating Cards Effect */}
+              {/* Main Visual - Infinite Possibilities Card */}
               <motion.div
-                animate={{ y: [0, -20, 0] }}
+                animate={{ y: [0, -10, 0] }}
                 transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-                className="absolute top-10 right-10 w-64 z-20"
+                className="relative z-10 w-full h-full rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-transparent backdrop-blur-md transform rotate-[-6deg] overflow-hidden shadow-2xl group"
               >
-                <GlassCard className="bg-white/10 backdrop-blur-xl border-white/20 p-6">
-                  <div className="relative z-10 p-8 h-full flex flex-col justify-end">
-                    <Quote className="w-8 h-8 text-blue-400 mb-4 opacity-50" />
-                    <p className="text-white/80 text-lg mb-6 leading-relaxed">
-                      &quot;하지 않은 선택에 대한 미련이 늘 있었는데,
-                      이곳에서 그 삶을 경험해보고 나니
-                      지금의 제 삶을 더 사랑하게 되었습니다.&quot;
-                    </p>
-                    <div className="flex items-center space-x-4">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center font-bold text-white">
-                        JS
-                      </div>
-                      <div>
-                        <div className="font-bold text-white">Ji-Soo Kim</div>
-                        <div className="text-sm text-white/50">Early Access User</div>
-                      </div>
-                    </div>
-                  </div>
-                </GlassCard>
-              </motion.div>
+                <div className="absolute inset-0 bg-blue-500/10 mix-blend-overlay z-10" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent z-10" />
 
-              <motion.div
-                animate={{ y: [0, 25, 0] }}
-                transition={{ repeat: Infinity, duration: 7, ease: "easeInOut", delay: 1 }}
-                className="absolute bottom-20 left-0 w-72 z-30"
-              >
-                <GlassCard className="bg-white/5 backdrop-blur-md border-white/10 p-6">
-                  <div className="flex items-center space-x-3 mb-3">
-                    <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                      <GitBranch className="text-purple-400" />
-                    </div>
-                    <div>
-                      <div className="text-sm text-gray-400">Current Timeline</div>
-                      <div className="font-semibold text-white">평범한 직장인</div>
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-400 leading-relaxed">
-                    &quot;매일 아침 7시 기상을 반복하며 주말만을 기다리는 삶. 하지만 마음 한편에는...&quot;
-                  </p>
-                </GlassCard>
-              </motion.div>
+                <img
+                  src="/hero-visual.png"
+                  alt="Infinite Possibilities"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
 
-              {/* Main Visual Gradient Mesh */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-primary/30 to-accent/30 rounded-full blur-[80px] z-0" />
-              <img
-                src="/hero-visual.png"
-                alt="Multiverse Visualization"
-                className="relative z-10 w-full h-full object-contain drop-shadow-2xl opacity-0"
-                onLoad={(e) => e.currentTarget.classList.remove('opacity-0')}
-              />
-              {/* Fallback shape if image missing */}
-              <div className="relative z-0 w-full h-full rounded-3xl border border-white/5 bg-gradient-to-br from-white/5 to-transparent backdrop-blur-sm transform rotate-[-5deg] flex items-center justify-center">
-                <div className="text-center p-10">
-                  <div className="text-6xl mb-6">🌌</div>
-                  <div className="text-2xl font-bold text-white/50">Infinite Possibilities</div>
+                {/* Original Label Overlay */}
+                <div className="absolute bottom-6 left-0 right-0 text-center z-20">
+                  <div className="inline-flex items-center space-x-2 bg-black/30 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
+                    <Sparkles className="w-4 h-4 text-blue-400" />
+                    <span className="text-sm font-medium text-white/90">Infinite Possibilities</span>
+                  </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
           </motion.div>
         </div>
