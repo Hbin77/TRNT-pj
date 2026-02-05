@@ -92,8 +92,15 @@ class EmailService:
             return
 
         try:
+            from email.header import Header
+            from email.utils import formataddr
+
             msg = MIMEMultipart()
-            msg["From"] = settings.SMTP_USERNAME
+            
+            # 발신자 이름 설정 (UTF-8 인코딩)
+            sender_name = str(Header("TRNT 이메일 인증", "utf-8"))
+            msg["From"] = formataddr((sender_name, settings.SMTP_USERNAME))
+            
             msg["To"] = to_email
             msg["Subject"] = subject
             msg.attach(MIMEText(html_content, "html"))
