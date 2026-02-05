@@ -8,6 +8,7 @@ import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Sparkles } from 'lucide-react';
+import { GlassCard } from '@/components/ui/GlassCard';
 import type { LoginRequest } from '@/types';
 import { AxiosError } from 'axios';
 
@@ -40,23 +41,28 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center px-4">
-      <div className="max-w-md w-full">
-        {/* Logo */}
-        <Link href="/" className="flex items-center justify-center space-x-2 mb-8">
-          <Sparkles className="w-8 h-8 text-blue-600" />
-          <h1 className="text-2xl font-bold text-gray-900">TRNT</h1>
-        </Link>
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden">
+      {/* Background Elements */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/20 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <h2 className="text-4xl font-bold text-center mb-2 text-gray-900">로그인</h2>
-          <p className="text-center text-gray-700 mb-8 font-medium">
-            평행세계로 돌아오신 것을 환영합니다
-          </p>
+      <div className="max-w-md w-full relative z-10">
+        <div className="text-center mb-8">
+          <Link href="/" className="inline-flex items-center space-x-2 mb-6 group">
+            <div className="p-3 rounded-xl bg-white/5 border border-white/10 group-hover:border-primary/50 transition-colors">
+              <Sparkles className="w-8 h-8 text-primary" />
+            </div>
+            <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+              TRNT
+            </span>
+          </Link>
+          <h2 className="text-2xl font-bold text-white mb-2">다시 오신 것을 환영합니다</h2>
+          <p className="text-gray-400">당신의 평행세계가 기다리고 있습니다</p>
+        </div>
 
+        <GlassCard>
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+            <div className="bg-red-500/10 border border-red-500/20 text-red-200 px-4 py-3 rounded-xl mb-6 text-sm">
               {error}
             </div>
           )}
@@ -65,7 +71,7 @@ export default function LoginPage() {
             <Input
               label="이메일"
               type="email"
-              placeholder="your@email.com"
+              placeholder="name@example.com"
               error={errors.email?.message}
               {...register('email', {
                 required: '이메일을 입력해주세요',
@@ -86,24 +92,18 @@ export default function LoginPage() {
               })}
             />
 
-            <Button type="submit" className="w-full" isLoading={isLoading}>
+            <Button type="submit" className="w-full" size="lg" isLoading={isLoading}>
               로그인
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-gray-600">
+          <div className="mt-8 pt-6 border-t border-white/5 text-center text-sm text-gray-400">
             아직 계정이 없으신가요?{' '}
-            <Link href="/register" className="text-blue-600 hover:underline font-medium">
-              회원가입
+            <Link href="/register" className="text-primary hover:text-primary/80 font-medium transition-colors">
+              회원가입하기
             </Link>
           </div>
-        </div>
-
-        <div className="text-center mt-6">
-          <Link href="/" className="text-gray-600 hover:text-gray-900 text-sm">
-            ← 홈으로 돌아가기
-          </Link>
-        </div>
+        </GlassCard>
       </div>
     </div>
   );

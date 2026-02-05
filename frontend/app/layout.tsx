@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { LanguageProvider } from '@/lib/i18n/LanguageContext';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,11 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TRNT - 평행세계 인생 시뮬레이터",
-  description: "만약 다른 선택을 했다면? AI가 그려주는 당신의 평행세계 이야기",
-  icons: {
-    icon: "/logo.svg",
-  },
+  title: "TRNT - 평행세계 시뮬레이터",
+  description: "AI가 그려주는 당신의 또 다른 삶",
 };
 
 export default function RootLayout({
@@ -26,11 +24,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ko">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <LanguageProvider>
+          {children}
+        </LanguageProvider>
       </body>
     </html>
   );

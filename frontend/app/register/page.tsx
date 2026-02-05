@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Turnstile } from '@marsidev/react-turnstile';
 import { Sparkles } from 'lucide-react';
+import { GlassCard } from '@/components/ui/GlassCard';
 import type { RegisterRequest } from '@/types';
 import { AxiosError } from 'axios';
 
@@ -43,113 +44,120 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4">
-      <div className="max-w-2xl mx-auto">
-        <Link href="/" className="flex items-center justify-center space-x-2 mb-8">
-          <Sparkles className="w-8 h-8 text-blue-600" />
-          <h1 className="text-2xl font-bold text-gray-900">TRNT</h1>
-        </Link>
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden">
+      {/* Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[100px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-accent/20 rounded-full blur-[100px]" />
+      </div>
 
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <h2 className="text-4xl font-bold text-center mb-2 text-gray-900">회원가입</h2>
-          <p className="text-center text-gray-700 mb-8 font-medium">
-            평행세계로의 첫 걸음을 시작하세요
-          </p>
+      <div className="max-w-2xl w-full relative z-10">
+        <div className="text-center mb-8">
+          <Link href="/" className="inline-flex items-center space-x-2 mb-6 group">
+            <div className="p-3 rounded-xl bg-white/5 border border-white/10 group-hover:border-primary/50 transition-colors">
+              <Sparkles className="w-8 h-8 text-primary" />
+            </div>
+            <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+              TRNT
+            </span>
+          </Link>
+          <h2 className="text-2xl font-bold text-white mb-2">새로운 여정의 시작</h2>
+          <p className="text-gray-400">당신의 이야기를 들려주세요</p>
+        </div>
 
+        <GlassCard>
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+            <div className="bg-red-500/10 border border-red-500/20 text-red-200 px-4 py-3 rounded-xl mb-6 text-sm">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
             {/* 로그인 정보 */}
             <div className="space-y-4">
-              <h3 className="font-bold text-xl text-gray-900 border-b-2 border-blue-500 pb-2">로그인 정보</h3>
+              <h3 className="font-semibold text-lg text-white border-b border-white/10 pb-2">로그인 정보</h3>
 
-              <Input
-                label="이메일"
-                type="email"
-                placeholder="your@email.com"
-                required
-                error={errors.email?.message}
-                {...register('email', {
-                  required: '이메일을 입력해주세요',
-                  pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: '올바른 이메일 형식이 아닙니다',
-                  },
-                })}
-              />
+              <div className="grid md:grid-cols-2 gap-4">
+                <Input
+                  label="이메일"
+                  type="email"
+                  placeholder="name@example.com"
+                  required
+                  error={errors.email?.message}
+                  {...register('email', {
+                    required: '이메일을 입력해주세요',
+                    pattern: {
+                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                      message: '올바른 이메일 형식이 아닙니다',
+                    },
+                  })}
+                />
 
-              <Input
-                label="비밀번호"
-                type="password"
-                placeholder="8자 이상, 대문자/숫자/특수문자 포함"
-                required
-                error={errors.password?.message}
-                {...register('password', {
-                  required: '비밀번호를 입력해주세요',
-                  minLength: {
-                    value: 8,
-                    message: '비밀번호는 최소 8자 이상이어야 합니다',
-                  },
-                  pattern: {
-                    value: /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/,
-                    message: '대문자, 숫자, 특수문자를 포함해야 합니다',
-                  },
-                })}
-              />
+                <Input
+                  label="비밀번호"
+                  type="password"
+                  placeholder="8자 이상"
+                  required
+                  error={errors.password?.message}
+                  {...register('password', {
+                    required: '비밀번호를 입력해주세요',
+                    minLength: {
+                      value: 8,
+                      message: '비밀번호는 최소 8자 이상이어야 합니다',
+                    },
+                    pattern: {
+                      value: /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/,
+                      message: '대문자, 숫자, 특수문자 포함',
+                    },
+                  })}
+                />
+              </div>
             </div>
 
             {/* 기본 정보 */}
             <div className="space-y-4">
-              <h3 className="font-bold text-xl text-gray-900 border-b-2 border-blue-500 pb-2">기본 정보</h3>
+              <h3 className="font-semibold text-lg text-white border-b border-white/10 pb-2">기본 정보</h3>
 
-              <Input
-                label="이름"
-                placeholder="홍길동"
-                required
-                error={errors.name?.message}
-                {...register('name', { required: '이름을 입력해주세요' })}
-              />
+              <div className="grid md:grid-cols-3 gap-4">
+                <Input
+                  label="이름"
+                  placeholder="이름/닉네임"
+                  required
+                  error={errors.name?.message}
+                  {...register('name', { required: '이름을 입력해주세요' })}
+                />
 
-              <Input
-                label="출생연도"
-                type="number"
-                placeholder="1995"
-                required
-                error={errors.birth_year?.message}
-                {...register('birth_year', {
-                  required: '출생연도를 입력해주세요',
-                  valueAsNumber: true,
-                  min: {
-                    value: 1900,
-                    message: '1900년 이후를 입력해주세요',
-                  },
-                  max: {
-                    value: new Date().getFullYear(),
-                    message: '올바른 연도를 입력해주세요',
-                  },
-                })}
-              />
+                <Input
+                  label="출생연도"
+                  type="number"
+                  placeholder="1995"
+                  required
+                  error={errors.birth_year?.message}
+                  {...register('birth_year', {
+                    required: '필수',
+                    valueAsNumber: true,
+                    min: { value: 1900, message: '1900년 이후' },
+                    max: { value: new Date().getFullYear(), message: '올바른 연도' },
+                  })}
+                />
 
-              <Input
-                label="직업"
-                placeholder="개발자"
-                required
-                error={errors.occupation?.message}
-                {...register('occupation', { required: '직업을 입력해주세요' })}
-              />
+                <Input
+                  label="직업"
+                  placeholder="현재 직업"
+                  required
+                  error={errors.occupation?.message}
+                  {...register('occupation', { required: '직업을 입력해주세요' })}
+                />
+              </div>
             </div>
 
             {/* 인생 배경 */}
             <div className="space-y-4">
-              <h3 className="font-bold text-xl text-gray-900 border-b-2 border-blue-500 pb-2">인생 배경</h3>
+              <h3 className="font-semibold text-lg text-white border-b border-white/10 pb-2">인생 배경</h3>
 
               <Textarea
-                label="배경 스토리"
-                placeholder="당신의 인생 이야기를 간단히 들려주세요. 어떤 선택들을 해왔고, 어떤 삶을 살아왔나요?"
+                label="배경 스토리 (핵심)"
+                placeholder="인생의 주요 분기점이나 현재 상황을 간략히 설명해주세요. 이 내용은 AI가 당신의 캐릭터를 이해하는 데 사용됩니다."
                 rows={4}
                 required
                 error={errors.life_background?.message}
@@ -158,48 +166,48 @@ export default function RegisterPage() {
                 })}
               />
 
-              <Textarea
-                label="성격/MBTI (선택)"
-                placeholder="예: ENFP, 외향적이고 호기심 많은 성격"
-                rows={2}
-                {...register('personality')}
-              />
+              <div className="grid md:grid-cols-2 gap-4">
+                <Textarea
+                  label="성격/MBTI"
+                  placeholder="예: ENFP, 외향적임"
+                  rows={2}
+                  {...register('personality')}
+                />
 
-              <Textarea
-                label="가치관 (선택)"
-                placeholder="예: 자유와 창의성을 중시하며, 새로운 경험을 추구함"
-                rows={2}
-                {...register('values')}
-              />
+                <Textarea
+                  label="가치관"
+                  placeholder="예: 자유, 도전"
+                  rows={2}
+                  {...register('values')}
+                />
+              </div>
             </div>
 
             {/* Turnstile Widget */}
-            <div className="flex justify-center my-4">
-              <Turnstile
-                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'}
-                onSuccess={(token) => setTurnstileToken(token)}
-                onError={() => setError('로봇 인증에 실패했습니다.')}
-              />
+            <div className="flex justify-center my-6">
+              <div className="bg-white/5 p-4 rounded-xl border border-white/10">
+                <Turnstile
+                  siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'}
+                  onSuccess={(token) => setTurnstileToken(token)}
+                  onError={() => setError('로봇 인증에 실패했습니다.')}
+                  className="mx-auto"
+                  options={{ theme: 'dark' }} // Force dark theme for widget
+                />
+              </div>
             </div>
 
-            <Button type="submit" className="w-full" size="lg" isLoading={isLoading} disabled={!turnstileToken}>
-              {turnstileToken ? '회원가입하고 시작하기' : '로봇이 아닙니다 (체크 필요)'}
+            <Button type="submit" className="w-full" size="lg" isLoading={isLoading} disabled={!turnstileToken} variant={turnstileToken ? "primary" : "secondary"}>
+              {turnstileToken ? '새로운 세계로 입장하기' : '로봇 인증을 완료해주세요'}
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-gray-600">
+          <div className="mt-8 pt-6 border-t border-white/5 text-center text-sm text-gray-400">
             이미 계정이 있으신가요?{' '}
-            <Link href="/login" className="text-blue-600 hover:underline font-medium">
-              로그인
+            <Link href="/login" className="text-primary hover:text-primary/80 font-medium transition-colors">
+              로그인하기
             </Link>
           </div>
-        </div>
-
-        <div className="text-center mt-6">
-          <Link href="/" className="text-gray-600 hover:text-gray-900 text-sm">
-            ← 홈으로 돌아가기
-          </Link>
-        </div>
+        </GlassCard>
       </div>
     </div>
   );

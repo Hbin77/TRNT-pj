@@ -2,127 +2,271 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
-import { Sparkles, BookOpen, Zap } from 'lucide-react';
+import { GlassCard } from '@/components/ui/GlassCard';
+import { motion } from 'framer-motion';
+import { Sparkles, Compass, BookOpen, GitBranch, ArrowRight, PlayCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 
 export default function Home() {
+  const { t } = useLanguage();
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <div className="min-h-screen relative overflow-hidden text-white selection:bg-primary/30">
+
+      {/* Background Ambience */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/20 rounded-full blur-[120px] animate-pulse-slow" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-accent/20 rounded-full blur-[120px] animate-pulse-slow delay-1000" />
+        <div className="absolute top-[40%] left-[40%] w-[30%] h-[30%] bg-blue-500/10 rounded-full blur-[100px]" />
+      </div>
+
+      {/* Navigation */}
+      <nav className="relative z-50 container mx-auto px-6 py-6 flex justify-between items-center">
+        <Link href="/" className="flex items-center space-x-3 group">
+          <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 group-hover:bg-white/10 transition-colors">
+            <Sparkles className="w-6 h-6 text-primary" />
+          </div>
+          <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+            TRNT
+          </span>
+        </Link>
+        <div className="hidden md:flex items-center space-x-4">
+          <Link href="/login">
+            <Button variant="ghost" className="text-gray-400 hover:text-white">{t('nav.login')}</Button>
+          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/register">
+              <Button className="shadow-lg shadow-primary/20">{t('nav.start')}</Button>
+            </Link>
+            <LanguageSwitcher />
+          </div>
+        </div>
+      </nav>
+
       {/* Hero Section */}
-      <div className="container mx-auto px-4 py-16">
-        <nav className="flex justify-between items-center mb-16">
-          <Link href="/" className="flex items-center space-x-2">
-            <img src="/logo.svg" alt="TRNT Logo" className="w-10 h-10 object-contain" />
-            <h1 className="text-2xl font-black text-gray-900 tracking-tight">TRNT</h1>
-          </Link>
-          <div className="space-x-4">
-            <Link href="/login">
-              <Button variant="ghost">로그인</Button>
-            </Link>
-            <Link href="/register">
-              <Button>시작하기</Button>
-            </Link>
-          </div>
-        </nav>
+      <main className="relative z-10 pt-16 pb-32 container mx-auto px-6">
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
 
-        <div className="text-center max-w-4xl mx-auto">
-          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-            만약 다른 선택을 했다면?
-            <br />
-            <span className="text-blue-600">평행세계의 나</span>를 만나보세요
-          </h2>
-          <p className="text-xl text-gray-800 mb-8 leading-relaxed font-medium">
-            인생의 분기점에서 다른 선택을 했다면 어떤 삶을 살고 있을까요?
-            <br />
-            AI가 당신의 평행세계 이야기를 생생하게 그려드립니다.
-          </p>
-          <div className="flex justify-center space-x-4">
-            <Link href="/register">
-              <Button size="lg" className="text-lg">
-                <Sparkles className="w-5 h-5 mr-2" />
-                무료로 시작하기
-              </Button>
-            </Link>
-            <Link href="#how-it-works">
-              <Button size="lg" variant="outline" className="text-lg">
-                어떻게 작동하나요?
-              </Button>
-            </Link>
-          </div>
+          {/* Hero Content */}
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={containerVariants}
+            className="text-left space-y-8"
+          >
+            <motion.div variants={itemVariants} className="inline-flex items-center px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary-foreground text-sm font-medium">
+              <span className="relative flex h-2 w-2 mr-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+              </span>
+              {t('hero.badge')}
+            </motion.div>
+
+            <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl font-bold leading-tight tracking-tight">
+              {t('hero.title_prefix')} <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-purple-400">{t('hero.title_highlight')}</span>{t('hero.title_suffix')}
+            </motion.h1>
+
+            <motion.p variants={itemVariants} className="text-lg text-gray-400 max-w-xl leading-relaxed">
+              {t('hero.description')}
+            </motion.p>
+
+            <motion.div variants={itemVariants} className="flex flex-wrap gap-4 pt-4">
+              <Link href="/register" className="w-full sm:w-auto">
+                <Button size="lg" className="w-full sm:w-auto text-lg h-14 px-8 shadow-xl shadow-primary/25 hover:shadow-primary/40 transition-shadow">
+                  {t('hero.start_btn')}
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+              <Link href="#preview" className="w-full sm:w-auto">
+                <Button size="lg" variant="secondary" className="w-full sm:w-auto text-lg h-14 px-8 bg-white/5 border-white/10 hover:bg-white/10">
+                  <PlayCircle className="mr-2 w-5 h-5" />
+                  {t('hero.preview_btn')}
+                </Button>
+              </Link>
+            </motion.div>
+
+            <motion.div variants={itemVariants} className="pt-8 flex items-center space-x-6 text-sm text-gray-500">
+              <div className="flex -space-x-3">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className={`w-10 h-10 rounded-full border-2 border-[#030712] flex items-center justify-center text-xs font-bold text-white z-${10 - i}`} style={{ backgroundColor: `hsl(${220 + i * 10}, 70%, ${50 + i * 5}%)` }}>
+                    {String.fromCharCode(64 + i)}
+                  </div>
+                ))}
+              </div>
+              <p>{t('hero.stats')}</p>
+            </motion.div>
+          </motion.div>
+
+          {/* Hero Visual - Abstract 3D Representation */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="relative hidden lg:block"
+          >
+            <div className="relative w-full aspect-square max-w-[600px] mx-auto perspective-1000">
+              {/* Floating Cards Effect */}
+              <motion.div
+                animate={{ y: [0, -20, 0] }}
+                transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+                className="absolute top-10 right-10 w-64 z-20"
+              >
+                <GlassCard className="bg-white/10 backdrop-blur-xl border-white/20 p-6">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                      <Compass className="text-blue-400" />
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-400">Scenario #42</div>
+                      <div className="font-semibold text-white">해외 유학을 떠난 나</div>
+                    </div>
+                  </div>
+                  <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
+                    <div className="h-full w-[85%] bg-blue-500 rounded-full" />
+                  </div>
+                  <div className="mt-2 text-xs text-right text-blue-300">성공률 85%</div>
+                </GlassCard>
+              </motion.div>
+
+              <motion.div
+                animate={{ y: [0, 25, 0] }}
+                transition={{ repeat: Infinity, duration: 7, ease: "easeInOut", delay: 1 }}
+                className="absolute bottom-20 left-0 w-72 z-30"
+              >
+                <GlassCard className="bg-white/5 backdrop-blur-md border-white/10 p-6">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                      <GitBranch className="text-purple-400" />
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-400">Current Timeline</div>
+                      <div className="font-semibold text-white">평범한 직장인</div>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-400 leading-relaxed">
+                    "매일 아침 7시 기상을 반복하며 주말만을 기다리는 삶. 하지만 마음 한편에는..."
+                  </p>
+                </GlassCard>
+              </motion.div>
+
+              {/* Main Visual Gradient Mesh */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-primary/30 to-accent/30 rounded-full blur-[80px] z-0" />
+              <img
+                src="/hero-visual.png"
+                alt="Multiverse Visualization"
+                className="relative z-10 w-full h-full object-contain drop-shadow-2xl opacity-0"
+                onLoad={(e) => e.currentTarget.classList.remove('opacity-0')}
+              />
+              {/* Fallback shape if image missing */}
+              <div className="relative z-0 w-full h-full rounded-3xl border border-white/5 bg-gradient-to-br from-white/5 to-transparent backdrop-blur-sm transform rotate-[-5deg] flex items-center justify-center">
+                <div className="text-center p-10">
+                  <div className="text-6xl mb-6">🌌</div>
+                  <div className="text-2xl font-bold text-white/50">Infinite Possibilities</div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
         </div>
 
-        {/* Hero Image Placeholder */}
-        <div className="mt-16 max-w-5xl mx-auto">
-          <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl p-12 shadow-xl">
-            <div className="text-center">
-              <p className="text-6xl mb-4">🌌</p>
-              <p className="text-gray-800 text-lg font-medium">
-                &quot;서울대 진학 대신 해외 유학을 갔다면?&quot;
-                <br />
-                &quot;지금 회사에 입사하지 않았다면?&quot;
-                <br />
-                당신의 또 다른 인생 이야기
+        {/* Features Bento Grid */}
+        <section className="mt-32">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">{t('features.title')}</h2>
+            <p className="text-gray-400 text-lg">{t('features.subtitle')}</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            {/* Feature 1 (Large) */}
+            <GlassCard className="md:col-span-2 md:row-span-2 p-10 flex flex-col justify-between overflow-hidden relative group border-primary/20 bg-primary/5">
+              <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                <BookOpen className="w-40 h-40" />
+              </div>
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center mb-6 text-primary">
+                  <Compass className="w-6 h-6" />
+                </div>
+                <h3 className="text-3xl font-bold text-white mb-4">{t('features.engine_title')}</h3>
+                <p className="text-lg text-gray-300 leading-relaxed max-w-md">
+                  {t('features.engine_desc')}
+                </p>
+              </div>
+              <div className="mt-8">
+                <div className="flex items-center space-x-2 text-primary font-medium">
+                  <span>{t('features.try_btn')}</span> <ArrowRight className="w-4 h-4" />
+                </div>
+              </div>
+            </GlassCard>
+
+            {/* Feature 2 */}
+            <GlassCard className="p-8 hover:bg-white/10 transition-colors">
+              <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center mb-4 text-purple-400">
+                <GitBranch className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">{t('features.sim_title')}</h3>
+              <p className="text-gray-400">
+                {t('features.sim_desc')}
               </p>
-            </div>
+            </GlassCard>
+
+            {/* Feature 3 */}
+            <GlassCard className="p-8 hover:bg-white/10 transition-colors">
+              <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center mb-4 text-blue-400">
+                <Sparkles className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">{t('features.visual_title')}</h3>
+              <p className="text-gray-400">
+                {t('features.visual_desc')}
+              </p>
+            </GlassCard>
+
+            {/* Feature 4 (Wide) */}
+            <GlassCard className="md:col-span-3 p-8 flex items-center justify-between flex-wrap gap-6 bg-gradient-to-r from-gray-900 to-gray-800">
+              <div className="flex-1 min-w-[300px]">
+                <h3 className="text-xl font-bold text-white mb-2">{t('features.cta_title')}</h3>
+                <p className="text-gray-400">
+                  {t('features.cta_desc')}
+                </p>
+              </div>
+              <Link href="/register">
+                <Button variant="outline" className="h-12 border-white/20 hover:bg-white/10">
+                  {t('features.free_btn')}
+                </Button>
+              </Link>
+            </GlassCard>
+
           </div>
-        </div>
-      </div>
+        </section>
 
-      {/* Features Section */}
-      <div id="how-it-works" className="container mx-auto px-4 py-16">
-        <h3 className="text-4xl font-bold text-center mb-12 text-gray-900">어떻게 작동하나요?</h3>
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          <div className="bg-white p-8 rounded-xl shadow-md">
-            <div className="bg-blue-100 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-              <BookOpen className="w-6 h-6 text-blue-600" />
-            </div>
-            <h4 className="text-xl font-bold mb-3 text-gray-900">1. 분기점 입력</h4>
-            <p className="text-gray-800 leading-relaxed">
-              인생의 중요한 선택 순간을 떠올려보세요. &quot;그때 다른 선택을 했다면?&quot;이라는 질문에 답해보세요.
-            </p>
+        {/* Footer */}
+        <footer className="mt-32 pt-16 border-t border-white/5 text-center text-gray-500 pb-8">
+          <div className="flex items-center justify-center space-x-2 mb-4 opacity-50">
+            <Sparkles className="w-5 h-5" />
+            <span className="font-bold text-lg">TRNT</span>
           </div>
-
-          <div className="bg-white p-8 rounded-xl shadow-md">
-            <div className="bg-purple-100 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-              <Zap className="w-6 h-6 text-purple-600" />
-            </div>
-            <h4 className="text-xl font-bold mb-3 text-gray-900">2. AI 시나리오 생성</h4>
-            <p className="text-gray-800 leading-relaxed">
-              당신의 프로필과 분기점을 바탕으로 AI가 생생한 평행세계 이야기를 만들어드립니다.
-            </p>
+          <p className="mb-4">Time Reversal Narrative Therapy</p>
+          <div className="flex justify-center space-x-6 text-sm mb-8">
+            <a href="#" className="hover:text-white transition-colors">{t('footer.terms')}</a>
+            <a href="#" className="hover:text-white transition-colors">{t('footer.privacy')}</a>
+            <a href="#" className="hover:text-white transition-colors">{t('footer.contact')}</a>
           </div>
-
-          <div className="bg-white p-8 rounded-xl shadow-md">
-            <div className="bg-green-100 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-              <Sparkles className="w-6 h-6 text-green-600" />
-            </div>
-            <h4 className="text-xl font-bold mb-3 text-gray-900">3. 평행세계 탐험</h4>
-            <p className="text-gray-800 leading-relaxed">
-              다른 선택으로 펼쳐진 당신의 평행세계를 읽어보세요. 후회도, 미련도 모두 이야기로 승화됩니다.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* CTA Section */}
-      <div className="bg-blue-600 text-white py-20">
-        <div className="container mx-auto px-4 text-center">
-          <h3 className="text-4xl font-black mb-6">오늘, 평행세계의 문을 열어보세요</h3>
-          <p className="text-2xl mb-10 font-bold opacity-100 text-blue-50">매일 무료 3회 생성 가능</p>
-          <Link href="/register">
-            <Button size="lg" className="bg-white !text-blue-600 hover:bg-gray-100 font-black px-12 py-4 h-auto text-xl shadow-xl">
-              지금 시작하기
-            </Button>
-          </Link>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-8">
-        <div className="container mx-auto px-4 text-center">
-          <p className="mb-2">TRNT - Time Reversal Narrative Therapy</p>
-          <p className="text-sm">© 2026 TRNT. All rights reserved.</p>
-        </div>
-      </footer>
+          <p className="text-xs">{t('footer.rights')}</p>
+        </footer>
+      </main>
     </div>
   );
 }
