@@ -10,7 +10,7 @@ import type {
   ScenarioDetail,
 } from '@/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 // Axios 인스턴스 생성
 export const api = axios.create({
