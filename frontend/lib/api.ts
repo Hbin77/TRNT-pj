@@ -2,6 +2,7 @@ import axios from 'axios';
 import type {
   LoginRequest,
   RegisterRequest,
+  VerifyEmailRequest,
   TokenResponse,
   User,
   ScenarioRequest,
@@ -51,8 +52,13 @@ api.interceptors.response.use(
 
 // 인증 API
 export const authAPI = {
-  register: async (data: RegisterRequest): Promise<TokenResponse> => {
-    const response = await api.post<TokenResponse>('/auth/register', data);
+  register: async (data: RegisterRequest): Promise<{ message: string }> => {
+    const response = await api.post<{ message: string }>('/auth/register', data);
+    return response.data;
+  },
+
+  verifyEmail: async (data: VerifyEmailRequest): Promise<TokenResponse> => {
+    const response = await api.post<TokenResponse>('/auth/verify-email', data);
     return response.data;
   },
 

@@ -18,6 +18,10 @@ class User(Base):
     auth_provider = Column(String(20), nullable=False, default="email")  # "email" or "kakao"
     kakao_id = Column(String(100), unique=True, nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
+    
+    # 이메일 인증
+    is_verified = Column(Boolean, default=False, nullable=False)
+    verification_code = Column(String(6), nullable=True)
 
     # 기본 정보
     name = Column(String(100), nullable=False)

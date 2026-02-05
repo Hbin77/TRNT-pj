@@ -16,12 +16,18 @@ export interface User {
   values?: string;
   auth_provider: string;
   is_active: boolean;
+  is_verified: boolean;
 }
 
 // 인증 관련
 export interface LoginRequest {
   email: string;
   password: string;
+}
+
+export interface VerifyEmailRequest {
+  email: string;
+  code: string;
 }
 
 export interface RegisterRequest {

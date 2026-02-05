@@ -10,6 +10,7 @@ from app.models.user import User
 from app.schemas.auth import (
     RegisterRequest,
     LoginRequest,
+    VerifyEmailRequest,
     TokenResponse,
     TokenRefreshRequest,
     CurrentUserResponse,
@@ -36,9 +37,9 @@ kakao_service = KakaoOAuthService()
 email_service = EmailService()
 
 
-@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/register", status_code=status.HTTP_201_CREATED)
 def register(request: RegisterRequest, db: Session = Depends(get_db)):
-    """이메일 회원가입"""
+    """이메일 회원가입 (인증 메일 전송)"""
 
     # 이메일 중복 체크
     existing = db.query(User).filter(User.email == request.email).first()
@@ -65,8 +66,6 @@ def register(request: RegisterRequest, db: Session = Depends(get_db)):
             if not verification.get("success"):
                 raise AuthenticationException(message="로봇 인증에 실패했습니다.")
         except Exception as e:
-            # API 오류 시 로깅 후 일단 통과시킬지, 막을지 정책 결정 필요.
-            # 여기서는 보안을 위해 실패로 처리
             if isinstance(e, AuthenticationException):
                 raise
             raise AuthenticationException(message="로봇 인증 서버 연결 실패")
@@ -74,19 +73,50 @@ def register(request: RegisterRequest, db: Session = Depends(get_db)):
     # 비밀번호 해싱
     hashed_password = auth_service.hash_password(request.password)
 
-    # 사용자 생성
+    # 인증 코드 생성 (6자리 숫자)
+    import secrets
+    verification_code = "".join([str(secrets.randbelow(10)) for _ in range(6)])
+
+    # 사용자 생성 (미인증 상태)
     user_data = request.model_dump(exclude={"password", "turnstile_token"})
     user = User(
         **user_data,
         hashed_password=hashed_password,
         auth_provider="email",
-        is_active=True
+        is_active=True,
+        is_verified=False,  # 미인증
+        verification_code=verification_code
     )
     db.add(user)
     db.commit()
     db.refresh(user)
 
-    # 토큰 생성
+    # 인증 메일 전송
+    email_service.send_verification_email(user.email, verification_code)
+
+    return {"message": "인증 메일이 전송되었습니다. 이메일을 확인해주세요."}
+
+
+@router.post("/verify-email", response_model=TokenResponse)
+def verify_email(request: VerifyEmailRequest, db: Session = Depends(get_db)):
+    """이메일 인증 코드 확인 및 로그인 처리"""
+    
+    user = db.query(User).filter(User.email == request.email).first()
+    if not user:
+        raise UserNotFoundException(user_id=request.email)
+    
+    if user.is_verified:
+        raise AuthenticationException(message="이미 인증된 계정입니다.")
+        
+    if user.verification_code != request.code:
+        raise AuthenticationException(message="인증 코드가 올바르지 않습니다.")
+        
+    # 인증 완료 처리
+    user.is_verified = True
+    user.verification_code = None  # 코드 파기
+    db.commit()
+    
+    # 토큰 생성 (자동 로그인)
     access_token = auth_service.create_access_token(user.id)
     refresh_token = auth_service.create_refresh_token(user.id)
 
@@ -115,6 +145,10 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
     # 활성 사용자 확인
     if not user.is_active:
         raise AuthenticationException(message="비활성화된 계정입니다.")
+        
+    # 이메일 인증 확인
+    if user.auth_provider == "email" and not user.is_verified:
+        raise AuthenticationException(message="이메일 인증이 완료되지 않았습니다.")
 
     # 토큰 생성
     access_token = auth_service.create_access_token(user.id)

@@ -45,6 +45,12 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class VerifyEmailRequest(BaseModel):
+    """이메일 인증 요청"""
+    email: EmailStr
+    code: str = Field(..., min_length=6, max_length=6, description="인증 코드 6자리")
+
+
 class TokenResponse(BaseModel):
     """토큰 응답"""
     access_token: str

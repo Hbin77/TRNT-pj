@@ -8,6 +8,7 @@ interface AuthState {
   isAuthenticated: boolean;
   login: (data: LoginRequest) => Promise<void>;
   register: (data: RegisterRequest) => Promise<void>;
+  verifyEmail: (email: string, code: string) => Promise<void>;
   logout: () => Promise<void>;
   fetchUser: () => Promise<void>;
   setUser: (user: User | null) => void;
@@ -39,7 +40,20 @@ export const useAuthStore = create<AuthState>((set) => ({
   register: async (data: RegisterRequest) => {
     set({ isLoading: true });
     try {
-      const response: TokenResponse = await authAPI.register(data);
+      await authAPI.register(data);
+      // 회원가입 성공 시 (인증 메일 전송됨)
+      // 토큰 설정 없음, 자동 로그인 없음
+      set({ isLoading: false });
+    } catch (error) {
+      set({ isLoading: false });
+      throw error;
+    }
+  },
+
+  verifyEmail: async (email: string, code: string) => {
+    set({ isLoading: true });
+    try {
+      const response: TokenResponse = await authAPI.verifyEmail({ email, code });
 
       // 토큰 저장
       localStorage.setItem('access_token', response.access_token);

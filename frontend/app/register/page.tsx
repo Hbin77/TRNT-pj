@@ -13,6 +13,7 @@ import { Sparkles } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import type { RegisterRequest } from '@/types';
 import { AxiosError } from 'axios';
+import VerificationModal from '@/components/auth/VerificationModal';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -20,6 +21,8 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [showVerification, setShowVerification] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState('');
 
   const {
     register,
@@ -33,7 +36,8 @@ export default function RegisterPage() {
 
     try {
       await registerUser({ ...data, turnstile_token: turnstileToken || undefined });
-      router.push('/dashboard');
+      setRegisteredEmail(data.email);
+      setShowVerification(true);
     } catch (err: unknown) {
       const error = err as AxiosError<{ error?: { message: string }, detail?: string | [] }>;
       let errorMessage = '회원가입에 실패했습니다.';
@@ -73,6 +77,12 @@ export default function RegisterPage() {
       </div>
 
       <div className="max-w-2xl w-full relative z-10">
+        <VerificationModal
+          email={registeredEmail}
+          isOpen={showVerification}
+          onClose={() => setShowVerification(false)}
+        />
+
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center space-x-2 mb-6 group">
             <div className="p-3 rounded-xl bg-white/5 border border-white/10 group-hover:border-primary/50 transition-colors">

@@ -32,6 +32,12 @@ class Settings(BaseSettings):
     # Cloudflare Turnstile
     TURNSTILE_SECRET_KEY: str = "1x0000000000000000000000000000000AA"  # Test Key
 
+    # Email (Gmail SMTP)
+    SMTP_SERVER: str = "smtp.gmail.com"
+    SMTP_PORT: int = 587
+    SMTP_USERNAME: str = ""
+    SMTP_PASSWORD: str = ""
+
     class Config:
         env_file = ".env"
 

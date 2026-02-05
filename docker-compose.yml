@@ -35,6 +35,11 @@ services:
     environment:
       # Override DB Host for Docker Network
       - DATABASE_URL=postgresql://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-trnt}
+      # SMTP Settings (from .env or shell environment)
+      - SMTP_SERVER=${SMTP_SERVER:-smtp.gmail.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
     ports:
       - "8002:8000"
     networks:
@@ -50,8 +55,8 @@ services:
     depends_on:
       - backend
     # Load env for build args if needed, or runtime envs
-    # env_file:
-    #   - ./frontend/.env.local
+    env_file:
+      - ./frontend/.env.local
     environment:
       - NEXT_PUBLIC_API_URL= # Use relative path with rewrites
       # If using server-side rendering talking to backend within docker network:
