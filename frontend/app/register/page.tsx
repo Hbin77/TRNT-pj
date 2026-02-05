@@ -8,6 +8,7 @@ import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
+import { Turnstile } from '@marsidev/react-turnstile';
 import { Sparkles } from 'lucide-react';
 import type { RegisterRequest } from '@/types';
 import { AxiosError } from 'axios';
@@ -17,6 +18,7 @@ export default function RegisterPage() {
   const registerUser = useAuthStore((state) => state.register);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   const {
     register,
@@ -29,7 +31,7 @@ export default function RegisterPage() {
     setError('');
 
     try {
-      await registerUser(data);
+      await registerUser({ ...data, turnstile_token: turnstileToken || undefined });
       router.push('/dashboard');
     } catch (err: unknown) {
       const error = err as AxiosError<{ error: { message: string } }>;
@@ -171,8 +173,17 @@ export default function RegisterPage() {
               />
             </div>
 
-            <Button type="submit" className="w-full" size="lg" isLoading={isLoading}>
-              회원가입하고 시작하기
+            {/* Turnstile Widget */}
+            <div className="flex justify-center my-4">
+              <Turnstile
+                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'}
+                onSuccess={(token) => setTurnstileToken(token)}
+                onError={() => setError('로봇 인증에 실패했습니다.')}
+              />
+            </div>
+
+            <Button type="submit" className="w-full" size="lg" isLoading={isLoading} disabled={!turnstileToken}>
+              {turnstileToken ? '회원가입하고 시작하기' : '로봇이 아닙니다 (체크 필요)'}
             </Button>
           </form>
 

@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # Database Service
+  db:
+    image: postgres:15-alpine
+    container_name: trnt-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-trnt}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - trnt-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-user} -d ${POSTGRES_DB:-trnt}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: trnt-backend
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - ./backend/.env
+    environment:
+      # Override DB Host for Docker Network
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-trnt}
+    ports:
+      - "8000:8000"
+    networks:
+      - trnt-network
+
+  # Frontend Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: trnt-frontend
+    restart: always
+    depends_on:
+      - backend
+    # Load env for build args if needed, or runtime envs
+    env_file:
+      - ./frontend/.env.local
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000 # Client-side browser needs public URL
+      # If using server-side rendering talking to backend within docker network:
+      # - INTERNAL_API_URL=http://backend:8000 
+    ports:
+      - "3000:3000"
+    networks:
+      - trnt-network
+
+volumes:
+  postgres_data:
+
+
+networks:
+  trnt-network:
+    driver: bridge

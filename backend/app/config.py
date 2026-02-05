@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     # Frontend URL (CORS)
     FRONTEND_URL: str = "http://localhost:3000"
 
+    # Cloudflare Turnstile
+    TURNSTILE_SECRET_KEY: str = "1x0000000000000000000000000000000AA"  # Test Key
+
     class Config:
         env_file = ".env"
 

@@ -22,6 +22,7 @@ class RegisterRequest(BaseModel):
     key_events: Optional[str] = None
     personality: Optional[str] = None
     values: Optional[str] = None
+    turnstile_token: Optional[str] = None
 
     @field_validator('password')
     @classmethod

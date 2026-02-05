@@ -73,7 +73,8 @@ def test_user_data():
         "name": "홍길동",
         "birth_year": 1995,
         "occupation": "개발자",
-        "life_background": "테스트 배경 스토리"
+        "life_background": "테스트 배경 스토리",
+        "turnstile_token": "dummy_token"
     }
 
 
@@ -81,17 +82,16 @@ def test_user_data():
 def authenticated_client(client, test_user_data):
     """
     인증된 테스트 클라이언트
-
-    Args:
-        client: 테스트 클라이언트
-        test_user_data: 테스트 사용자 데이터
-
-    Returns:
-        tuple: (client, access_token)
     """
-    # 회원가입
-    response = client.post("/api/v1/auth/register", json=test_user_data)
-    assert response.status_code == 201
+    from unittest.mock import patch
+    
+    # 회원가입 시 Turnstile 검증 모킹
+    with patch("httpx.post") as mock_post:
+        mock_post.return_value.json.return_value = {"success": True}
+        
+        # 회원가입
+        response = client.post("/api/v1/auth/register", json=test_user_data)
+        assert response.status_code == 201
 
-    token = response.json()["access_token"]
-    return client, token
+        token = response.json()["access_token"]
+        return client, token

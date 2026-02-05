@@ -27,6 +27,8 @@ from app.exceptions import (
     AuthenticationException
 )
 
+from app.config import settings
+
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 auth_service = AuthService()
@@ -43,11 +45,37 @@ def register(request: RegisterRequest, db: Session = Depends(get_db)):
     if existing:
         raise DuplicateEmailException(email=request.email)
 
+    # Turnstile 검증
+    import httpx
+    if settings.TURNSTILE_SECRET_KEY:
+        if not request.turnstile_token:
+            # 테스트 키가 설정되어 있어도 토큰이 없으면 에러 (클라이언트 강제)
+            raise AuthenticationException(message="로봇 인증 토큰이 필요합니다.")
+        
+        try:
+            verify_response = httpx.post(
+                "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+                data={
+                    "secret": settings.TURNSTILE_SECRET_KEY,
+                    "response": request.turnstile_token
+                },
+                timeout=5.0
+            )
+            verification = verify_response.json()
+            if not verification.get("success"):
+                raise AuthenticationException(message="로봇 인증에 실패했습니다.")
+        except Exception as e:
+            # API 오류 시 로깅 후 일단 통과시킬지, 막을지 정책 결정 필요.
+            # 여기서는 보안을 위해 실패로 처리
+            if isinstance(e, AuthenticationException):
+                raise
+            raise AuthenticationException(message="로봇 인증 서버 연결 실패")
+
     # 비밀번호 해싱
     hashed_password = auth_service.hash_password(request.password)
 
     # 사용자 생성
-    user_data = request.model_dump(exclude={"password"})
+    user_data = request.model_dump(exclude={"password", "turnstile_token"})
     user = User(
         **user_data,
         hashed_password=hashed_password,

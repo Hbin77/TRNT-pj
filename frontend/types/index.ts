@@ -39,6 +39,7 @@ export interface RegisterRequest {
   key_events?: string;
   personality?: string;
   values?: string;
+  turnstile_token?: string;
 }
 
 export interface TokenResponse {
