@@ -3,11 +3,8 @@
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Logo } from '@/components/ui/Logo';
 import Link from 'next/link';
-import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export default function TermsPage() {
-    const { language } = useLanguage();
-
     // Only Korean content is detailed as per request source
     return (
         <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden bg-[#030712] text-gray-300">
@@ -146,7 +143,7 @@ export default function TermsPage() {
                         </section>
 
                         <section className="mt-8 text-gray-500 text-xs">
-                            <p>문의처: contact@trnt.app</p>
+                            <p>문의처: phb007298@gmail.com</p>
                         </section>
                     </div>
                 </GlassCard>
