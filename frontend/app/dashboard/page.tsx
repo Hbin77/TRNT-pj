@@ -42,19 +42,27 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#0A0A0F] text-white relative overflow-hidden">
+      {/* Background Ambience */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-900/20 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-900/20 rounded-full blur-[120px]" />
+      </div>
+
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="fixed top-0 w-full z-50 border-b border-white/5 bg-[#0A0A0F]/50 backdrop-blur-xl">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <Link href="/dashboard" className="flex items-center space-x-2">
-              <img src="/logo.svg" alt="TRNT Logo" className="w-10 h-10 object-contain" />
-              <h1 className="text-2xl font-black text-gray-900 tracking-tight">TRNT</h1>
+              <img src="/logo.svg" alt="TRNT Logo" className="w-8 h-8 object-contain" />
+              <h1 className="text-xl font-bold tracking-tight">TRNT</h1>
             </Link>
 
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-900 font-medium">안녕하세요, {user.name}님</span>
-              <Button onClick={handleLogout} variant="ghost" size="sm" className="text-gray-900 font-bold hover:bg-gray-100">
+            <div className="flex items-center space-x-6">
+              <span className="text-white/80 font-medium text-sm hidden md:block">
+                반갑습니다, <span className="text-white font-bold">{user.name}</span>님
+              </span>
+              <Button onClick={handleLogout} variant="ghost" size="sm" className="text-white/60 hover:text-white hover:bg-white/10 transition-colors">
                 <LogOut className="w-4 h-4 mr-2" />
                 로그아웃
               </Button>
@@ -64,91 +72,142 @@ export default function DashboardPage() {
       </header>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-12">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold mb-8 text-gray-900">대시보드</h2>
+      <div className="relative z-10 container mx-auto px-4 pt-32 pb-12">
+        <div className="max-w-5xl mx-auto">
+
+          {/* Welcome Message */}
+          <div className="mb-12">
+            <h2 className="text-4xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">
+              대시보드
+            </h2>
+            <p className="text-white/60 text-lg">
+              당신의 선택으로 만들어질 새로운 이야기를 기다립니다.
+            </p>
+          </div>
 
           {/* Quick Actions */}
           <div className="grid md:grid-cols-2 gap-6 mb-12">
-            <Link
-              href="/scenarios/new"
-              className="bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition-shadow cursor-pointer group"
-            >
-              <div className="bg-blue-100 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:bg-blue-200 transition-colors">
-                <Sparkles className="w-6 h-6 text-blue-700" />
-              </div>
-              <h3 className="text-xl font-bold mb-2 text-black">새 시나리오 생성</h3>
-              <p className="text-gray-900 font-medium leading-relaxed">
-                인생의 분기점을 선택하고 평행세계 이야기를 만들어보세요
-              </p>
-              <div className="mt-4 text-blue-600 font-medium group-hover:underline">
-                시작하기 →
+            <Link href="/scenarios/new" className="block group">
+              <div className="relative p-[1px] rounded-2xl bg-gradient-to-br from-white/10 to-transparent group-hover:from-blue-500/50 group-hover:to-purple-500/50 transition-all duration-300">
+                <div className="bg-[#12121A]/90 backdrop-blur-xl p-8 rounded-2xl h-full relative overflow-hidden group-hover:bg-[#12121A]/80 transition-all">
+                  <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <Sparkles className="w-32 h-32 text-blue-500 transform rotate-12" />
+                  </div>
+
+                  <div className="bg-blue-500/20 w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <Sparkles className="w-7 h-7 text-blue-400" />
+                  </div>
+
+                  <h3 className="text-2xl font-bold mb-3 text-white group-hover:text-blue-200 transition-colors">새 시나리오 생성</h3>
+                  <p className="text-white/60 leading-relaxed mb-6">
+                    인생의 중요한 분기점으로 돌아가<br />새로운 선택을 해보세요.
+                  </p>
+
+                  <div className="flex items-center text-blue-400 font-medium group-hover:translate-x-1 transition-transform">
+                    시작하기 <span className="ml-2">→</span>
+                  </div>
+                </div>
               </div>
             </Link>
 
-            <Link
-              href="/scenarios"
-              className="bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition-shadow cursor-pointer group"
-            >
-              <div className="bg-purple-100 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:bg-purple-200 transition-colors">
-                <BookOpen className="w-6 h-6 text-purple-700" />
-              </div>
-              <h3 className="text-xl font-bold mb-2 text-black">내 시나리오</h3>
-              <p className="text-gray-900 font-medium leading-relaxed">
-                지금까지 생성한 평행세계 이야기들을 다시 읽어보세요
-              </p>
-              <div className="mt-4 text-purple-600 font-medium group-hover:underline">
-                목록 보기 →
+            <Link href="/scenarios" className="block group">
+              <div className="relative p-[1px] rounded-2xl bg-gradient-to-br from-white/10 to-transparent group-hover:from-purple-500/50 group-hover:to-pink-500/50 transition-all duration-300">
+                <div className="bg-[#12121A]/90 backdrop-blur-xl p-8 rounded-2xl h-full relative overflow-hidden group-hover:bg-[#12121A]/80 transition-all">
+                  <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <BookOpen className="w-32 h-32 text-purple-500 transform -rotate-12" />
+                  </div>
+
+                  <div className="bg-purple-500/20 w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <BookOpen className="w-7 h-7 text-purple-400" />
+                  </div>
+
+                  <h3 className="text-2xl font-bold mb-3 text-white group-hover:text-purple-200 transition-colors">내 시나리오</h3>
+                  <p className="text-white/60 leading-relaxed mb-6">
+                    지금까지 기록된<br />당신의 평행세계 이야기입니다.
+                  </p>
+
+                  <div className="flex items-center text-purple-400 font-medium group-hover:translate-x-1 transition-transform">
+                    목록 보기 <span className="ml-2">→</span>
+                  </div>
+                </div>
               </div>
             </Link>
           </div>
 
-          {/* User Info Card */}
-          <div className="bg-white p-8 rounded-xl shadow-md">
-            <div className="flex items-center mb-6">
-              <div className="bg-gray-200 w-12 h-12 rounded-full flex items-center justify-center mr-4">
-                <User className="w-6 h-6 text-gray-900" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-black">{user.name}</h3>
-                <p className="text-gray-900 font-medium">{user.email || '카카오 로그인'}</p>
+          {/* User Info & Stats */}
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Left: User Profile */}
+            <div className="lg:col-span-2 component-fade-in" style={{ animationDelay: '0.1s' }}>
+              <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-8">
+                <div className="flex items-center mb-8">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center shadow-lg border border-white/10 mr-5">
+                    <User className="w-8 h-8 text-white/80" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-white mb-1">{user.name}</h3>
+                    <div className="flex items-center space-x-2 text-sm text-white/50">
+                      <span>{user.email || 'Kakao Account'}</span>
+                      <span>•</span>
+                      <span>{user.auth_provider === 'email' ? 'Email' : 'Kakao'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                  <div className="bg-white/5 rounded-xl p-4 border border-white/5">
+                    <div className="text-xs text-white/40 mb-1">출생연도</div>
+                    <div className="text-lg font-bold text-white/90">{user.birth_year}년</div>
+                  </div>
+                  <div className="bg-white/5 rounded-xl p-4 border border-white/5">
+                    <div className="text-xs text-white/40 mb-1">직업</div>
+                    <div className="text-lg font-bold text-white/90">{user.occupation}</div>
+                  </div>
+                  <div className="bg-white/5 rounded-xl p-4 border border-white/5">
+                    <div className="text-xs text-white/40 mb-1">MBTI</div>
+                    <div className="text-lg font-bold text-white/90">{user.personality || '-'}</div>
+                  </div>
+                  <div className="bg-white/5 rounded-xl p-4 border border-white/5">
+                    <div className="text-xs text-white/40 mb-1">거주지</div>
+                    <div className="text-lg font-bold text-white/90">{user.residence || '-'}</div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-bold text-white/40 uppercase tracking-wider mb-4">배경 스토리</h4>
+                  <div className="bg-black/20 rounded-xl p-5 border border-white/5 text-white/70 leading-relaxed text-sm">
+                    {user.life_background || '등록된 배경 스토리가 없습니다.'}
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="border-t-2 border-gray-100 pt-6 space-y-4 text-base">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-900 font-bold">출생연도</span>
-                <span className="text-black font-extrabold bg-gray-50 px-2 py-1 rounded">
-                  {user.birth_year > 0 ? `${user.birth_year}년생` : '미입력'}
-                </span>
+            {/* Right: Usage & Info */}
+            <div className="component-fade-in space-y-6" style={{ animationDelay: '0.2s' }}>
+              <div className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 backdrop-blur-lg border border-blue-500/30 rounded-2xl p-6 relative overflow-hidden">
+                <div className="relative z-10">
+                  <h4 className="text-lg font-bold text-white mb-2">일일 생성 한도</h4>
+                  <div className="flex items-end space-x-2 mb-2">
+                    <span className="text-4xl font-black text-white">3</span>
+                    <span className="text-white/60 mb-1.5">회 / 일</span>
+                  </div>
+                  <p className="text-white/50 text-sm">매일 자정에 초기화됩니다.</p>
+                </div>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-900 font-bold">직업</span>
-                <span className="text-black font-extrabold bg-gray-50 px-2 py-1 rounded">
-                  {user.occupation || '미입력'}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-900 font-bold">가입 방식</span>
-                <span className="text-black font-extrabold bg-gray-50 px-2 py-1 rounded">
-                  {user.auth_provider === 'email' ? '이메일' : '카카오'}
-                </span>
+
+              <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6">
+                <h4 className="text-white font-bold mb-4">내 정보 관리</h4>
+                <div className="space-y-2">
+                  <button className="w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 text-white/60 hover:text-white transition-colors text-sm flex justify-between items-center group">
+                    <span>프로필 수정</span>
+                    <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                  </button>
+                  <button className="w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 text-white/60 hover:text-white transition-colors text-sm flex justify-between items-center group">
+                    <span>비밀번호 변경</span>
+                    <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                  </button>
+                </div>
               </div>
             </div>
-
-            <div className="mt-8 pt-6 border-t-2 border-gray-100">
-              <p className="text-base text-black mb-3 font-black">배경 스토리</p>
-              <p className="text-gray-900 font-medium leading-relaxed bg-gray-50 p-4 rounded-lg border border-gray-200">
-                {user.life_background || '등록된 배경 스토리가 없습니다.'}
-              </p>
-            </div>
-          </div>
-
-          {/* Rate Limit Info */}
-          <div className="mt-8 bg-blue-100 border-2 border-blue-300 rounded-xl p-5 text-center shadow-sm">
-            <p className="text-blue-900 font-bold text-lg">
-              💡 매일 무료로 <span className="text-blue-700 underline decoration-2">3회</span>까지 시나리오를 생성할 수 있습니다
-            </p>
           </div>
         </div>
       </div>
