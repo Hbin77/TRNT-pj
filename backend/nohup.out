@@ -1,0 +1,329 @@
+INFO:     Started server process [5360]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2026-02-05 21:27:24,268 - app.middleware.logging - INFO - Request started: GET /
+2026-02-05 21:27:24,269 - app.middleware.logging - INFO - Request completed: GET / - 200
+INFO:     127.0.0.1:51434 - "GET / HTTP/1.1" 200 OK
+2026-02-05 21:27:24,363 - app.middleware.logging - INFO - Request started: GET /
+2026-02-05 21:27:24,364 - app.middleware.logging - INFO - Request completed: GET / - 200
+INFO:     127.0.0.1:51434 - "GET / HTTP/1.1" 200 OK
+2026-02-05 21:27:24,515 - app.middleware.logging - INFO - Request started: GET /favicon.ico
+2026-02-05 21:27:24,516 - app.middleware.error_handler - WARNING - HTTP 404: Not Found
+2026-02-05 21:27:24,516 - app.middleware.logging - INFO - Request completed: GET /favicon.ico - 404
+INFO:     127.0.0.1:51434 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+2026-02-05 21:27:24,518 - app.middleware.logging - INFO - Request started: GET /favicon.ico
+2026-02-05 21:27:24,518 - app.middleware.error_handler - WARNING - HTTP 404: Not Found
+2026-02-05 21:27:24,518 - app.middleware.logging - INFO - Request completed: GET /favicon.ico - 404
+INFO:     127.0.0.1:51434 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+2026-02-05 21:27:46,132 - app.middleware.logging - INFO - Request started: GET /
+2026-02-05 21:27:46,133 - app.middleware.logging - INFO - Request completed: GET / - 200
+INFO:     127.0.0.1:51455 - "GET / HTTP/1.1" 200 OK
+2026-02-05 21:27:50,085 - app.middleware.logging - INFO - Request started: GET /
+2026-02-05 21:27:50,085 - app.middleware.logging - INFO - Request completed: GET / - 200
+INFO:     127.0.0.1:51461 - "GET / HTTP/1.1" 200 OK
+2026-02-05 21:28:31,838 - app.middleware.logging - INFO - Request started: OPTIONS /api/v1/auth/login
+2026-02-05 21:28:31,840 - app.middleware.logging - INFO - Request completed: OPTIONS /api/v1/auth/login - 200
+INFO:     127.0.0.1:51505 - "OPTIONS /api/v1/auth/login HTTP/1.1" 200 OK
+2026-02-05 21:28:31,862 - app.middleware.logging - INFO - Request started: POST /api/v1/auth/login
+2026-02-05 21:28:31,974 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.12/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2026-02-05 21:28:32,194 - app.middleware.logging - INFO - Request completed: POST /api/v1/auth/login - 200
+INFO:     127.0.0.1:51505 - "POST /api/v1/auth/login HTTP/1.1" 200 OK
+2026-02-05 21:28:32,198 - app.middleware.logging - INFO - Request started: OPTIONS /api/v1/auth/me
+2026-02-05 21:28:32,198 - app.middleware.logging - INFO - Request completed: OPTIONS /api/v1/auth/me - 200
+INFO:     127.0.0.1:51505 - "OPTIONS /api/v1/auth/me HTTP/1.1" 200 OK
+2026-02-05 21:28:32,199 - app.middleware.logging - INFO - Request started: GET /api/v1/auth/me
+2026-02-05 21:28:32,207 - app.middleware.logging - INFO - Request completed: GET /api/v1/auth/me - 200
+INFO:     127.0.0.1:51505 - "GET /api/v1/auth/me HTTP/1.1" 200 OK
+2026-02-05 21:28:32,265 - app.middleware.logging - INFO - Request started: GET /api/v1/auth/me
+2026-02-05 21:28:32,268 - app.middleware.logging - INFO - Request completed: GET /api/v1/auth/me - 200
+INFO:     127.0.0.1:51505 - "GET /api/v1/auth/me HTTP/1.1" 200 OK
+2026-02-05 21:28:32,268 - app.middleware.logging - INFO - Request started: GET /api/v1/auth/me
+2026-02-05 21:28:32,271 - app.middleware.logging - INFO - Request completed: GET /api/v1/auth/me - 200
+INFO:     127.0.0.1:51505 - "GET /api/v1/auth/me HTTP/1.1" 200 OK
+2026-02-05 21:28:38,328 - app.middleware.logging - INFO - Request started: GET /api/v1/auth/me
+2026-02-05 21:28:38,336 - app.middleware.logging - INFO - Request completed: GET /api/v1/auth/me - 200
+INFO:     127.0.0.1:51515 - "GET /api/v1/auth/me HTTP/1.1" 200 OK
+2026-02-05 21:28:38,337 - app.middleware.logging - INFO - Request started: GET /api/v1/auth/me
+2026-02-05 21:28:38,341 - app.middleware.logging - INFO - Request completed: GET /api/v1/auth/me - 200
+INFO:     127.0.0.1:51517 - "GET /api/v1/auth/me HTTP/1.1" 200 OK
+2026-02-05 21:28:39,438 - app.middleware.logging - INFO - Request started: OPTIONS /api/v1/scenarios
+2026-02-05 21:28:39,438 - app.middleware.logging - INFO - Request started: OPTIONS /api/v1/scenarios
+2026-02-05 21:28:39,438 - app.middleware.logging - INFO - Request completed: OPTIONS /api/v1/scenarios - 200
+INFO:     127.0.0.1:51517 - "OPTIONS /api/v1/scenarios?skip=0&limit=20 HTTP/1.1" 200 OK
+2026-02-05 21:28:39,438 - app.middleware.logging - INFO - Request completed: OPTIONS /api/v1/scenarios - 200
+INFO:     127.0.0.1:51515 - "OPTIONS /api/v1/scenarios?skip=0&limit=20 HTTP/1.1" 200 OK
+2026-02-05 21:28:39,445 - app.middleware.logging - INFO - Request started: GET /api/v1/scenarios
+2026-02-05 21:28:39,456 - app.middleware.logging - INFO - Request completed: GET /api/v1/scenarios - 200
+INFO:     127.0.0.1:51515 - "GET /api/v1/scenarios?skip=0&limit=20 HTTP/1.1" 200 OK
+2026-02-05 21:28:39,457 - app.middleware.logging - INFO - Request started: GET /api/v1/scenarios
+2026-02-05 21:28:39,460 - app.middleware.logging - INFO - Request completed: GET /api/v1/scenarios - 200
+INFO:     127.0.0.1:51517 - "GET /api/v1/scenarios?skip=0&limit=20 HTTP/1.1" 200 OK
+2026-02-05 21:31:17,365 - app.middleware.logging - INFO - Request started: OPTIONS /api/v1/scenarios/generate
+2026-02-05 21:31:17,368 - app.middleware.logging - INFO - Request completed: OPTIONS /api/v1/scenarios/generate - 200
+INFO:     127.0.0.1:51580 - "OPTIONS /api/v1/scenarios/generate?save=true HTTP/1.1" 200 OK
+2026-02-05 21:31:17,370 - app.middleware.logging - INFO - Request started: POST /api/v1/scenarios/generate
+2026-02-05 21:31:17,391 - app.middleware.error_handler - ERROR - Unhandled exception: (psycopg2.errors.FeatureNotSupported) FOR UPDATE is not allowed with aggregate functions
+
+[SQL: SELECT count(usage_logs.id) AS count_1 
+FROM usage_logs 
+WHERE usage_logs.user_id = %(user_id_1)s::UUID AND usage_logs.action = %(action_1)s AND usage_logs.created_at >= %(created_at_1)s FOR UPDATE]
+[parameters: {'user_id_1': '7f3819a9-adb6-410c-952e-45a97386524e', 'action_1': 'scenario_generation', 'created_at_1': datetime.datetime(2026, 2, 5, 0, 0)}]
+(Background on this error at: https://sqlalche.me/e/20/tw8g)
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.FeatureNotSupported: FOR UPDATE is not allowed with aggregate functions
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/middleware/base.py", line 189, in __call__
+    with collapse_excgroups():
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/_utils.py", line 93, in collapse_excgroups
+    raise exc
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/baghyeonbin/trnt_pj/backend/app/middleware/logging.py", line 35, in logging_middleware
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/middleware/base.py", line 165, in call_next
+    raise app_exc
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/middleware/base.py", line 151, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/middleware/cors.py", line 93, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/middleware/cors.py", line 148, in simple_response
+    await self.app(scope, receive, send)
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 65, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/_exception_handler.py", line 64, in wrapped_app
+    raise exc
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    await app(scope, receive, sender)
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/routing.py", line 756, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/routing.py", line 776, in app
+    await route.handle(scope, receive, send)
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/routing.py", line 297, in handle
+    await self.app(scope, receive, send)
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/routing.py", line 77, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/_exception_handler.py", line 64, in wrapped_app
+    raise exc
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    await app(scope, receive, sender)
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/routing.py", line 72, in app
+    response = await func(request)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/fastapi/routing.py", line 278, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/fastapi/routing.py", line 191, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/baghyeonbin/trnt_pj/backend/app/api/scenarios.py", line 42, in generate_scenario
+    rate_limiter.check_and_record(user_id=user.id)
+  File "/Users/baghyeonbin/trnt_pj/backend/app/services/rate_limiter.py", line 45, in check_and_record
+    .scalar()
+     ^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/orm/query.py", line 2825, in scalar
+    ret = self.one()
+          ^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/orm/query.py", line 2798, in one
+    return self._iter().one()  # type: ignore
+           ^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/orm/query.py", line 2847, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2308, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2190, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1416, in execute
+    return meth(
+           ^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 517, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1639, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2344, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.NotSupportedError: (psycopg2.errors.FeatureNotSupported) FOR UPDATE is not allowed with aggregate functions
+
+[SQL: SELECT count(usage_logs.id) AS count_1 
+FROM usage_logs 
+WHERE usage_logs.user_id = %(user_id_1)s::UUID AND usage_logs.action = %(action_1)s AND usage_logs.created_at >= %(created_at_1)s FOR UPDATE]
+[parameters: {'user_id_1': '7f3819a9-adb6-410c-952e-45a97386524e', 'action_1': 'scenario_generation', 'created_at_1': datetime.datetime(2026, 2, 5, 0, 0)}]
+(Background on this error at: https://sqlalche.me/e/20/tw8g)
+INFO:     127.0.0.1:51580 - "POST /api/v1/scenarios/generate?save=true HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.FeatureNotSupported: FOR UPDATE is not allowed with aggregate functions
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.12/site-packages/uvicorn/protocols/http/httptools_impl.py", line 399, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 70, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/applications.py", line 123, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/middleware/base.py", line 189, in __call__
+    with collapse_excgroups():
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/_utils.py", line 93, in collapse_excgroups
+    raise exc
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/baghyeonbin/trnt_pj/backend/app/middleware/logging.py", line 35, in logging_middleware
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/middleware/base.py", line 165, in call_next
+    raise app_exc
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/middleware/base.py", line 151, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/middleware/cors.py", line 93, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/middleware/cors.py", line 148, in simple_response
+    await self.app(scope, receive, send)
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 65, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/_exception_handler.py", line 64, in wrapped_app
+    raise exc
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    await app(scope, receive, sender)
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/routing.py", line 756, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/routing.py", line 776, in app
+    await route.handle(scope, receive, send)
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/routing.py", line 297, in handle
+    await self.app(scope, receive, send)
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/routing.py", line 77, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/_exception_handler.py", line 64, in wrapped_app
+    raise exc
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    await app(scope, receive, sender)
+  File "/opt/anaconda3/lib/python3.12/site-packages/starlette/routing.py", line 72, in app
+    response = await func(request)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/fastapi/routing.py", line 278, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/fastapi/routing.py", line 191, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/baghyeonbin/trnt_pj/backend/app/api/scenarios.py", line 42, in generate_scenario
+    rate_limiter.check_and_record(user_id=user.id)
+  File "/Users/baghyeonbin/trnt_pj/backend/app/services/rate_limiter.py", line 45, in check_and_record
+    .scalar()
+     ^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/orm/query.py", line 2825, in scalar
+    ret = self.one()
+          ^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/orm/query.py", line 2798, in one
+    return self._iter().one()  # type: ignore
+           ^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/orm/query.py", line 2847, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2308, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2190, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1416, in execute
+    return meth(
+           ^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 517, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1639, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2344, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/opt/anaconda3/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.NotSupportedError: (psycopg2.errors.FeatureNotSupported) FOR UPDATE is not allowed with aggregate functions
+
+[SQL: SELECT count(usage_logs.id) AS count_1 
+FROM usage_logs 
+WHERE usage_logs.user_id = %(user_id_1)s::UUID AND usage_logs.action = %(action_1)s AND usage_logs.created_at >= %(created_at_1)s FOR UPDATE]
+[parameters: {'user_id_1': '7f3819a9-adb6-410c-952e-45a97386524e', 'action_1': 'scenario_generation', 'created_at_1': datetime.datetime(2026, 2, 5, 0, 0)}]
+(Background on this error at: https://sqlalche.me/e/20/tw8g)
+2026-02-05 21:33:03,113 - app.middleware.logging - INFO - Request started: GET /api/v1/scenarios
+2026-02-05 21:33:03,127 - app.middleware.logging - INFO - Request completed: GET /api/v1/scenarios - 200
+INFO:     127.0.0.1:51612 - "GET /api/v1/scenarios?skip=0&limit=20 HTTP/1.1" 200 OK
+2026-02-05 21:33:03,128 - app.middleware.logging - INFO - Request started: GET /api/v1/scenarios
+2026-02-05 21:33:03,133 - app.middleware.logging - INFO - Request completed: GET /api/v1/scenarios - 200
+INFO:     127.0.0.1:51612 - "GET /api/v1/scenarios?skip=0&limit=20 HTTP/1.1" 200 OK
+2026-02-05 21:33:03,190 - app.middleware.logging - INFO - Request started: GET /api/v1/auth/me
+2026-02-05 21:33:03,194 - app.middleware.logging - INFO - Request completed: GET /api/v1/auth/me - 200
+INFO:     127.0.0.1:51612 - "GET /api/v1/auth/me HTTP/1.1" 200 OK
+2026-02-05 21:33:03,195 - app.middleware.logging - INFO - Request started: GET /api/v1/auth/me
+2026-02-05 21:33:03,198 - app.middleware.logging - INFO - Request completed: GET /api/v1/auth/me - 200
+INFO:     127.0.0.1:51615 - "GET /api/v1/auth/me HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [5360]

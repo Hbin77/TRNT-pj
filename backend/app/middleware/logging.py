@@ -12,13 +12,20 @@ async def logging_middleware(request: Request, call_next):
     # 요청 시작 시간
     start_time = time.time()
 
+    # 민감한 파라미터 필터링
+    sensitive_params = {'password', 'token', 'api_key', 'secret', 'authorization'}
+    safe_params = {
+        k: v for k, v in request.query_params.items()
+        if k.lower() not in sensitive_params
+    }
+
     # 요청 정보 로깅
     logger.info(
         f"Request started: {request.method} {request.url.path}",
         extra={
             "method": request.method,
             "path": request.url.path,
-            "query_params": dict(request.query_params),
+            "query_params": safe_params,
             "client": request.client.host if request.client else None,
             "user_agent": request.headers.get("user-agent")
         }

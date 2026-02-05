@@ -1,0 +1,21 @@
+
+> frontend@0.1.0 dev
+> next dev
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://210.183.85.195:3000
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 2.1s
+ GET / 200 in 1149ms (compile: 1060ms, render: 89ms)
+ GET / 200 in 23ms (compile: 1612µs, render: 21ms)
+ GET / 200 in 38ms (compile: 4ms, render: 34ms)
+ GET /login 200 in 75ms (compile: 65ms, render: 10ms)
+ GET /dashboard 200 in 25ms (compile: 18ms, render: 7ms)
+ GET /scenarios/new 200 in 107ms (compile: 99ms, render: 8ms)
+ GET /scenarios 200 in 203ms (compile: 196ms, render: 7ms)
+ GET /scenarios/new 200 in 26ms (compile: 6ms, render: 20ms)
+ GET /dashboard 200 in 37ms (compile: 13ms, render: 24ms)
+[?25h

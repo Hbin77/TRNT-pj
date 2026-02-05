@@ -63,7 +63,7 @@ async def generate_scenario(
             detail_level=request.detail_level,
             scope=request.scope,
             scenario_text=scenario_text,
-            word_count=len(scenario_text)
+            word_count=len(scenario_text.split())
         )
         db.add(scenario)
         db.commit()
@@ -79,7 +79,7 @@ async def generate_scenario(
         detail_level=request.detail_level,
         scope=request.scope,
         scenario_text=scenario_text,
-        word_count=len(scenario_text)
+        word_count=len(scenario_text.split())
     )
 
 

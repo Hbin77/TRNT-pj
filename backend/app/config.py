@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     KAKAO_CLIENT_SECRET: str = ""
     KAKAO_REDIRECT_URI: str = "http://localhost:8000/api/v1/auth/kakao/callback"
 
+    # Frontend URL (CORS)
+    FRONTEND_URL: str = "http://localhost:3000"
+
     class Config:
         env_file = ".env"
 

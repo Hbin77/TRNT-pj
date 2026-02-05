@@ -9,9 +9,15 @@ from app.exceptions import AIServiceException
 
 
 class KakaoOAuthService:
-    """카카오 OAuth 서비스"""
+    """
+    카카오 OAuth 2.0 서비스
+
+    카카오 로그인을 위한 OAuth 2.0 인증 플로우를 처리합니다.
+    인가 코드 방식(Authorization Code Grant)을 사용합니다.
+    """
 
     def __init__(self):
+        """KakaoOAuthService 초기화"""
         self.client_id = settings.KAKAO_CLIENT_ID
         self.client_secret = settings.KAKAO_CLIENT_SECRET
         self.redirect_uri = settings.KAKAO_REDIRECT_URI

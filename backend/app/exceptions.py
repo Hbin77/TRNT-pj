@@ -119,11 +119,11 @@ class PermissionDeniedException(TRNTException):
 
 
 class IncompleteProfileException(TRNTException):
-    """프로필 미완성 (카카오 신규 가입자)"""
+    """프로필 미완성"""
 
-    def __init__(self):
+    def __init__(self, message: str = "프로필을 완성해야 시나리오를 생성할 수 있습니다."):
         super().__init__(
-            message="프로필을 완성해야 시나리오를 생성할 수 있습니다.",
+            message=message,
             code="INCOMPLETE_PROFILE",
             status_code=403
         )

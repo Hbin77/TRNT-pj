@@ -4,6 +4,7 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 from sqlalchemy import func
+from sqlalchemy.exc import IntegrityError
 
 from app.config import settings
 from app.models.usage_log import UsageLog
@@ -19,7 +20,7 @@ class RateLimiterService:
 
     def check_and_record(self, user_id: UUID, action: str = "scenario_generation") -> None:
         """
-        일일 사용량 체크 및 기록
+        일일 사용량 체크 및 기록 (동시성 안전)
 
         Args:
             user_id: 사용자 ID
@@ -31,28 +32,35 @@ class RateLimiterService:
         # 오늘 00:00:00부터의 사용량 조회
         today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
 
-        usage_count = (
-            self.db.query(func.count(UsageLog.id))
-            .filter(
-                UsageLog.user_id == user_id,
-                UsageLog.action == action,
-                UsageLog.created_at >= today_start
+        try:
+            # FOR UPDATE로 락 획득하여 동시성 제어
+            usage_count = (
+                self.db.query(func.count(UsageLog.id))
+                .filter(
+                    UsageLog.user_id == user_id,
+                    UsageLog.action == action,
+                    UsageLog.created_at >= today_start
+                )
+                .with_for_update()
+                .scalar()
             )
-            .scalar()
-        )
 
-        if usage_count >= self.daily_limit:
-            # 다음 날 00:00:00 계산
-            tomorrow = today_start + timedelta(days=1)
-            hours_until_reset = int((tomorrow - datetime.utcnow()).total_seconds() / 3600)
-            reset_time = f"{hours_until_reset}시간 후" if hours_until_reset > 0 else "곧"
+            if usage_count >= self.daily_limit:
+                # 다음 날 00:00:00 계산
+                tomorrow = today_start + timedelta(days=1)
+                hours_until_reset = int((tomorrow - datetime.utcnow()).total_seconds() / 3600)
+                reset_time = f"{hours_until_reset}시간 후" if hours_until_reset > 0 else "곧"
 
-            raise RateLimitExceededException(limit=self.daily_limit, reset_time=reset_time)
+                raise RateLimitExceededException(limit=self.daily_limit, reset_time=reset_time)
 
-        # 사용 기록 저장
-        log = UsageLog(user_id=user_id, action=action)
-        self.db.add(log)
-        self.db.commit()
+            # 사용 기록 저장
+            log = UsageLog(user_id=user_id, action=action)
+            self.db.add(log)
+            self.db.commit()
+
+        except IntegrityError:
+            self.db.rollback()
+            raise
 
     def get_usage_count(self, user_id: UUID, action: str = "scenario_generation") -> int:
         """

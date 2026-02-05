@@ -1,0 +1,19 @@
+{
+    "project_name": "TRNT",
+    "tech_stack": [
+        "FastAPI",
+        "SQLAlchemy",
+        "Pydantic",
+        "Alembic",
+        "Next.js",
+        "TailwindCSS",
+        "Groq API"
+    ],
+    "features": [
+        "User Authentication (JWT)",
+        "Parallel World Scenario Generation (AI)",
+        "User Profile Management"
+    ],
+    "database": "PostgreSQL (Production), SQLite (Test)",
+    "testing": "pytest"
+}

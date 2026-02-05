@@ -5,6 +5,7 @@ from uuid import UUID
 
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.exceptions import AuthenticationException
@@ -105,3 +106,43 @@ class AuthService:
             return UUID(user_id_str)
         except ValueError:
             raise AuthenticationException(message="유효하지 않은 사용자 ID 형식입니다.")
+
+    @staticmethod
+    def is_token_blacklisted(token: str, db: Session) -> bool:
+        """
+        토큰이 블랙리스트에 있는지 확인
+
+        Args:
+            token: JWT 토큰
+            db: 데이터베이스 세션
+
+        Returns:
+            블랙리스트에 있으면 True, 없으면 False
+        """
+        from app.models.token_blacklist import TokenBlacklist
+
+        blacklisted = db.query(TokenBlacklist).filter(
+            TokenBlacklist.token == token,
+            TokenBlacklist.expires_at > datetime.utcnow()
+        ).first()
+
+        return blacklisted is not None
+
+    @staticmethod
+    def blacklist_token(token: str, expires_at: datetime, db: Session) -> None:
+        """
+        토큰을 블랙리스트에 추가
+
+        Args:
+            token: JWT 토큰
+            expires_at: 토큰 만료 시간
+            db: 데이터베이스 세션
+        """
+        from app.models.token_blacklist import TokenBlacklist
+
+        blacklist_entry = TokenBlacklist(
+            token=token,
+            expires_at=expires_at
+        )
+        db.add(blacklist_entry)
+        db.commit()

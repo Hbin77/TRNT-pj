@@ -3,6 +3,7 @@ import logging
 from fastapi import Request, status
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
+from fastapi.encoders import jsonable_encoder
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.exceptions import TRNTException
@@ -106,7 +107,7 @@ def setup_exception_handlers(app):
                 "error": {
                     "code": "VALIDATION_ERROR",
                     "message": "요청 데이터 검증에 실패했습니다.",
-                    "details": exc.errors()
+                    "details": jsonable_encoder(exc.errors())
                 }
             }
         )

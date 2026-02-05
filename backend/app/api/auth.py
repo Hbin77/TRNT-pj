@@ -1,6 +1,8 @@
 """인증 API 라우터"""
+from datetime import datetime, timedelta
 from typing import Optional
 from fastapi import APIRouter, Depends, Query, status
+from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -10,11 +12,15 @@ from app.schemas.auth import (
     LoginRequest,
     TokenResponse,
     TokenRefreshRequest,
-    CurrentUserResponse
+    CurrentUserResponse,
+    ForgotPasswordRequest,
+    ResetPasswordRequest
 )
 from app.services.auth import AuthService
 from app.services.kakao import KakaoOAuthService
-from app.dependencies.auth import get_current_active_user
+from app.services.email import EmailService
+from app.dependencies.auth import get_current_active_user, security
+from app.exceptions import UserNotFoundException
 from app.exceptions import (
     DuplicateEmailException,
     InvalidCredentialsException,
@@ -25,6 +31,7 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 auth_service = AuthService()
 kakao_service = KakaoOAuthService()
+email_service = EmailService()
 
 
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
@@ -125,6 +132,80 @@ def refresh_token(request: TokenRefreshRequest, db: Session = Depends(get_db)):
 async def get_me(current_user: User = Depends(get_current_active_user)):
     """현재 사용자 정보 조회"""
     return CurrentUserResponse.model_validate(current_user)
+
+
+@router.post("/logout")
+async def logout(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """로그아웃 (토큰 무효화)"""
+
+    token = credentials.credentials
+
+    # 토큰 만료 시간 추출
+    payload = auth_service.verify_token(token, token_type="access")
+    expires_timestamp = payload.get("exp")
+    expires_at = datetime.fromtimestamp(expires_timestamp)
+
+    # 블랙리스트에 추가
+    auth_service.blacklist_token(token, expires_at, db)
+
+    return {"message": "로그아웃되었습니다"}
+
+
+@router.post("/forgot-password")
+async def forgot_password(
+    request: ForgotPasswordRequest,
+    db: Session = Depends(get_db)
+):
+    """비밀번호 재설정 이메일 전송"""
+
+    # 사용자 조회
+    user = db.query(User).filter(User.email == request.email).first()
+
+    # 보안: 사용자가 없어도 동일한 응답 (이메일 존재 여부 노출 방지)
+    if user and user.auth_provider == "email":
+        # 재설정 토큰 생성 (15분 유효)
+        reset_token = auth_service.create_access_token(
+            user.id,
+            expires_delta=timedelta(minutes=15)
+        )
+
+        # 이메일 전송
+        email_service.send_password_reset_email(user.email, reset_token)
+
+    return {"message": "비밀번호 재설정 이메일을 전송했습니다"}
+
+
+@router.post("/reset-password")
+async def reset_password(
+    request: ResetPasswordRequest,
+    db: Session = Depends(get_db)
+):
+    """비밀번호 재설정"""
+
+    # 토큰 검증
+    try:
+        user_id = auth_service.get_user_id_from_token(request.token)
+    except AuthenticationException:
+        raise AuthenticationException(message="유효하지 않거나 만료된 링크입니다")
+
+    # 사용자 조회
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise UserNotFoundException(user_id=str(user_id))
+
+    # OAuth 사용자는 비밀번호 재설정 불가
+    if user.auth_provider != "email":
+        raise AuthenticationException(message="소셜 로그인 사용자는 비밀번호를 재설정할 수 없습니다")
+
+    # 비밀번호 변경
+    user.hashed_password = auth_service.hash_password(request.new_password)
+    db.commit()
+
+    return {"message": "비밀번호가 변경되었습니다"}
 
 
 # ===== 카카오 OAuth =====

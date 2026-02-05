@@ -2,16 +2,16 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import Column, String, Integer, Text, DateTime, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID, JSON
+from sqlalchemy.dialects.postgresql import JSON
 
-from app.database import Base
+from app.database import Base, GUID
 
 
 class Scenario(Base):
     __tablename__ = "scenarios"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    user_id = Column(GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
     # 분기점 정보 (JSON)
     branch_data = Column(JSON, nullable=False)

@@ -7,10 +7,10 @@ from pydantic import BaseModel, Field
 
 class BranchInput(BaseModel):
     """분기점 입력"""
-    occurred_at: str = Field(..., description="선택 시점 (예: '2020년 고3 겨울')")
-    original_choice: str = Field(..., description="실제로 한 선택")
-    alternative_choice: str = Field(..., description="만약 이렇게 했다면?")
-    context: Optional[str] = Field(None, description="당시 상황, 고민, 환경")
+    occurred_at: str = Field(..., min_length=1, max_length=200, description="선택 시점 (예: '2020년 고3 겨울')")
+    original_choice: str = Field(..., min_length=1, max_length=1000, description="실제로 한 선택")
+    alternative_choice: str = Field(..., min_length=1, max_length=1000, description="만약 이렇게 했다면?")
+    context: Optional[str] = Field(None, max_length=2000, description="당시 상황, 고민, 환경")
 
 
 class ScenarioRequest(BaseModel):

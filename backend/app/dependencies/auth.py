@@ -17,7 +17,7 @@ async def get_current_user(
     db: Session = Depends(get_db)
 ) -> User:
     """
-    현재 인증된 사용자 조회
+    현재 인증된 사용자 조회 (블랙리스트 체크 포함)
 
     Args:
         credentials: Bearer 토큰
@@ -31,6 +31,10 @@ async def get_current_user(
         UserNotFoundException: 사용자를 찾을 수 없을 때
     """
     token = credentials.credentials
+
+    # 블랙리스트 체크
+    if AuthService.is_token_blacklisted(token, db):
+        raise AuthenticationException(message="로그아웃된 토큰입니다")
 
     # 토큰에서 사용자 ID 추출
     user_id = AuthService.get_user_id_from_token(token)
