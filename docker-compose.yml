@@ -36,7 +36,7 @@ services:
       # Override DB Host for Docker Network
       - DATABASE_URL=postgresql://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-trnt}
     ports:
-      - "8000:8000"
+      - "8002:8000"
     networks:
       - trnt-network
 
@@ -53,7 +53,7 @@ services:
     env_file:
       - ./frontend/.env.local
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000 # Client-side browser needs public URL
+      - NEXT_PUBLIC_API_URL=http://localhost:8002 # Client-side browser needs public URL
       # If using server-side rendering talking to backend within docker network:
       # - INTERNAL_API_URL=http://backend:8000 
     ports:
