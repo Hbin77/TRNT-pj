@@ -50,8 +50,8 @@ services:
     depends_on:
       - backend
     # Load env for build args if needed, or runtime envs
-    env_file:
-      - ./frontend/.env.local
+    # env_file:
+    #   - ./frontend/.env.local
     environment:
       - NEXT_PUBLIC_API_URL= # Use relative path with rewrites
       # If using server-side rendering talking to backend within docker network:
