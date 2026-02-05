@@ -35,8 +35,29 @@ export default function RegisterPage() {
       await registerUser({ ...data, turnstile_token: turnstileToken || undefined });
       router.push('/dashboard');
     } catch (err: unknown) {
-      const error = err as AxiosError<{ error: { message: string } }>;
-      const errorMessage = error.response?.data?.error?.message || '회원가입에 실패했습니다.';
+      const error = err as AxiosError<{ error?: { message: string }, detail?: string | [] }>;
+      let errorMessage = '회원가입에 실패했습니다.';
+
+      if (error.response) {
+        // FastAPI Pydantic validation error (422)
+        if (error.response.status === 422 && error.response.data?.detail) {
+          errorMessage = `입력값이 올바르지 않습니다: ${JSON.stringify(error.response.data.detail)}`;
+        }
+        // Custom API Exception
+        else if (error.response.data?.error?.message) {
+          errorMessage = error.response.data.error.message;
+        }
+        // Generic detail message
+        else if (typeof error.response.data?.detail === 'string') {
+          errorMessage = error.response.data.detail;
+        }
+        else {
+          errorMessage = `오류 발생 (${error.response.status}): ${error.message}`;
+        }
+      } else {
+        errorMessage = `네트워크 오류: ${error.message}`;
+      }
+
       setError(errorMessage);
     } finally {
       setIsLoading(false);
