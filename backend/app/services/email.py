@@ -34,18 +34,18 @@ class EmailService:
         </html>
         """
 
-            # 개발 환경: 콘솔에 출력 (디버깅용)
-            if settings.APP_ENV == "development":
-                print(f"\n{'='*60}")
-                print(f"[DEV] Password reset email for: {email}")
-                print(f"Reset link: {reset_link}")
-                print(f"{'='*60}\n")
-            
-            # 실제 전송 시도
-            try:
-                EmailService._send_email(email, "TRNT 비밀번호 재설정", html)
-            except Exception as e:
-                print(f"Failed to send email: {e}")
+        # 개발 환경: 콘솔에 출력 (디버깅용)
+        if settings.APP_ENV == "development":
+            print(f"\n{'='*60}")
+            print(f"[DEV] Password reset email for: {email}")
+            print(f"Reset link: {reset_link}")
+            print(f"{'='*60}\n")
+        
+        # 실제 전송 시도
+        try:
+            EmailService._send_email(email, "TRNT 비밀번호 재설정", html)
+        except Exception as e:
+            print(f"Failed to send email: {e}")
 
     @staticmethod
     def send_verification_email(email: str, code: str):
