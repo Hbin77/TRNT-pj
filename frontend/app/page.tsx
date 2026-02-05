@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Logo } from '@/components/ui/Logo';
 import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles, BookOpen, Compass, PlayCircle } from 'lucide-react';
+import { ArrowRight, Sparkles, BookOpen, Compass, PlayCircle, GitBranch } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
