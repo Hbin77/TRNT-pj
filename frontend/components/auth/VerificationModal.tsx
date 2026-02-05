@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { AxiosError } from 'axios';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { GlassCard } from '@/components/ui/GlassCard';
@@ -36,8 +37,9 @@ export default function VerificationModal({ email, isOpen, onClose }: Verificati
             await verifyEmail(email, data.code);
             // 성공 시 대시보드로 이동
             router.push('/dashboard');
-        } catch (err: any) {
-            const errorMessage = err.response?.data?.detail || err.response?.data?.error?.message || '인증에 실패했습니다.';
+        } catch (err) {
+            const error = err as AxiosError<{ detail?: string; error?: { message?: string } }>;
+            const errorMessage = error.response?.data?.detail || error.response?.data?.error?.message || '인증에 실패했습니다.';
             setError(errorMessage);
         } finally {
             setIsLoading(false);

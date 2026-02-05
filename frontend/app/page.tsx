@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { motion } from 'framer-motion';
-import { Sparkles, Compass, BookOpen, GitBranch, ArrowRight, PlayCircle } from 'lucide-react';
+import { ArrowRight, Sparkles, BookOpen, Compass, Quote, GitBranch, PlayCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
@@ -127,19 +127,23 @@ export default function Home() {
                 className="absolute top-10 right-10 w-64 z-20"
               >
                 <GlassCard className="bg-white/10 backdrop-blur-xl border-white/20 p-6">
-                  <div className="flex items-center space-x-3 mb-3">
-                    <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                      <Compass className="text-blue-400" />
-                    </div>
-                    <div>
-                      <div className="text-sm text-gray-400">Scenario #42</div>
-                      <div className="font-semibold text-white">해외 유학을 떠난 나</div>
+                  <div className="relative z-10 p-8 h-full flex flex-col justify-end">
+                    <Quote className="w-8 h-8 text-blue-400 mb-4 opacity-50" />
+                    <p className="text-white/80 text-lg mb-6 leading-relaxed">
+                      &quot;하지 않은 선택에 대한 미련이 늘 있었는데,
+                      이곳에서 그 삶을 경험해보고 나니
+                      지금의 제 삶을 더 사랑하게 되었습니다.&quot;
+                    </p>
+                    <div className="flex items-center space-x-4">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center font-bold text-white">
+                        JS
+                      </div>
+                      <div>
+                        <div className="font-bold text-white">Ji-Soo Kim</div>
+                        <div className="text-sm text-white/50">Early Access User</div>
+                      </div>
                     </div>
                   </div>
-                  <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
-                    <div className="h-full w-[85%] bg-blue-500 rounded-full" />
-                  </div>
-                  <div className="mt-2 text-xs text-right text-blue-300">성공률 85%</div>
                 </GlassCard>
               </motion.div>
 
@@ -159,7 +163,7 @@ export default function Home() {
                     </div>
                   </div>
                   <p className="text-xs text-gray-400 leading-relaxed">
-                    "매일 아침 7시 기상을 반복하며 주말만을 기다리는 삶. 하지만 마음 한편에는..."
+                    &quot;매일 아침 7시 기상을 반복하며 주말만을 기다리는 삶. 하지만 마음 한편에는...&quot;
                   </p>
                 </GlassCard>
               </motion.div>

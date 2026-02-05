@@ -17,6 +17,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     // Simple key accessor function (e.g. 'hero.title')
     const t = (key: string): string => {
         const keys = key.split('.');
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let value: any = translations[locale];
 
         for (const k of keys) {
