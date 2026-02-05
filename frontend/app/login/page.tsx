@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Sparkles } from 'lucide-react';
+import { Logo } from '@/components/ui/Logo';
 import { GlassCard } from '@/components/ui/GlassCard';
 import type { LoginRequest } from '@/types';
 import { AxiosError } from 'axios';
@@ -48,13 +48,8 @@ export default function LoginPage() {
 
       <div className="max-w-md w-full relative z-10">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center space-x-2 mb-6 group">
-            <div className="p-3 rounded-xl bg-white/5 border border-white/10 group-hover:border-primary/50 transition-colors">
-              <Sparkles className="w-8 h-8 text-primary" />
-            </div>
-            <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-              TRNT
-            </span>
+          <Link href="/" className="inline-flex mb-6">
+            <Logo size="large" />
           </Link>
           <h2 className="text-2xl font-bold text-white mb-2">다시 오신 것을 환영합니다</h2>
           <p className="text-gray-400">당신의 평행세계가 기다리고 있습니다</p>

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/Button';
 import { Sparkles, BookOpen, LogOut, User } from 'lucide-react';
+import { Logo } from '@/components/ui/Logo';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -53,9 +54,8 @@ export default function DashboardPage() {
       <header className="fixed top-0 w-full z-50 border-b border-white/5 bg-[#0A0A0F]/50 backdrop-blur-xl">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
-            <Link href="/dashboard" className="flex items-center space-x-2">
-              <img src="/logo.svg" alt="TRNT Logo" className="w-8 h-8 object-contain" />
-              <h1 className="text-xl font-bold tracking-tight">TRNT</h1>
+            <Link href="/dashboard">
+              <Logo />
             </Link>
 
             <div className="flex items-center space-x-6">

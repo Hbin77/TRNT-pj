@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { GlassCard } from '@/components/ui/GlassCard';
+import { Logo } from '@/components/ui/Logo';
 import { motion } from 'framer-motion';
 import { ArrowRight, Sparkles, BookOpen, Compass, Quote, GitBranch, PlayCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -37,13 +38,8 @@ export default function Home() {
 
       {/* Navigation */}
       <nav className="relative z-50 container mx-auto px-6 py-6 flex justify-between items-center">
-        <Link href="/" className="flex items-center space-x-3 group">
-          <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 group-hover:bg-white/10 transition-colors">
-            <Sparkles className="w-6 h-6 text-primary" />
-          </div>
-          <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-            TRNT
-          </span>
+        <Link href="/" className="group">
+          <Logo />
         </Link>
         <div className="hidden md:flex items-center space-x-4">
           <Link href="/login">
@@ -119,7 +115,7 @@ export default function Home() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="relative hidden lg:block"
           >
-            <div className="relative w-full aspect-square max-w-[600px] mx-auto perspective-1000">
+            <div className="relative w-full aspect-[4/3] max-w-[600px] mx-auto perspective-1000">
               {/* Floating Cards Effect */}
               <motion.div
                 animate={{ y: [0, -20, 0] }}

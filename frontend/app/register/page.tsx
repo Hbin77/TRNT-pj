@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Turnstile } from '@marsidev/react-turnstile';
-import { Sparkles } from 'lucide-react';
+import { Logo } from '@/components/ui/Logo';
 import { GlassCard } from '@/components/ui/GlassCard';
 import type { RegisterRequest } from '@/types';
 import { AxiosError } from 'axios';
@@ -84,13 +84,8 @@ export default function RegisterPage() {
         />
 
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center space-x-2 mb-6 group">
-            <div className="p-3 rounded-xl bg-white/5 border border-white/10 group-hover:border-primary/50 transition-colors">
-              <Sparkles className="w-8 h-8 text-primary" />
-            </div>
-            <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-              TRNT
-            </span>
+          <Link href="/" className="inline-flex mb-6">
+            <Logo size="large" />
           </Link>
           <h2 className="text-2xl font-bold text-white mb-2">새로운 여정의 시작</h2>
           <p className="text-gray-400">당신의 이야기를 들려주세요</p>
