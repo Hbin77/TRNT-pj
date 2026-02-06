@@ -336,31 +336,30 @@ async def kakao_callback(code: str = Query(..., description="카카오 인가 �
     user = db.query(User).filter(User.kakao_id == kakao_id).first()
 
     if not user:
-        # 이메일 중복 체크 (다른 방식으로 가입된 경우)
+        # 이메일로 기존 사용자 조회 (다른 방식으로 가입된 경우 계정 연동)
         if email:
-            existing_email = db.query(User).filter(User.email == email).first()
-            if existing_email:
-                # 정책 결정 필요: 통합할지 에러낼지. 현재는 에러 대신 통합 유도 메시지 혹은 그냥 연동
-                # 여기서는 간단히 에러 처리 (또는 연동)
-                # 우선은 별도 계정으로 취급하되 이메일이 겹치면... 복잡함.
-                # 편의상 이메일이 같으면 해당 계정의 kakao_id를 업데이트해주는 방식도 있음.
-                pass 
+            user = db.query(User).filter(User.email == email).first()
+            if user:
+                user.kakao_id = kakao_id
+                db.commit()
+                db.refresh(user)
 
-        # 신규 사용자 생성 (플레이스홀더 값)
-        user = User(
-            email=email,
-            name=nickname,
-            birth_year=0,  # 프로필 미완성 플래그
-            occupation="미입력",  # 프로필 미완성 플래그
-            life_background="프로필을 완성해주세요.",
-            auth_provider="kakao",
-            kakao_id=kakao_id,
-            is_active=True,
-            is_verified=True # 소셜은 자동 인증
-        )
-        db.add(user)
-        db.commit()
-        db.refresh(user)
+        if not user:
+            # 신규 사용자 생성 (플레이스홀더 값)
+            user = User(
+                email=email,
+                name=nickname,
+                birth_year=0,
+                occupation="미입력",
+                life_background="프로필을 완성해주세요.",
+                auth_provider="kakao",
+                kakao_id=kakao_id,
+                is_active=True,
+                is_verified=True
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
 
     # 4. JWT 토큰 생성
     access_token = auth_service.create_access_token(user.id)
@@ -398,21 +397,30 @@ async def google_callback(code: str = Query(..., description="구글 인가 코�
     user = db.query(User).filter(User.google_id == google_id).first()
 
     if not user:
-        # 신규 사용자 생성
-        user = User(
-            email=email,
-            name=name,
-            birth_year=0,
-            occupation="미입력",
-            life_background="프로필을 완성해주세요.",
-            auth_provider="google",
-            google_id=google_id,
-            is_active=True,
-            is_verified=True
-        )
-        db.add(user)
-        db.commit()
-        db.refresh(user)
+        # 이메일로 기존 사용자 조회 (다른 방식으로 가입된 경우 계정 연동)
+        if email:
+            user = db.query(User).filter(User.email == email).first()
+            if user:
+                user.google_id = google_id
+                db.commit()
+                db.refresh(user)
+
+        if not user:
+            # 신규 사용자 생성
+            user = User(
+                email=email,
+                name=name,
+                birth_year=0,
+                occupation="미입력",
+                life_background="프로필을 완성해주세요.",
+                auth_provider="google",
+                google_id=google_id,
+                is_active=True,
+                is_verified=True
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
 
     # 4. JWT 토큰 생성
     access_token = auth_service.create_access_token(user.id)
