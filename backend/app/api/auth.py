@@ -2,6 +2,7 @@
 from datetime import datetime, timedelta
 from typing import Optional
 from fastapi import APIRouter, Depends, Query, status
+from fastapi.responses import RedirectResponse
 from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
@@ -19,6 +20,7 @@ from app.schemas.auth import (
 )
 from app.services.auth import AuthService
 from app.services.kakao import KakaoOAuthService
+from app.services.google import GoogleOAuthService
 from app.services.email import EmailService
 from app.dependencies.auth import get_current_active_user, security
 from app.exceptions import UserNotFoundException
@@ -34,6 +36,7 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 auth_service = AuthService()
 kakao_service = KakaoOAuthService()
+google_service = GoogleOAuthService()
 email_service = EmailService()
 
 
@@ -309,20 +312,15 @@ async def reset_password(
 
 @router.get("/kakao/login")
 def kakao_login():
-    """카카오 로그인 URL 반환"""
+    """카카오 로그인 URL로 리다이렉트"""
     auth_url = kakao_service.get_authorization_url()
-    return {"authorization_url": auth_url}
+    return RedirectResponse(auth_url)
 
 
-@router.get("/kakao/callback", response_model=TokenResponse)
+@router.get("/kakao/callback")
 async def kakao_callback(code: str = Query(..., description="카카오 인가 코드"), db: Session = Depends(get_db)):
     """
-    카카오 OAuth 콜백 처리
-
-    1. 인가 코드로 카카오 액세스 토큰 받기
-    2. 카카오 사용자 정보 조회
-    3. 기존 사용자 조회 or 신규 생성
-    4. JWT 토큰 발급
+    카카오 OAuth 콜백 처리 -> 프론트엔드 리다이렉트
     """
 
     # 1. 카카오 액세스 토큰 받기
@@ -338,6 +336,16 @@ async def kakao_callback(code: str = Query(..., description="카카오 인가 �
     user = db.query(User).filter(User.kakao_id == kakao_id).first()
 
     if not user:
+        # 이메일 중복 체크 (다른 방식으로 가입된 경우)
+        if email:
+            existing_email = db.query(User).filter(User.email == email).first()
+            if existing_email:
+                # 정책 결정 필요: 통합할지 에러낼지. 현재는 에러 대신 통합 유도 메시지 혹은 그냥 연동
+                # 여기서는 간단히 에러 처리 (또는 연동)
+                # 우선은 별도 계정으로 취급하되 이메일이 겹치면... 복잡함.
+                # 편의상 이메일이 같으면 해당 계정의 kakao_id를 업데이트해주는 방식도 있음.
+                pass 
+
         # 신규 사용자 생성 (플레이스홀더 값)
         user = User(
             email=email,
@@ -347,7 +355,8 @@ async def kakao_callback(code: str = Query(..., description="카카오 인가 �
             life_background="프로필을 완성해주세요.",
             auth_provider="kakao",
             kakao_id=kakao_id,
-            is_active=True
+            is_active=True,
+            is_verified=True # 소셜은 자동 인증
         )
         db.add(user)
         db.commit()
@@ -357,8 +366,59 @@ async def kakao_callback(code: str = Query(..., description="카카오 인가 �
     access_token = auth_service.create_access_token(user.id)
     refresh_token = auth_service.create_refresh_token(user.id)
 
-    return TokenResponse(
-        access_token=access_token,
-        refresh_token=refresh_token,
-        user_id=user.id
-    )
+    # 5. 프론트엔드로 리다이렉트 (토큰 전달)
+    redirect_url = f"{settings.FRONTEND_URL}/auth/callback?access_token={access_token}&refresh_token={refresh_token}"
+    return RedirectResponse(redirect_url)
+
+
+# ===== 구글 OAuth =====
+
+@router.get("/google/login")
+def google_login():
+    """구글 로그인 URL로 리다이렉트"""
+    auth_url = google_service.get_authorization_url()
+    return RedirectResponse(auth_url)
+
+
+@router.get("/google/callback")
+async def google_callback(code: str = Query(..., description="구글 인가 코드"), db: Session = Depends(get_db)):
+    """
+    구글 OAuth 콜백 처리 -> 프론트엔드 리다이렉트
+    """
+    # 1. 구글 액세스 토큰 받기
+    google_access_token = await google_service.exchange_code(code)
+
+    # 2. 구글 사용자 정보 조회
+    google_user_info = await google_service.get_user_info(google_access_token)
+    google_id = google_user_info["google_id"]
+    email = google_user_info.get("email")
+    name = google_user_info.get("name", "구글사용자")
+
+    # 3. 기존 사용자 조회
+    user = db.query(User).filter(User.google_id == google_id).first()
+
+    if not user:
+        # 신규 사용자 생성
+        user = User(
+            email=email,
+            name=name,
+            birth_year=0,
+            occupation="미입력",
+            life_background="프로필을 완성해주세요.",
+            auth_provider="google",
+            google_id=google_id,
+            is_active=True,
+            is_verified=True
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+    # 4. JWT 토큰 생성
+    access_token = auth_service.create_access_token(user.id)
+    refresh_token = auth_service.create_refresh_token(user.id)
+
+    # 5. 프론트엔드로 리다이렉트
+    redirect_url = f"{settings.FRONTEND_URL}/auth/callback?access_token={access_token}&refresh_token={refresh_token}"
+    return RedirectResponse(redirect_url)
+

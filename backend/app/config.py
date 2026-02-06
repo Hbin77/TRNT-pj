@@ -26,7 +26,12 @@ class Settings(BaseSettings):
     KAKAO_CLIENT_SECRET: str = ""
     KAKAO_REDIRECT_URI: str = "http://localhost:8000/api/v1/auth/kakao/callback"
 
-    # Frontend URL (CORS)
+    # 구글 OAuth
+    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_SECRET: str = ""
+    GOOGLE_REDIRECT_URI: str = "http://localhost:8000/api/v1/auth/google/callback"
+
+    # Frontend URL (CORS & Redirects)
     FRONTEND_URL: str = "http://localhost:3000"
 
     # Cloudflare Turnstile

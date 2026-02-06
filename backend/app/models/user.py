@@ -15,8 +15,9 @@ class User(Base):
 
     # 인증 관련
     hashed_password = Column(String(255), nullable=True)  # OAuth 사용자는 null
-    auth_provider = Column(String(20), nullable=False, default="email")  # "email" or "kakao"
+    auth_provider = Column(String(20), nullable=False, default="email")  # "email", "kakao", "google"
     kakao_id = Column(String(100), unique=True, nullable=True)
+    google_id = Column(String(100), unique=True, nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
     
     # 이메일 인증
