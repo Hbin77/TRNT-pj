@@ -7,11 +7,11 @@ import { useState, useRef, useEffect } from 'react';
 import { Globe, Check } from 'lucide-react';
 import { type Locale } from '@/lib/i18n/translations';
 
-const languages: { code: Locale; label: string }[] = [
-    { code: 'ko', label: '한국어' },
-    { code: 'en', label: 'English' },
-    { code: 'ja', label: '日本語' },
-    { code: 'zh', label: '中文' },
+const languages: { code: Locale; label: string; display: string }[] = [
+    { code: 'ko', label: '한국어', display: 'KR' },
+    { code: 'en', label: 'English', display: 'EN' },
+    { code: 'ja', label: '日本語', display: 'JA' },
+    { code: 'zh', label: '中文', display: 'ZH' },
 ];
 
 export function LanguageSwitcher() {
@@ -46,7 +46,7 @@ export function LanguageSwitcher() {
                 onClick={() => setIsOpen(!isOpen)}
             >
                 <Globe className="w-5 h-5" />
-                <span className="text-sm font-medium uppercase">{locale}</span>
+                <span className="text-sm font-medium">{languages.find(l => l.code === locale)?.display ?? locale.toUpperCase()}</span>
             </Button>
 
             <AnimatePresence>

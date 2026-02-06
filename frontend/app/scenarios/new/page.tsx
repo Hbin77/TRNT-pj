@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Sparkles, ArrowLeft, Loader2, Calendar } from 'lucide-react';
 import type { ScenarioRequest } from '@/types';
 import { GlassCard } from '@/components/ui/GlassCard';
+import { AxiosError } from 'axios';
 
 export default function NewScenarioPage() {
   const router = useRouter();
@@ -60,9 +61,16 @@ export default function NewScenarioPage() {
 
       const result = await scenarioAPI.generate(requestData);
       router.push(`/scenarios/${result.scenario_id || ''}`);
-    } catch (error) {
-      console.error('Generation failed:', error);
-      alert('시나리오 생성에 실패했습니다. 일일 제한을 초과했거나 서버 오류일 수 있습니다.');
+    } catch (err: unknown) {
+      console.error('Generation failed:', err);
+      const axiosErr = err as AxiosError<{ error?: { message: string }; detail?: string | [] }>;
+      let message = '시나리오 생성에 실패했습니다.';
+      if (axiosErr.response?.data?.error?.message) {
+        message = axiosErr.response.data.error.message;
+      } else if (typeof axiosErr.response?.data?.detail === 'string') {
+        message = axiosErr.response.data.detail;
+      }
+      alert(message);
     } finally {
       setIsGenerating(false);
     }
