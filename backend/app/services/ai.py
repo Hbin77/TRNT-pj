@@ -321,7 +321,7 @@ class AIService:
                             "Content-Type": "application/json"
                         },
                         json={
-                            "model": "qwen3-32b",
+                            "model": "qwen/qwen3-32b",
                             "messages": [
                                 {"role": "system", "content": SYSTEM_PROMPT},
                                 {"role": "user", "content": prompt}
