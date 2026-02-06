@@ -18,7 +18,7 @@ from app.services.ai import AIService
 from app.services.rate_limiter import RateLimiterService
 from app.dependencies.auth import get_current_active_user
 from app.dependencies.profile import require_complete_profile
-from app.exceptions import UserNotFoundException, ScenarioNotFoundException, PermissionDeniedException
+from app.exceptions import UserNotFoundException, ScenarioNotFoundException, PermissionDeniedException, AIServiceException, TRNTException
 
 router = APIRouter(prefix="/scenarios", tags=["Scenarios"])
 
@@ -42,14 +42,24 @@ async def generate_scenario(
     rate_limiter.check_and_record(user_id=user.id)
 
     # 시나리오 생성
-    scenario_text = await ai_service.generate_scenario(
-        user=user,
-        branch=request.branch,
-        tone=request.tone,
-        genre=request.genre,
-        detail_level=request.detail_level,
-        scope=request.scope
-    )
+    try:
+        scenario_text = await ai_service.generate_scenario(
+            user=user,
+            branch=request.branch,
+            tone=request.tone,
+            genre=request.genre,
+            detail_level=request.detail_level,
+            scope=request.scope
+        )
+    except TRNTException:
+        raise
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Scenario generation failed: {type(e).__name__}: {e}", exc_info=True)
+        raise AIServiceException(
+            message=f"시나리오 생성 중 오류가 발생했습니다: {type(e).__name__}",
+            details={"error": str(e)}
+        )
 
     scenario_id = None
 
