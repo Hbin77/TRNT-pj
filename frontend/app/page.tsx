@@ -88,12 +88,15 @@ export default function Home() {
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
-              <Link href="#preview" className="w-full sm:w-auto">
-                <Button size="lg" variant="secondary" className="w-full sm:w-auto text-lg h-14 px-8 bg-white/5 border-white/10 hover:bg-white/10">
-                  <PlayCircle className="mr-2 w-5 h-5" />
-                  {t('hero.preview_btn')}
-                </Button>
-              </Link>
+              <Button
+                size="lg"
+                variant="secondary"
+                className="w-full sm:w-auto text-lg h-14 px-8 bg-white/5 border-white/10 hover:bg-white/10"
+                onClick={() => document.getElementById('preview')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                <PlayCircle className="mr-2 w-5 h-5" />
+                {t('hero.preview_btn')}
+              </Button>
             </motion.div>
 
             <motion.div variants={itemVariants} className="pt-8 flex items-center space-x-6 text-sm text-gray-500">
