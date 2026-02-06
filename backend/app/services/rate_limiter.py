@@ -33,7 +33,6 @@ class RateLimiterService:
         today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
 
         try:
-            # FOR UPDATE로 락 획득하여 동시성 제어
             usage_count = (
                 self.db.query(func.count(UsageLog.id))
                 .filter(
@@ -41,7 +40,6 @@ class RateLimiterService:
                     UsageLog.action == action,
                     UsageLog.created_at >= today_start
                 )
-                .with_for_update()
                 .scalar()
             )
 
