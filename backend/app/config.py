@@ -14,6 +14,7 @@ class Settings(BaseSettings):
 
     # Rate Limiting
     DAILY_FREE_LIMIT: int = 3
+    MASTER_EMAILS: str = ""  # 쉼표 구분 이메일 목록 (일일 제한 면제)
 
     # JWT 인증
     SECRET_KEY: str = "your-secret-key-change-this-in-production"

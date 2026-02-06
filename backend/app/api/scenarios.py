@@ -39,7 +39,7 @@ async def generate_scenario(
 
     # 일일 사용량 제한 체크 및 기록
     rate_limiter = RateLimiterService(db)
-    rate_limiter.check_and_record(user_id=user.id)
+    rate_limiter.check_and_record(user_id=user.id, email=user.email)
 
     # 시나리오 생성
     try:

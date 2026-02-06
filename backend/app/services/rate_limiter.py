@@ -17,8 +17,17 @@ class RateLimiterService:
     def __init__(self, db: Session):
         self.db = db
         self.daily_limit = settings.DAILY_FREE_LIMIT
+        self._master_emails = {
+            e.strip().lower()
+            for e in settings.MASTER_EMAILS.split(",")
+            if e.strip()
+        }
 
-    def check_and_record(self, user_id: UUID, action: str = "scenario_generation") -> None:
+    def is_master(self, email: str | None) -> bool:
+        """마스터 계정 여부 확인"""
+        return bool(email and email.lower() in self._master_emails)
+
+    def check_and_record(self, user_id: UUID, email: str | None = None, action: str = "scenario_generation") -> None:
         """
         일일 사용량 체크 및 기록 (동시성 안전)
 
@@ -43,7 +52,7 @@ class RateLimiterService:
                 .scalar()
             )
 
-            if usage_count >= self.daily_limit:
+            if usage_count >= self.daily_limit and not self.is_master(email):
                 # 다음 날 00:00:00 계산
                 tomorrow = today_start + timedelta(days=1)
                 hours_until_reset = int((tomorrow - datetime.utcnow()).total_seconds() / 3600)
