@@ -218,10 +218,12 @@ export default function DashboardPage() {
                     <span>프로필 수정</span>
                     <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
                   </Link>
+                  {user.auth_provider === 'email' && (
                   <Link href="/profile/password" className="w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 text-white/60 hover:text-white transition-colors text-sm flex justify-between items-center group">
-                    <span>{user.auth_provider !== 'email' ? '비밀번호 설정' : '비밀번호 변경'}</span>
+                    <span>비밀번호 변경</span>
                     <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
                   </Link>
+                  )}
                   <button
                     onClick={() => setShowDeleteConfirm(true)}
                     className="w-full text-left px-4 py-3 rounded-xl hover:bg-red-500/10 text-red-400/60 hover:text-red-400 transition-colors text-sm flex justify-between items-center group"

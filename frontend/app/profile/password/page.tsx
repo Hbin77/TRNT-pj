@@ -25,8 +25,6 @@ export default function PasswordChangePage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const isEmailUser = user?.auth_provider === 'email';
-
   const {
     register,
     handleSubmit,
@@ -44,6 +42,9 @@ export default function PasswordChangePage() {
     if (!authLoading && !user) {
       router.push('/login');
     }
+    if (!authLoading && user && user.auth_provider !== 'email') {
+      router.push('/dashboard');
+    }
   }, [authLoading, user, router]);
 
   const onSubmit = async (data: PasswordFormData) => {
@@ -53,7 +54,7 @@ export default function PasswordChangePage() {
 
     try {
       await authAPI.changePassword({
-        current_password: isEmailUser ? data.current_password : undefined,
+        current_password: data.current_password,
         new_password: data.new_password,
       });
       setSuccess('비밀번호가 변경되었습니다.');
@@ -95,14 +96,8 @@ export default function PasswordChangePage() {
           <Link href="/dashboard" className="inline-flex mb-6">
             <Logo size="large" />
           </Link>
-          <h2 className="text-2xl font-bold text-white mb-2">
-            {isEmailUser ? '비밀번호 변경' : '비밀번호 설정'}
-          </h2>
-          <p className="text-gray-400">
-            {isEmailUser
-              ? '새로운 비밀번호를 입력해주세요'
-              : '이메일 로그인에 사용할 비밀번호를 설정하세요'}
-          </p>
+          <h2 className="text-2xl font-bold text-white mb-2">비밀번호 변경</h2>
+          <p className="text-gray-400">새로운 비밀번호를 입력해주세요</p>
         </div>
 
         <GlassCard>
@@ -119,18 +114,16 @@ export default function PasswordChangePage() {
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {isEmailUser && (
-              <Input
-                label="현재 비밀번호"
-                type="password"
-                placeholder="현재 비밀번호"
-                required
-                error={errors.current_password?.message}
-                {...register('current_password', {
-                  required: '현재 비밀번호를 입력해주세요',
-                })}
-              />
-            )}
+            <Input
+              label="현재 비밀번호"
+              type="password"
+              placeholder="현재 비밀번호"
+              required
+              error={errors.current_password?.message}
+              {...register('current_password', {
+                required: '현재 비밀번호를 입력해주세요',
+              })}
+            />
 
             <Input
               label="새 비밀번호"
@@ -174,7 +167,7 @@ export default function PasswordChangePage() {
                 취소
               </Button>
               <Button type="submit" className="flex-1" size="lg" isLoading={isLoading}>
-                {isEmailUser ? '비밀번호 변경' : '비밀번호 설정'}
+                비밀번호 변경
               </Button>
             </div>
           </form>
