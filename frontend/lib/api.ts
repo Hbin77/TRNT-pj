@@ -36,17 +36,84 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// 응답 인터셉터: 401 에러 시 로그아웃
+// 응답 인터셉터: 401 에러 시 토큰 갱신 시도
+let isRefreshing = false;
+let failedQueue: { resolve: (token: string) => void; reject: (error: unknown) => void }[] = [];
+
+const processQueue = (error: unknown, token: string | null) => {
+  failedQueue.forEach((prom) => {
+    if (token) {
+      prom.resolve(token);
+    } else {
+      prom.reject(error);
+    }
+  });
+  failedQueue = [];
+};
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 401) {
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        window.location.href = '/login';
+    const originalRequest = error.config;
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      // refresh 요청 자체가 실패한 경우 로그아웃
+      if (originalRequest.url?.includes('/auth/refresh')) {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+          window.location.href = '/login';
+        }
+        return Promise.reject(error);
+      }
+
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        }).then((token) => {
+          originalRequest.headers.Authorization = `Bearer ${token}`;
+          return api(originalRequest);
+        });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('refresh_token') : null;
+      if (!refreshToken) {
+        isRefreshing = false;
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('access_token');
+          window.location.href = '/login';
+        }
+        return Promise.reject(error);
+      }
+
+      try {
+        const response = await api.post<TokenResponse>('/auth/refresh', {
+          refresh_token: refreshToken,
+        });
+        const { access_token, refresh_token: newRefreshToken } = response.data;
+
+        localStorage.setItem('access_token', access_token);
+        localStorage.setItem('refresh_token', newRefreshToken);
+
+        originalRequest.headers.Authorization = `Bearer ${access_token}`;
+        processQueue(null, access_token);
+        return api(originalRequest);
+      } catch (refreshError) {
+        processQueue(refreshError, null);
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+          window.location.href = '/login';
+        }
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
+
     return Promise.reject(error);
   }
 );
