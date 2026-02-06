@@ -25,7 +25,7 @@
    - **활성화 설정(OFF -> ON)** 변경.
    - **Redirect URI 등록** 버튼 클릭 후 아래 주소 입력:
      ```
-     http://localhost:8000/api/v1/auth/kakao/callback
+     http://localhost:8002/api/v1/auth/kakao/callback
      ```
 
 ### 4단계: 동의 항목 설정
@@ -58,11 +58,11 @@
 4. 이름: `TRNT Web Client`.
 5. **승인된 자바스크립트 원본**:
    - `http://localhost:3000`
-   - `http://localhost:8000`
+   - `http://localhost:8002`
 6. **승인된 리디렉션 URI** (가장 중요!):
    - 아래 주소를 정확히 입력하고 엔터/추가:
      ```
-     http://localhost:8000/api/v1/auth/google/callback
+     http://localhost:8002/api/v1/auth/google/callback
      ```
 7. **만들기** 버튼 클릭.
 
@@ -80,8 +80,8 @@
 
 | 플랫폼 | 설정 위치 | Redirect URI |
 |---|---|---|
-| **Kakao** | 카카오 로그인 > Redirect URI | `http://localhost:8000/api/v1/auth/kakao/callback` |
-| **Google** | 사용자 인증 정보 > 승인된 리디렉션 URI | `http://localhost:8000/api/v1/auth/google/callback` |
+| **Kakao** | 카카오 로그인 > Redirect URI | `http://localhost:8002/api/v1/auth/kakao/callback` |
+| **Google** | 사용자 인증 정보 > 승인된 리디렉션 URI | `http://localhost:8002/api/v1/auth/google/callback` |
 
 ---
 
