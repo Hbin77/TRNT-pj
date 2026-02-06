@@ -42,6 +42,9 @@ export default function Home() {
           <Logo />
         </Link>
         <div className="hidden md:flex items-center space-x-4">
+          <Link href="/about" className="text-sm text-gray-400 hover:text-white transition-colors">
+            {t('footer.about')}
+          </Link>
           <Link href="/login">
             <Button variant="ghost" className="text-gray-400 hover:text-white">{t('nav.login')}</Button>
           </Link>

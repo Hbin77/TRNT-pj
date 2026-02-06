@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /scenarios
+Disallow: /profile
+Disallow: /auth
+
+Sitemap: https://trnt.app/sitemap.xml
