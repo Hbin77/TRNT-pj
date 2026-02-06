@@ -30,6 +30,20 @@ export const translations = {
             cta_desc: "과거의 선택을 후회하는 대신, TRNT를 통해 그 선택의 결과를 미리 경험하고 현재의 삶을 더 사랑하게 되는 계기를 만들어보세요.",
             free_btn: "지금 무료로 시작하기"
         },
+        preview: {
+            title: "이런 시나리오가 만들어집니다",
+            subtitle: "AI가 생성한 평행세계 시나리오 예시를 확인해보세요",
+            cta: "나만의 시나리오 만들기",
+            card1_genre: "드라마",
+            card1_choice: "대기업 합격 대신 스타트업 창업",
+            card1_excerpt: "사직서를 낸 다음 날 아침, 텅 빈 원룸에서 눈을 떴다. 통장 잔고는 430만 원. 그게 내 회사의 전부였다. 노트북을 열고 첫 번째 코드를 작성하는 손끝이 떨렸지만, 이상하게도 지난 3년 동안 느껴보지 못한 심장의 떨림이 함께였다.",
+            card2_genre: "로맨스",
+            card2_choice: "그때 그 고백을 했더라면",
+            card2_excerpt: "심장이 터질 것 같았지만, 결국 그 말을 내뱉었다. \"좋아해.\" 2초의 정적이 2시간처럼 느껴졌다. 고개를 들었을 때, 그 사람의 눈가가 붉어져 있었다. \"...나도.\" 세상이 멈춘 것 같았다.",
+            card3_genre: "성장",
+            card3_choice: "유학을 떠났더라면",
+            card3_excerpt: "인천공항 출국장을 빠져나오며 뒤를 돌아보지 않겠다고 다짐했다. 하지만 보스턴의 첫 겨울, 영하 15도의 바람 속에서 라면을 끓이며 엄마의 된장찌개가 떠올랐을 때, 눈물이 먼저 나왔다."
+        },
         footer: {
             terms: "이용약관",
             privacy: "개인정보처리방침",
@@ -81,6 +95,20 @@ export const translations = {
             cta_title: "New Possibilities over Regret",
             cta_desc: "Instead of regretting past choices, use TRNT to experience the outcomes of those choices and find reasons to love your current life more.",
             free_btn: "Start Free Now"
+        },
+        preview: {
+            title: "See What Gets Created",
+            subtitle: "Check out these AI-generated parallel universe scenario examples",
+            cta: "Create My Own Scenario",
+            card1_genre: "Drama",
+            card1_choice: "Starting a Startup Instead of Joining a Corporation",
+            card1_excerpt: "The morning after I handed in my resignation, I woke up in an empty studio apartment. My bank balance: $4,300. That was everything my company had. My fingers trembled as I typed the first line of code, but strangely, my heart was racing in a way it hadn't in three years.",
+            card2_genre: "Romance",
+            card2_choice: "What If I Had Confessed That Day",
+            card2_excerpt: "My heart felt like it would burst, but I finally said the words. \"I like you.\" Two seconds of silence felt like two hours. When I looked up, their eyes were glistening red. \"...Me too.\" The world seemed to stop.",
+            card3_genre: "Growth",
+            card3_choice: "What If I Had Studied Abroad",
+            card3_excerpt: "Walking through the departure gates at the airport, I swore I wouldn't look back. But during my first winter in Boston, boiling ramen in minus-15-degree winds, the memory of my mom's homemade stew hit me—and the tears came first."
         },
         footer: {
             terms: "Terms of Service",
@@ -134,6 +162,20 @@ export const translations = {
             cta_desc: "過去の選択を後悔する代わりに、TRNTを通じてその選択の結果をあらかじめ体験し、現在の人生をより愛するきっかけを作ってみてください。",
             free_btn: "今すぐ無料で始める"
         },
+        preview: {
+            title: "こんなシナリオが作られます",
+            subtitle: "AIが生成した並行世界シナリオの例をご覧ください",
+            cta: "自分だけのシナリオを作る",
+            card1_genre: "ドラマ",
+            card1_choice: "大企業内定を蹴ってスタートアップ創業",
+            card1_excerpt: "退職届を出した翌朝、がらんとしたワンルームで目を覚ました。口座残高は43万円。それが会社の全てだった。ノートPCを開き最初のコードを書く指先は震えていたが、不思議とこの3年間感じたことのない胸の高鳴りがあった。",
+            card2_genre: "ロマンス",
+            card2_choice: "あの時告白していたら",
+            card2_excerpt: "心臓が張り裂けそうだったが、ついにその言葉を口にした。「好きです。」2秒の静寂が2時間のように感じられた。顔を上げると、その人の目元が赤くなっていた。「…私も。」世界が止まったようだった。",
+            card3_genre: "成長",
+            card3_choice: "留学に行っていたら",
+            card3_excerpt: "空港の出発ゲートを抜けながら、振り返らないと誓った。しかしボストンでの最初の冬、マイナス15度の風の中でラーメンを作りながら、母の味噌汁を思い出した時、涙が先にこぼれた。"
+        },
         footer: {
             terms: "利用規約",
             privacy: "プライバシーポリシー",
@@ -185,6 +227,20 @@ export const translations = {
             cta_title: "与其后悔，不如探索新可能",
             cta_desc: "与其后悔过去的选择，不如通过TRNT提前体验该选择的结果，创造更爱现在的生活的契机。",
             free_btn: "立即免费开始"
+        },
+        preview: {
+            title: "这样的剧本将被创造出来",
+            subtitle: "查看AI生成的平行世界剧本示例",
+            cta: "创建我的专属剧本",
+            card1_genre: "剧情",
+            card1_choice: "放弃大企业offer，选择创业",
+            card1_excerpt: "递交辞职信的第二天早上，我在空荡荡的单间里醒来。银行余额：4300元。这就是我公司的全部。打开笔记本电脑，敲下第一行代码的指尖在颤抖，但奇怪的是，心跳的节奏是过去三年从未感受过的。",
+            card2_genre: "爱情",
+            card2_choice: "如果那时说出了表白",
+            card2_excerpt: "心脏好像要炸开，但我终于说出了那句话。\"我喜欢你。\"两秒的沉默感觉像两个小时。当我抬起头，那个人的眼角已经泛红。\"……我也是。\"世界仿佛停止了转动。",
+            card3_genre: "成长",
+            card3_choice: "如果当初选择了留学",
+            card3_excerpt: "走过机场出发大厅，我发誓不再回头。但在波士顿的第一个冬天，在零下15度的寒风中煮着泡面，想起妈妈的大酱汤时，眼泪先流了下来。"
         },
         footer: {
             terms: "使用条款",

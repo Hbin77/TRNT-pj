@@ -161,6 +161,58 @@ export default function Home() {
           </motion.div>
         </div>
 
+        {/* Preview Section */}
+        <section id="preview" className="mt-32 scroll-mt-24">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">{t('preview.title')}</h2>
+            <p className="text-gray-400 text-lg">{t('preview.subtitle')}</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            {[
+              { genre: t('preview.card1_genre'), choice: t('preview.card1_choice'), excerpt: t('preview.card1_excerpt'), color: 'blue' },
+              { genre: t('preview.card2_genre'), choice: t('preview.card2_choice'), excerpt: t('preview.card2_excerpt'), color: 'pink' },
+              { genre: t('preview.card3_genre'), choice: t('preview.card3_choice'), excerpt: t('preview.card3_excerpt'), color: 'purple' },
+            ].map((card, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.15 }}
+              >
+                <div className="h-full relative p-[1px] rounded-2xl bg-gradient-to-br from-white/10 to-transparent hover:from-blue-500/50 hover:to-purple-500/50 transition-all duration-300">
+                  <div className="bg-[#12121A]/80 backdrop-blur-xl p-6 rounded-2xl h-full flex flex-col">
+                    <div className="mb-4">
+                      <span className={cn(
+                        "px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium",
+                        card.color === 'blue' && 'text-blue-300',
+                        card.color === 'pink' && 'text-pink-300',
+                        card.color === 'purple' && 'text-purple-300',
+                      )}>
+                        {card.genre}
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-4 leading-snug">{card.choice}</h3>
+                    <p className="text-white/60 italic text-sm leading-relaxed line-clamp-4 flex-grow">
+                      &ldquo;{card.excerpt}&rdquo;
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <Link href="/register">
+              <Button size="lg" className="shadow-lg shadow-primary/20">
+                {t('preview.cta')}
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </Link>
+          </div>
+        </section>
+
         {/* Features Bento Grid */}
         <section className="mt-32">
           <div className="text-center mb-16">

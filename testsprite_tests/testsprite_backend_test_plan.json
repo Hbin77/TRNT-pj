@@ -1,0 +1,52 @@
+[
+  {
+    "id": "TC001",
+    "title": "health check endpoint returns server status",
+    "description": "Verify that the GET /health endpoint returns the server status with a timestamp and version information, ensuring the server is operational."
+  },
+  {
+    "id": "TC002",
+    "title": "user registration with email and turnstile verification",
+    "description": "Test the POST /api/v1/auth/register endpoint to register a new user with email, password, name, birth year, occupation, life background, and turnstile token, and verify that a verification email is sent. Also test duplicate email registration returns 409."
+  },
+  {
+    "id": "TC003",
+    "title": "email verification with 6 digit code and auto login",
+    "description": "Test the POST /api/v1/auth/verify-email endpoint to verify the email using a 6-digit code and confirm that it returns access_token, refresh_token, and user_id for auto-login."
+  },
+  {
+    "id": "TC004",
+    "title": "user login with email and password returns jwt tokens",
+    "description": "Test the POST /api/v1/auth/login endpoint with valid and invalid credentials to verify successful login returns access_token, refresh_token, and user_id, and invalid credentials return 401."
+  },
+  {
+    "id": "TC005",
+    "title": "refresh jwt tokens using refresh token",
+    "description": "Test the POST /api/v1/auth/refresh endpoint to refresh JWT tokens by providing a valid refresh_token and verify that new access and refresh tokens are returned."
+  },
+  {
+    "id": "TC006",
+    "title": "get current authenticated user profile",
+    "description": "Test the GET /api/v1/auth/me endpoint with a valid bearer token to retrieve the current authenticated user's profile information, and verify unauthorized access is rejected."
+  },
+  {
+    "id": "TC007",
+    "title": "logout invalidates token via blacklist",
+    "description": "Test the POST /api/v1/auth/logout endpoint to logout the user by invalidating the current token via blacklist and verify the response confirms logout."
+  },
+  {
+    "id": "TC008",
+    "title": "generate ai scenario with rate limiting and master account exemption",
+    "description": "Test the POST /api/v1/scenarios/generate endpoint to generate AI-driven life scenarios with required parameters and verify that daily rate limiting is enforced for normal users and exempted for master accounts."
+  },
+  {
+    "id": "TC009",
+    "title": "list user scenarios with pagination",
+    "description": "Test the GET /api/v1/scenarios endpoint to retrieve a paginated list of scenarios owned by the authenticated user, verifying correct pagination and authentication enforcement."
+  },
+  {
+    "id": "TC010",
+    "title": "delete scenario owned by user",
+    "description": "Test the DELETE /api/v1/scenarios/{scenario_id} endpoint to delete a scenario owned by the authenticated user and verify that the scenario is removed and unauthorized deletion attempts are rejected."
+  }
+]

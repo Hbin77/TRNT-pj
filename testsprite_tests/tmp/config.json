@@ -2,7 +2,18 @@
   "status": "commited",
   "type": "backend",
   "scope": "codebase",
-  "localEndpoint": "http://localhost:3000/dashboard",
+  "localEndpoint": "http://localhost:8002",
   "backendAuthType": "Bearer token",
-  "backendCredential": "sk-user-m7j6iIH79Tpjg4AZlQS_BQXDrSoy5BxXR4dFTYt89Mx4iAVomQLHR5yuBzB4KIIRff0B4AYxYb1deFAV5gF-q_t3nLL85XsGVoUuEBjABlhURvDLJHc732RmzZ7McnIhLvo"
+  "backendCredential": "sk-user-m7j6iIH79Tpjg4AZlQS_BQXDrSoy5BxXR4dFTYt89Mx4iAVomQLHR5yuBzB4KIIRff0B4AYxYb1deFAV5gF-q_t3nLL85XsGVoUuEBjABlhURvDLJHc732RmzZ7McnIhLvo",
+  "executionArgs": {
+    "projectName": "trnt_pj",
+    "projectPath": "/Users/baghyeonbin/trnt_pj",
+    "testIds": [],
+    "additionalInstruction": "Focus on testing the rate limiter master account bypass feature and the AI prompt changes. The backend runs on port 8000. Database is PostgreSQL.",
+    "envs": {
+      "API_KEY": "sk-user-E6WRGwCu0E2wLhceLrXH-ID7TVU4yE9xiVWG8-5ykbt5cACB_9rXIzJ5dM8ToEl-Iap0Xef-lRQezQ5ND9iWlm5Ey0QLdOatAEnhAXctkxvDDU989KNyMCUf1brLYpaZC98"
+    }
+  },
+  "serverPort": 53630,
+  "proxy": "http://304e59a4-b3c8-4ab3-b86e-c6786dd1159a:mknSaCnYwiG0J74Twa6E3cyeZ7hpC2At@tun.testsprite.com:8080"
 }
