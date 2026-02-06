@@ -1,6 +1,5 @@
 from typing import Optional
 import httpx
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 from app.config import settings
 from app.models.user import User
 from app.schemas.scenario import BranchInput
@@ -281,11 +280,6 @@ class AIService:
 """
         return prompt
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=2, max=10),
-        retry=retry_if_exception_type((httpx.TimeoutException, httpx.RequestError))
-    )
     async def generate_scenario(
         self,
         user: User,
@@ -304,54 +298,70 @@ class AIService:
         if not self.groq_api_key:
             return self._mock_response(user, branch, scope)
 
-        try:
-            async with httpx.AsyncClient() as client:
-                response = await client.post(
-                    self.base_url,
-                    headers={
-                        "Authorization": f"Bearer {self.groq_api_key}",
-                        "Content-Type": "application/json"
-                    },
-                    json={
-                        "model": "llama-3.3-70b-versatile",
-                        "messages": [
-                            {"role": "system", "content": SYSTEM_PROMPT},
-                            {"role": "user", "content": prompt}
-                        ],
-                        "temperature": 0.85,
-                        "top_p": 0.9,
-                        "max_tokens": max_tokens
-                    },
-                    timeout=120.0
-                )
+        last_error = None
+        for attempt in range(3):
+            try:
+                async with httpx.AsyncClient() as client:
+                    response = await client.post(
+                        self.base_url,
+                        headers={
+                            "Authorization": f"Bearer {self.groq_api_key}",
+                            "Content-Type": "application/json"
+                        },
+                        json={
+                            "model": "llama-3.3-70b-versatile",
+                            "messages": [
+                                {"role": "system", "content": SYSTEM_PROMPT},
+                                {"role": "user", "content": prompt}
+                            ],
+                            "temperature": 0.85,
+                            "top_p": 0.9,
+                            "max_tokens": max_tokens
+                        },
+                        timeout=120.0
+                    )
 
-                if response.status_code != 200:
-                    # 429나 5xx 에러는 재시도 대상일 수 있음 (tenacity가 핸들링할 수 있게 할 수도 있지만, 여기선 예외 발생시킴)
+                    if response.status_code == 200:
+                        data = response.json()
+                        return data["choices"][0]["message"]["content"]
+
+                    # 재시도 가능한 에러
                     if response.status_code in [429, 500, 502, 503, 504]:
-                         response.raise_for_status() # httpx.RequestError 발생 유도하여 재시도
+                        last_error = f"AI API 오류: HTTP {response.status_code}"
+                        if attempt < 2:
+                            import asyncio
+                            await asyncio.sleep(2 ** (attempt + 1))
+                            continue
 
                     raise AIServiceException(
                         message=f"AI API 오류: HTTP {response.status_code}",
                         details={"status_code": response.status_code, "response": response.text[:200]}
                     )
 
-                data = response.json()
-                return data["choices"][0]["message"]["content"]
+            except httpx.TimeoutException:
+                last_error = "AI 서버 응답 시간이 초과되었습니다."
+                if attempt < 2:
+                    import asyncio
+                    await asyncio.sleep(2 ** (attempt + 1))
+                    continue
+            except httpx.RequestError as e:
+                last_error = f"AI 서버 연결에 실패했습니다: {str(e)}"
+                if attempt < 2:
+                    import asyncio
+                    await asyncio.sleep(2 ** (attempt + 1))
+                    continue
+            except AIServiceException:
+                raise
+            except Exception as e:
+                raise AIServiceException(
+                    message="AI 시나리오 생성 중 오류가 발생했습니다.",
+                    details={"error": str(e)}
+                )
 
-        except httpx.TimeoutException:
-            # 재시도 로직에 의해 잡히지만, 3회 실패 시 최종적으로 여기로 옴 (tenacity 설정에 따라 다름)
-            # 여기선 재시도 실패 후 최종 예외를 처리하기 위해, tenacity의 retry_error_callback을 쓰거나
-            # 외부에서 잡아야 함. 일단은 raise 하여 상위 전파.
-            raise 
-        except httpx.RequestError as e:
-            raise
-        except Exception as e:
-             if isinstance(e, AIServiceException):
-                 raise
-             raise AIServiceException(
-                 message="AI 시나리오 생성 중 오류가 발생했습니다.",
-                 details={"error": str(e)}
-             )
+        # 3회 재시도 모두 실패
+        raise AIServiceException(
+            message=last_error or "AI 시나리오 생성에 실패했습니다. 잠시 후 다시 시도해주세요.",
+        )
 
     def _mock_response(self, user: User, branch: BranchInput, scope: str) -> str:
         """테스트용 목업 응답"""
