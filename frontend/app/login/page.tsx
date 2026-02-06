@@ -58,7 +58,7 @@ export default function LoginPage() {
         <GlassCard>
           <div className="grid grid-cols-2 gap-3 mb-6">
             <a
-              href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002'}/api/v1/auth/kakao/login`}
+              href="/api/v1/auth/kakao/login"
               className="flex items-center justify-center gap-2 bg-[#FEE500] text-[#000000] py-2.5 rounded-xl text-sm font-medium hover:bg-[#FEE500]/90 transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
@@ -67,7 +67,7 @@ export default function LoginPage() {
               카카오 로그인
             </a>
             <a
-              href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002'}/api/v1/auth/google/login`}
+              href="/api/v1/auth/google/login"
               className="flex items-center justify-center gap-2 bg-white text-gray-700 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
