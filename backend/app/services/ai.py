@@ -18,6 +18,7 @@ SYSTEM_PROMPT = """당신은 대한민국 최고의 평행세계 인생 소설 �
 
 ## 절대 규칙
 - **반드시 한국어(한글)로만 작성하십시오. 중국어(漢字), 일본어(ひらがな/カタカナ), 기타 외국어 문자를 절대 사용하지 마십시오.**
+- **반드시 1인칭 시점('나')으로 작성하십시오. 사용자의 이름을 직접 사용하지 말고, 주인공을 '나'로 지칭하십시오. 독자가 자신의 이야기처럼 몰입할 수 있도록 1인칭 서술을 유지하십시오.**
 - 뻔한 교훈이나 일반론 금지. "노력하면 된다" 같은 추상적 결론 금지
 - 원래 선택과 대안 선택의 결과가 명확히 다른 궤도를 그려야 합니다
 - 사용자의 성격/가치관/배경이 스토리 전개에 직접적으로 영향을 미쳐야 합니다
@@ -52,6 +53,12 @@ class AIService:
         # 연속 공백 정리
         text = re.sub(r'  +', ' ', text)
         return text
+
+    @staticmethod
+    def _strip_think_tags(text: str) -> str:
+        """Qwen 모델의 <think>...</think> 사고 과정 태그를 제거"""
+        text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL)
+        return text.strip()
 
     def _get_max_tokens(self, detail_level: str) -> int:
         """
@@ -335,7 +342,9 @@ class AIService:
 
                     if response.status_code == 200:
                         data = response.json()
-                        return self._clean_foreign_chars(data["choices"][0]["message"]["content"])
+                        content = data["choices"][0]["message"]["content"]
+                        content = self._strip_think_tags(content)
+                        return self._clean_foreign_chars(content)
 
                     # 재시도 가능한 에러
                     if response.status_code in [429, 500, 502, 503, 504]:
