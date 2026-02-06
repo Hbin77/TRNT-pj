@@ -19,7 +19,12 @@ function AuthCallbackContent() {
 
             // 사용자 정보 가져오기 및 상태 업데이트
             useAuthStore.getState().fetchUser().then(() => {
-                router.push('/dashboard');
+                const user = useAuthStore.getState().user;
+                if (user && (user.birth_year === 0 || user.occupation === '미입력')) {
+                    router.push('/profile/edit?setup=true');
+                } else {
+                    router.push('/dashboard');
+                }
             }).catch(() => {
                 router.push('/login?error=social_login_failed');
             });

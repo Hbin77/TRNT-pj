@@ -16,7 +16,8 @@ from app.schemas.auth import (
     TokenRefreshRequest,
     CurrentUserResponse,
     ForgotPasswordRequest,
-    ResetPasswordRequest
+    ResetPasswordRequest,
+    ChangePasswordRequest
 )
 from app.services.auth import AuthService
 from app.services.kakao import KakaoOAuthService
@@ -306,6 +307,30 @@ async def reset_password(
     db.commit()
 
     return {"message": "비밀번호가 변경되었습니다"}
+
+
+@router.post("/change-password")
+async def change_password(
+    request: ChangePasswordRequest,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """비밀번호 변경 (이메일 사용자: 현재 비밀번호 필수, 소셜 사용자: 새 비밀번호만)"""
+
+    if current_user.auth_provider == "email":
+        # 이메일 사용자: 현재 비밀번호 검증 필수
+        if not request.current_password:
+            raise AuthenticationException(message="현재 비밀번호를 입력해주세요.")
+        if not current_user.hashed_password or not auth_service.verify_password(
+            request.current_password, current_user.hashed_password
+        ):
+            raise AuthenticationException(message="현재 비밀번호가 올바르지 않습니다.")
+
+    # 새 비밀번호 설정
+    current_user.hashed_password = auth_service.hash_password(request.new_password)
+    db.commit()
+
+    return {"message": "비밀번호가 변경되었습니다."}
 
 
 # ===== 카카오 OAuth =====

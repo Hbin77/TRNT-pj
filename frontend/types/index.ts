@@ -55,6 +55,11 @@ export interface TokenResponse {
   user_id: string;
 }
 
+export interface ChangePasswordRequest {
+  current_password?: string;
+  new_password: string;
+}
+
 // 시나리오 관련
 export interface BranchInput {
   occurred_at: string;

@@ -5,6 +5,7 @@ import type {
   VerifyEmailRequest,
   TokenResponse,
   User,
+  ChangePasswordRequest,
   ScenarioRequest,
   Scenario,
   ScenarioListResponse,
@@ -80,6 +81,11 @@ export const authAPI = {
     const response = await api.post<TokenResponse>('/auth/refresh', {
       refresh_token: refreshToken,
     });
+    return response.data;
+  },
+
+  changePassword: async (data: ChangePasswordRequest): Promise<{ message: string }> => {
+    const response = await api.post<{ message: string }>('/auth/change-password', data);
     return response.data;
   },
 };

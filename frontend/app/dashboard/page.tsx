@@ -197,14 +197,14 @@ export default function DashboardPage() {
               <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6">
                 <h4 className="text-white font-bold mb-4">내 정보 관리</h4>
                 <div className="space-y-2">
-                  <button className="w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 text-white/60 hover:text-white transition-colors text-sm flex justify-between items-center group">
+                  <Link href="/profile/edit" className="w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 text-white/60 hover:text-white transition-colors text-sm flex justify-between items-center group">
                     <span>프로필 수정</span>
                     <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
-                  </button>
-                  <button className="w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 text-white/60 hover:text-white transition-colors text-sm flex justify-between items-center group">
-                    <span>비밀번호 변경</span>
+                  </Link>
+                  <Link href="/profile/password" className="w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 text-white/60 hover:text-white transition-colors text-sm flex justify-between items-center group">
+                    <span>{user.auth_provider !== 'email' ? '비밀번호 설정' : '비밀번호 변경'}</span>
                     <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>
