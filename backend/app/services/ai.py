@@ -1,4 +1,5 @@
 from typing import Optional
+import re
 import httpx
 from app.config import settings
 from app.models.user import User
@@ -16,6 +17,7 @@ SYSTEM_PROMPT = """당신은 대한민국 최고의 평행세계 인생 소설 �
 - 독자가 "이건 정말 내 이야기다"라고 느끼게 합니다
 
 ## 절대 규칙
+- **반드시 한국어(한글)로만 작성하십시오. 중국어(漢字), 일본어(ひらがな/カタカナ), 기타 외국어 문자를 절대 사용하지 마십시오.**
 - 뻔한 교훈이나 일반론 금지. "노력하면 된다" 같은 추상적 결론 금지
 - 원래 선택과 대안 선택의 결과가 명확히 다른 궤도를 그려야 합니다
 - 사용자의 성격/가치관/배경이 스토리 전개에 직접적으로 영향을 미쳐야 합니다
@@ -40,6 +42,16 @@ class AIService:
         """AIService 초기화"""
         self.groq_api_key = settings.GROQ_API_KEY
         self.base_url = "https://api.groq.com/openai/v1/chat/completions"
+
+    @staticmethod
+    def _clean_foreign_chars(text: str) -> str:
+        """생성된 텍스트에서 중국어/일본어 문자를 제거"""
+        # CJK 통합 한자 (U+4E00-U+9FFF), CJK 확장 (U+3400-U+4DBF)
+        # 히라가나 (U+3040-U+309F), 가타카나 (U+30A0-U+30FF)
+        text = re.sub(r'[\u4e00-\u9fff\u3400-\u4dbf\u3040-\u309f\u30a0-\u30ff]', '', text)
+        # 연속 공백 정리
+        text = re.sub(r'  +', ' ', text)
+        return text
 
     def _get_max_tokens(self, detail_level: str) -> int:
         """
@@ -309,7 +321,7 @@ class AIService:
                             "Content-Type": "application/json"
                         },
                         json={
-                            "model": "llama-3.3-70b-versatile",
+                            "model": "qwen3-32b",
                             "messages": [
                                 {"role": "system", "content": SYSTEM_PROMPT},
                                 {"role": "user", "content": prompt}
@@ -323,7 +335,7 @@ class AIService:
 
                     if response.status_code == 200:
                         data = response.json()
-                        return data["choices"][0]["message"]["content"]
+                        return self._clean_foreign_chars(data["choices"][0]["message"]["content"])
 
                     # 재시도 가능한 에러
                     if response.status_code in [429, 500, 502, 503, 504]:
