@@ -10,6 +10,10 @@ import type {
   Scenario,
   ScenarioListResponse,
   ScenarioDetail,
+  FeedbackRequest,
+  FeedbackResponse,
+  ContinuationRequest,
+  StreamEvent,
 } from '@/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
@@ -164,6 +168,59 @@ export const scenarioAPI = {
     return response.data;
   },
 
+  generateStream: async (
+    data: ScenarioRequest,
+    onChunk: (content: string) => void,
+    onDone: (scenarioId: string) => void,
+    onError?: (message: string) => void
+  ): Promise<void> => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+    const response = await fetch(`${API_URL}/api/v1/scenarios/generate/stream`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData?.error?.message || errorData?.detail || `HTTP ${response.status}`);
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) throw new Error('ReadableStream not supported');
+
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        try {
+          const event: StreamEvent = JSON.parse(line.slice(6));
+          if (event.type === 'chunk') {
+            onChunk(event.content);
+          } else if (event.type === 'done') {
+            onDone(event.scenario_id);
+          } else if (event.type === 'error') {
+            onError?.(event.message);
+          }
+        } catch {
+          // ignore parse errors
+        }
+      }
+    }
+  },
+
   list: async (skip = 0, limit = 20): Promise<ScenarioListResponse> => {
     const response = await api.get<ScenarioListResponse>('/scenarios', {
       params: { skip, limit },
@@ -178,6 +235,70 @@ export const scenarioAPI = {
 
   delete: async (id: string): Promise<void> => {
     await api.delete(`/scenarios/${id}`);
+  },
+
+  feedback: async (id: string, data: FeedbackRequest): Promise<FeedbackResponse> => {
+    const response = await api.post<FeedbackResponse>(`/scenarios/${id}/feedback`, data);
+    return response.data;
+  },
+
+  continueScenario: async (id: string, data: ContinuationRequest): Promise<Scenario> => {
+    const response = await api.post<Scenario>(`/scenarios/${id}/continue`, data);
+    return response.data;
+  },
+
+  continueScenarioStream: async (
+    id: string,
+    data: ContinuationRequest,
+    onChunk: (content: string) => void,
+    onDone: (scenarioId: string) => void,
+    onError?: (message: string) => void
+  ): Promise<void> => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+    const response = await fetch(`${API_URL}/api/v1/scenarios/${id}/continue/stream`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData?.error?.message || errorData?.detail || `HTTP ${response.status}`);
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) throw new Error('ReadableStream not supported');
+
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        try {
+          const event: StreamEvent = JSON.parse(line.slice(6));
+          if (event.type === 'chunk') {
+            onChunk(event.content);
+          } else if (event.type === 'done') {
+            onDone(event.scenario_id);
+          } else if (event.type === 'error') {
+            onError?.(event.message);
+          }
+        } catch {
+          // ignore parse errors
+        }
+      }
+    }
   },
 };
 

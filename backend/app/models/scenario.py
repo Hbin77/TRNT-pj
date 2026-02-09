@@ -26,5 +26,11 @@ class Scenario(Base):
     scenario_text = Column(Text, nullable=False)
     word_count = Column(Integer, nullable=False)
 
+    # 피드백
+    rating = Column(String(10), nullable=True)  # "like" / "dislike"
+
+    # 이어쓰기
+    parent_scenario_id = Column(GUID(), ForeignKey("scenarios.id"), nullable=True)
+
     # 시스템
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)

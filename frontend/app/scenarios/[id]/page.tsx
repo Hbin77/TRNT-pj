@@ -1,13 +1,14 @@
 'use client';
 
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState, useRef, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { scenarioAPI } from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/Button';
-import { ArrowLeft, Calendar, Share2, Trash2, BookOpen, Sparkles, Quote } from 'lucide-react';
+import { Textarea } from '@/components/ui/Textarea';
+import { ArrowLeft, Calendar, Share2, Trash2, BookOpen, Sparkles, Quote, ThumbsUp, ThumbsDown, PenLine, X, Loader2 } from 'lucide-react';
 import type { ScenarioDetail } from '@/types';
 import { GlassCard } from '@/components/ui/GlassCard';
 
@@ -17,6 +18,16 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
   const { isAuthenticated, isLoading: authLoading } = useAuthStore();
   const [scenario, setScenario] = useState<ScenarioDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [rating, setRating] = useState<string | null>(null);
+  const [isFeedbackLoading, setIsFeedbackLoading] = useState(false);
+
+  // 이어쓰기 상태
+  const [showContinueModal, setShowContinueModal] = useState(false);
+  const [continuationDirection, setContinuationDirection] = useState('');
+  const [isContinuing, setIsContinuing] = useState(false);
+  const [isStreamingContinuation, setIsStreamingContinuation] = useState(false);
+  const [streamedContinuation, setStreamedContinuation] = useState('');
+  const streamRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -29,6 +40,7 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
       try {
         const data = await scenarioAPI.get(resolvedParams.id);
         setScenario(data);
+        setRating(data.rating || null);
       } catch (error) {
         console.error('Failed to fetch scenario:', error);
         alert('시나리오를 불러오는 데 실패했습니다.');
@@ -43,6 +55,13 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
     }
   }, [isAuthenticated, resolvedParams.id, router]);
 
+  // 이어쓰기 스트리밍 자동 스크롤
+  useEffect(() => {
+    if (streamRef.current) {
+      streamRef.current.scrollTop = streamRef.current.scrollHeight;
+    }
+  }, [streamedContinuation]);
+
   const handleDelete = async () => {
     if (!confirm('정말로 이 시나리오를 삭제하시겠습니까?')) return;
 
@@ -51,6 +70,52 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
       router.push('/scenarios');
     } catch {
       alert('삭제에 실패했습니다.');
+    }
+  };
+
+  const handleFeedback = async (newRating: 'like' | 'dislike') => {
+    setIsFeedbackLoading(true);
+    try {
+      await scenarioAPI.feedback(resolvedParams.id, { rating: newRating });
+      setRating(newRating);
+    } catch {
+      alert('피드백 전송에 실패했습니다.');
+    } finally {
+      setIsFeedbackLoading(false);
+    }
+  };
+
+  const handleContinue = async () => {
+    if (!continuationDirection.trim()) return;
+    setIsContinuing(true);
+    setIsStreamingContinuation(true);
+    setStreamedContinuation('');
+    setShowContinueModal(false);
+
+    try {
+      await scenarioAPI.continueScenarioStream(
+        resolvedParams.id,
+        { continuation_direction: continuationDirection },
+        (content) => {
+          setStreamedContinuation((prev) => prev + content);
+        },
+        (newScenarioId) => {
+          setTimeout(() => {
+            router.push(`/scenarios/${newScenarioId}`);
+          }, 2000);
+        },
+        (errorMessage) => {
+          alert(errorMessage || '이어쓰기에 실패했습니다.');
+          setIsContinuing(false);
+          setIsStreamingContinuation(false);
+        }
+      );
+    } catch (err: unknown) {
+      console.error('Continuation failed:', err);
+      const message = err instanceof Error ? err.message : '이어쓰기에 실패했습니다.';
+      alert(message);
+      setIsContinuing(false);
+      setIsStreamingContinuation(false);
     }
   };
 
@@ -105,9 +170,16 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
           >
             {/* Branch Summary Card */}
             <GlassCard className="p-8 border border-white/10 bg-white/5 backdrop-blur-xl mb-8">
-              <div className="flex items-center text-white/40 text-sm mb-6 font-mono">
-                <Calendar className="w-4 h-4 mr-2 opacity-70" />
-                {new Date(scenario.created_at).toLocaleDateString()} 생성됨
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center text-white/40 text-sm font-mono">
+                  <Calendar className="w-4 h-4 mr-2 opacity-70" />
+                  {new Date(scenario.created_at).toLocaleDateString()} 생성됨
+                </div>
+                {scenario.parent_scenario_id && (
+                  <span className="px-2 py-1 bg-purple-500/20 border border-purple-500/30 rounded-full text-xs text-purple-300">
+                    이어쓰기
+                  </span>
+                )}
               </div>
 
               <div className="grid md:grid-cols-2 gap-8 relative items-center">
@@ -173,7 +245,71 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
                 </p>
               </div>
 
-              <div className="mt-16 pt-8 border-t border-white/5 flex justify-center">
+              {/* 피드백 섹션 */}
+              <div className="mt-12 pt-8 border-t border-white/5">
+                <p className="text-center text-white/40 text-sm mb-4">이 시나리오가 마음에 드셨나요?</p>
+                <div className="flex justify-center gap-4">
+                  <button
+                    onClick={() => handleFeedback('like')}
+                    disabled={isFeedbackLoading}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-xl border transition-all ${
+                      rating === 'like'
+                        ? 'bg-green-500/20 border-green-500/50 text-green-300 shadow-[0_0_15px_rgba(34,197,94,0.3)]'
+                        : 'bg-white/5 border-white/10 text-white/60 hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-300'
+                    }`}
+                  >
+                    <ThumbsUp className="w-5 h-5" />
+                    <span className="font-medium">좋아요</span>
+                  </button>
+                  <button
+                    onClick={() => handleFeedback('dislike')}
+                    disabled={isFeedbackLoading}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-xl border transition-all ${
+                      rating === 'dislike'
+                        ? 'bg-red-500/20 border-red-500/50 text-red-300 shadow-[0_0_15px_rgba(239,68,68,0.3)]'
+                        : 'bg-white/5 border-white/10 text-white/60 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-300'
+                    }`}
+                  >
+                    <ThumbsDown className="w-5 h-5" />
+                    <span className="font-medium">아쉬워요</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* 이어쓰기 스트리밍 영역 */}
+              {isStreamingContinuation && (
+                <div className="mt-8 pt-8 border-t border-white/5">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="bg-purple-500/20 p-2 rounded-lg border border-purple-500/30">
+                      <PenLine className="w-4 h-4 text-purple-400 animate-pulse" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-white">이야기가 이어지고 있습니다...</h3>
+                      <p className="text-xs text-white/40">실시간으로 생성 중</p>
+                    </div>
+                  </div>
+                  <div
+                    ref={streamRef}
+                    className="max-h-[40vh] overflow-y-auto"
+                  >
+                    <p className="text-gray-300 leading-loose font-serif tracking-wide whitespace-pre-wrap">
+                      {streamedContinuation}
+                      <span className="inline-block w-0.5 h-5 bg-purple-400 ml-1 animate-pulse" />
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* 하단 버튼 영역 */}
+              <div className="mt-16 pt-8 border-t border-white/5 flex flex-col sm:flex-row justify-center gap-4">
+                <button
+                  onClick={() => setShowContinueModal(true)}
+                  disabled={isContinuing}
+                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold px-8 py-4 rounded-xl shadow-lg transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <PenLine className="w-5 h-5" />
+                  이 이야기의 다음은?
+                </button>
                 <Link href="/scenarios/new">
                   <Button className="bg-white text-black hover:bg-gray-200 font-bold px-8 py-6 h-auto text-lg rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.1)] transition-all hover:scale-105">
                     <Sparkles className="w-5 h-5 mr-3 text-yellow-600" />
@@ -185,6 +321,66 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
           </motion.div>
         </div>
       </main>
+
+      {/* 이어쓰기 모달 */}
+      {showContinueModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-[#1a1a2e] border border-white/10 rounded-2xl p-8 max-w-lg w-full mx-4 shadow-2xl"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                <PenLine className="w-5 h-5 text-purple-400" />
+                이어쓰기
+              </h3>
+              <button
+                onClick={() => setShowContinueModal(false)}
+                className="text-white/40 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <p className="text-white/60 text-sm mb-4">
+              이야기가 어떤 방향으로 전개되면 좋을지 알려주세요.
+            </p>
+            <Textarea
+              placeholder="예: 주인공이 새로운 도시로 이사하면서 예상치 못한 기회를 만나는 방향으로..."
+              rows={4}
+              value={continuationDirection}
+              onChange={(e) => setContinuationDirection(e.target.value)}
+              className="bg-black/30 border-white/10 text-white placeholder:text-white/20 focus:border-purple-500/50 resize-none mb-6"
+            />
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="ghost"
+                onClick={() => setShowContinueModal(false)}
+                className="text-white/60 hover:text-white"
+              >
+                취소
+              </Button>
+              <button
+                onClick={handleContinue}
+                disabled={!continuationDirection.trim()}
+                className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold px-6 py-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isContinuing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    생성 중...
+                  </>
+                ) : (
+                  <>
+                    <PenLine className="w-4 h-4" />
+                    이어쓰기 시작
+                  </>
+                )}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

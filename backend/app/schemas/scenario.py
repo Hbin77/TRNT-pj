@@ -49,6 +49,8 @@ class ScenarioDBResponse(BaseModel):
     scope: str
     scenario_text: str
     word_count: int
+    rating: Optional[str] = None
+    parent_scenario_id: Optional[UUID] = None
     created_at: datetime
 
     class Config:
@@ -65,6 +67,8 @@ class ScenarioListItem(BaseModel):
     detail_level: str
     scope: str
     word_count: int
+    rating: Optional[str] = None
+    parent_scenario_id: Optional[UUID] = None
     created_at: datetime
 
     class Config:
@@ -75,3 +79,22 @@ class ScenarioListResponse(BaseModel):
     """시나리오 목록 응답"""
     total: int
     scenarios: List[ScenarioListItem]
+
+
+# Phase 4: 피드백
+class FeedbackRequest(BaseModel):
+    """시나리오 피드백 요청"""
+    rating: Literal["like", "dislike"]
+
+
+class FeedbackResponse(BaseModel):
+    """시나리오 피드백 응답"""
+    scenario_id: UUID
+    rating: str
+    message: str
+
+
+# Phase 5: 이어쓰기
+class ContinuationRequest(BaseModel):
+    """시나리오 이어쓰기 요청"""
+    continuation_direction: str = Field(..., min_length=1, max_length=2000, description="이어쓰기 방향")

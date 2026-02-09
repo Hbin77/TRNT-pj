@@ -38,6 +38,10 @@ class Settings(BaseSettings):
     # Cloudflare Turnstile
     TURNSTILE_SECRET_KEY: str = "1x0000000000000000000000000000000AA"  # Test Key
 
+    # RAG 참조 자료
+    RAG_ENABLED: bool = True
+    RAG_NOVELS_DIR: str = ""  # 기본: 프로젝트루트/novels/trnt_ref
+
     # Email (Gmail SMTP)
     SMTP_SERVER: str = "smtp.gmail.com"
     SMTP_PORT: int = 587

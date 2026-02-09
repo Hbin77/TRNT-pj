@@ -97,6 +97,8 @@ export interface ScenarioListItem {
   detail_level: string;
   scope: string;
   word_count: number;
+  rating?: string | null;
+  parent_scenario_id?: string | null;
   created_at: string;
 }
 
@@ -108,3 +110,37 @@ export interface ScenarioListResponse {
 export interface ScenarioDetail extends ScenarioListItem {
   scenario_text: string;
 }
+
+// 피드백
+export interface FeedbackRequest {
+  rating: 'like' | 'dislike';
+}
+
+export interface FeedbackResponse {
+  scenario_id: string;
+  rating: string;
+  message: string;
+}
+
+// 이어쓰기
+export interface ContinuationRequest {
+  continuation_direction: string;
+}
+
+// SSE 스트리밍 이벤트
+export interface StreamChunkEvent {
+  type: 'chunk';
+  content: string;
+}
+
+export interface StreamDoneEvent {
+  type: 'done';
+  scenario_id: string;
+}
+
+export interface StreamErrorEvent {
+  type: 'error';
+  message: string;
+}
+
+export type StreamEvent = StreamChunkEvent | StreamDoneEvent | StreamErrorEvent;

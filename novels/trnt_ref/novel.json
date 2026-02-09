@@ -1,0 +1,10 @@
+{
+  "title": "TRNT 시나리오 참조 자료",
+  "description": "TRNT 평행세계 시나리오 생성을 위한 시대별 맥락 자료 및 예시 시나리오 모음",
+  "author": "TRNT System",
+  "version": "1.0.0",
+  "structure": {
+    "settings": "시대별 한국 사회 맥락 자료 및 문체 가이드",
+    "contents/examples": "장르/톤별 예시 시나리오"
+  }
+}
