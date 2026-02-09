@@ -9,7 +9,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.config import settings
-from app.database import get_db
+from app.database import get_db, SessionLocal
 from app.models.user import User
 from app.models.scenario import Scenario
 from app.schemas.scenario import (
@@ -117,6 +117,17 @@ async def generate_scenario_stream(
     rate_limiter = RateLimiterService(db)
     rate_limiter.check_and_record(user_id=user.id, email=user.email)
 
+    # StreamingResponse 반환 후 DB 세션이 닫히므로,
+    # generator 진입 전에 필요한 데이터를 모두 추출
+    db.refresh(user)
+    user_id = user.id
+    branch_data = request.branch.model_dump()
+    tone = request.tone
+    genre = request.genre
+    detail_level = request.detail_level
+    scope = request.scope
+    db.expunge(user)
+
     async def event_stream():
         full_text = []
         in_think = False
@@ -125,10 +136,10 @@ async def generate_scenario_stream(
             async for chunk in ai_service.generate_scenario_stream(
                 user=user,
                 branch=request.branch,
-                tone=request.tone,
-                genre=request.genre,
-                detail_level=request.detail_level,
-                scope=request.scope
+                tone=tone,
+                genre=genre,
+                detail_level=detail_level,
+                scope=scope
             ):
                 full_text.append(chunk)
                 # <think> 태그 내용은 프론트에 보내지 않음
@@ -140,26 +151,30 @@ async def generate_scenario_stream(
                     continue
                 yield f"data: {json.dumps({'type': 'chunk', 'content': chunk}, ensure_ascii=False)}\n\n"
 
-            # 스트림 완료 — 후처리 및 DB 저장
+            # 스트림 완료 — 후처리 및 DB 저장 (새 세션 사용)
             raw_text = "".join(full_text)
             cleaned_text = ai_service._strip_think_tags(raw_text)
             cleaned_text = ai_service._clean_foreign_chars(cleaned_text)
 
-            scenario = Scenario(
-                user_id=user.id,
-                branch_data=request.branch.model_dump(),
-                tone=request.tone,
-                genre=request.genre,
-                detail_level=request.detail_level,
-                scope=request.scope,
-                scenario_text=cleaned_text,
-                word_count=len(cleaned_text.split())
-            )
-            db.add(scenario)
-            db.commit()
-            db.refresh(scenario)
+            save_db = SessionLocal()
+            try:
+                scenario = Scenario(
+                    user_id=user_id,
+                    branch_data=branch_data,
+                    tone=tone,
+                    genre=genre,
+                    detail_level=detail_level,
+                    scope=scope,
+                    scenario_text=cleaned_text,
+                    word_count=len(cleaned_text.split())
+                )
+                save_db.add(scenario)
+                save_db.commit()
+                save_db.refresh(scenario)
 
-            yield f"data: {json.dumps({'type': 'done', 'scenario_id': str(scenario.id)}, ensure_ascii=False)}\n\n"
+                yield f"data: {json.dumps({'type': 'done', 'scenario_id': str(scenario.id)}, ensure_ascii=False)}\n\n"
+            finally:
+                save_db.close()
 
         except Exception as e:
             logger.error(f"Stream generation failed: {type(e).__name__}: {e}", exc_info=True)
@@ -391,7 +406,20 @@ async def continue_scenario_stream(
     rate_limiter = RateLimiterService(db)
     rate_limiter.check_and_record(user_id=current_user.id, email=current_user.email)
 
+    # StreamingResponse 반환 후 DB 세션이 닫히므로,
+    # generator 진입 전에 필요한 데이터를 모두 추출
+    db.refresh(current_user)
+    user_id = current_user.id
+    existing_text = scenario.scenario_text
     branch = BranchInput(**scenario.branch_data)
+    branch_data = scenario.branch_data
+    tone = scenario.tone
+    genre = scenario.genre
+    detail_level = scenario.detail_level
+    scope = scenario.scope
+    parent_id = scenario.id
+    continuation_direction = request.continuation_direction
+    db.expunge(current_user)
 
     async def event_stream():
         full_text = []
@@ -400,11 +428,11 @@ async def continue_scenario_stream(
         try:
             async for chunk in ai_service.continue_scenario_stream(
                 user=current_user,
-                existing_text=scenario.scenario_text,
+                existing_text=existing_text,
                 branch=branch,
-                tone=scenario.tone,
-                genre=scenario.genre,
-                continuation_direction=request.continuation_direction
+                tone=tone,
+                genre=genre,
+                continuation_direction=continuation_direction
             ):
                 full_text.append(chunk)
                 if '<think>' in chunk:
@@ -419,22 +447,26 @@ async def continue_scenario_stream(
             cleaned_text = ai_service._strip_think_tags(raw_text)
             cleaned_text = ai_service._clean_foreign_chars(cleaned_text)
 
-            new_scenario = Scenario(
-                user_id=current_user.id,
-                branch_data=scenario.branch_data,
-                tone=scenario.tone,
-                genre=scenario.genre,
-                detail_level=scenario.detail_level,
-                scope=scenario.scope,
-                scenario_text=cleaned_text,
-                word_count=len(cleaned_text.split()),
-                parent_scenario_id=scenario.id
-            )
-            db.add(new_scenario)
-            db.commit()
-            db.refresh(new_scenario)
+            save_db = SessionLocal()
+            try:
+                new_scenario = Scenario(
+                    user_id=user_id,
+                    branch_data=branch_data,
+                    tone=tone,
+                    genre=genre,
+                    detail_level=detail_level,
+                    scope=scope,
+                    scenario_text=cleaned_text,
+                    word_count=len(cleaned_text.split()),
+                    parent_scenario_id=parent_id
+                )
+                save_db.add(new_scenario)
+                save_db.commit()
+                save_db.refresh(new_scenario)
 
-            yield f"data: {json.dumps({'type': 'done', 'scenario_id': str(new_scenario.id)}, ensure_ascii=False)}\n\n"
+                yield f"data: {json.dumps({'type': 'done', 'scenario_id': str(new_scenario.id)}, ensure_ascii=False)}\n\n"
+            finally:
+                save_db.close()
 
         except Exception as e:
             logger.error(f"Stream continuation failed: {type(e).__name__}: {e}", exc_info=True)
