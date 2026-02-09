@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://trnt.app';
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://trnt.hbinserver.cloud';
 
 export const metadata: Metadata = {
   title: {
