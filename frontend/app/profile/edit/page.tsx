@@ -149,6 +149,12 @@ function ProfileEditContent() {
   const [residence, setResidence] = useState('');
   const [relationship, setRelationship] = useState('');
 
+  // "기타" 직접 입력
+  const [genderCustom, setGenderCustom] = useState('');
+  const [occupationCustom, setOccupationCustom] = useState('');
+  const [educationCustom, setEducationCustom] = useState('');
+  const [relationshipCustom, setRelationshipCustom] = useState('');
+
   // ── Step 1: 성격 ──
   const [step1, setStep1] = useState<Step1Data>({
     scenarios: {},
@@ -189,12 +195,30 @@ function ProfileEditContent() {
     if (!user) return;
     setName(user.name || '');
     setBirthYear(user.birth_year && user.birth_year !== 0 ? String(user.birth_year) : '');
-    setGender(user.gender || '');
-    setOccupation(user.occupation === '미입력' ? '' : user.occupation || '');
-    setEducation(user.education || '');
     setMajor(user.major || '');
     setResidence(user.residence || '');
-    setRelationship(user.relationship_status || '');
+
+    // 기타 값 감지: 옵션에 없는 값이면 "기타" + custom으로 분리
+    const genderVals: string[] = GENDER_OPTIONS.map((o) => o.value);
+    if (user.gender && !genderVals.includes(user.gender)) {
+      setGender('기타'); setGenderCustom(user.gender);
+    } else { setGender(user.gender || ''); setGenderCustom(''); }
+
+    const occVals: string[] = OCCUPATION_OPTIONS.map((o) => o.value);
+    const rawOcc = user.occupation === '미입력' ? '' : user.occupation || '';
+    if (rawOcc && !occVals.includes(rawOcc)) {
+      setOccupation('기타'); setOccupationCustom(rawOcc);
+    } else { setOccupation(rawOcc); setOccupationCustom(''); }
+
+    const eduVals: string[] = EDUCATION_OPTIONS.map((o) => o.value);
+    if (user.education && !eduVals.includes(user.education)) {
+      setEducation('기타'); setEducationCustom(user.education);
+    } else { setEducation(user.education || ''); setEducationCustom(''); }
+
+    const relVals: string[] = RELATIONSHIP_OPTIONS.map((o) => o.value);
+    if (user.relationship_status && !relVals.includes(user.relationship_status)) {
+      setRelationship('기타'); setRelationshipCustom(user.relationship_status);
+    } else { setRelationship(user.relationship_status || ''); setRelationshipCustom(''); }
 
     setStep1(deserializePersonality(user.personality || ''));
     setStep2(deserializeValues(user.values || ''));
@@ -239,12 +263,12 @@ function ProfileEditContent() {
       if (!isSetup) {
         payload.name = name;
         payload.birth_year = birthYear ? Number(birthYear) : undefined;
-        payload.gender = gender;
-        payload.occupation = occupation;
-        payload.education = education || undefined;
+        payload.gender = gender === '기타' ? (genderCustom || '기타') : gender;
+        payload.occupation = occupation === '기타' ? (occupationCustom || '기타') : occupation;
+        payload.education = education === '기타' ? (educationCustom || '기타') : (education || undefined);
         payload.major = showMajor ? major : undefined;
         payload.residence = residence || undefined;
-        payload.relationship_status = relationship || undefined;
+        payload.relationship_status = relationship === '기타' ? (relationshipCustom || '기타') : (relationship || undefined);
       }
 
       await userAPI.update(user.id, payload);
@@ -263,7 +287,7 @@ function ProfileEditContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [user, step1, step2, step3, isSetup, name, birthYear, gender, occupation, education, major, residence, relationship, showMajor, fetchUser, router]);
+  }, [user, step1, step2, step3, isSetup, name, birthYear, gender, genderCustom, occupation, occupationCustom, education, educationCustom, major, residence, relationship, relationshipCustom, showMajor, fetchUser, router]);
 
   const handleNext = () => {
     const err = validateStep(step);
@@ -552,6 +576,14 @@ function ProfileEditContent() {
             value={gender}
             onChange={setGender}
           />
+          {gender === '기타' && (
+            <Input
+              label="성별 (직접 입력)"
+              placeholder="성별을 입력해주세요"
+              value={genderCustom}
+              onChange={(e) => setGenderCustom(e.target.value)}
+            />
+          )}
           <div className="grid md:grid-cols-2 gap-4">
             <Select
               label="직업"
@@ -567,6 +599,22 @@ function ProfileEditContent() {
               onChange={(e) => setEducation(e.target.value)}
             />
           </div>
+          {occupation === '기타' && (
+            <Input
+              label="직업 (직접 입력)"
+              placeholder="직업을 입력해주세요"
+              value={occupationCustom}
+              onChange={(e) => setOccupationCustom(e.target.value)}
+            />
+          )}
+          {education === '기타' && (
+            <Input
+              label="학력 (직접 입력)"
+              placeholder="학력을 입력해주세요"
+              value={educationCustom}
+              onChange={(e) => setEducationCustom(e.target.value)}
+            />
+          )}
           {showMajor && (
             <Input
               label="전공"
@@ -589,6 +637,14 @@ function ProfileEditContent() {
               onChange={setRelationship}
             />
           </div>
+          {relationship === '기타' && (
+            <Input
+              label="교제 상태 (직접 입력)"
+              placeholder="교제 상태를 입력해주세요"
+              value={relationshipCustom}
+              onChange={(e) => setRelationshipCustom(e.target.value)}
+            />
+          )}
         </div>
       ),
     },

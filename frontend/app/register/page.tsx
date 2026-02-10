@@ -131,6 +131,12 @@ export default function RegisterPage() {
   const [residence, setResidence] = useState('');
   const [relationship, setRelationship] = useState('');
 
+  // "기타" 직접 입력
+  const [genderCustom, setGenderCustom] = useState('');
+  const [occupationCustom, setOccupationCustom] = useState('');
+  const [educationCustom, setEducationCustom] = useState('');
+  const [relationshipCustom, setRelationshipCustom] = useState('');
+
   const showMajor = EDUCATION_WITH_MAJOR.includes(education);
 
   const {
@@ -152,12 +158,12 @@ export default function RegisterPage() {
         password: data.password,
         name: data.name,
         birth_year: data.birth_year,
-        gender,
-        occupation,
-        education: education || undefined,
+        gender: gender === '기타' ? (genderCustom || '기타') : gender,
+        occupation: occupation === '기타' ? (occupationCustom || '기타') : occupation,
+        education: education === '기타' ? (educationCustom || '기타') : (education || undefined),
         major: showMajor ? data.major : undefined,
         residence: residence || undefined,
-        relationship_status: relationship || undefined,
+        relationship_status: relationship === '기타' ? (relationshipCustom || '기타') : (relationship || undefined),
         life_background: '프로필을 완성해주세요.',
         personality: '',
         values: '',
@@ -330,6 +336,14 @@ export default function RegisterPage() {
                 onChange={setGender}
                 required
               />
+              {gender === '기타' && (
+                <Input
+                  label="성별 (직접 입력)"
+                  placeholder="성별을 입력해주세요"
+                  value={genderCustom}
+                  onChange={(e) => setGenderCustom(e.target.value)}
+                />
+              )}
 
               <div className="grid md:grid-cols-2 gap-4">
                 <Select
@@ -348,6 +362,22 @@ export default function RegisterPage() {
                   placeholder="선택 (선택사항)"
                 />
               </div>
+              {occupation === '기타' && (
+                <Input
+                  label="직업 (직접 입력)"
+                  placeholder="직업을 입력해주세요"
+                  value={occupationCustom}
+                  onChange={(e) => setOccupationCustom(e.target.value)}
+                />
+              )}
+              {education === '기타' && (
+                <Input
+                  label="학력 (직접 입력)"
+                  placeholder="학력을 입력해주세요"
+                  value={educationCustom}
+                  onChange={(e) => setEducationCustom(e.target.value)}
+                />
+              )}
 
               {showMajor && (
                 <Input
@@ -373,6 +403,14 @@ export default function RegisterPage() {
                   onChange={setRelationship}
                 />
               </div>
+              {relationship === '기타' && (
+                <Input
+                  label="교제 상태 (직접 입력)"
+                  placeholder="교제 상태를 입력해주세요"
+                  value={relationshipCustom}
+                  onChange={(e) => setRelationshipCustom(e.target.value)}
+                />
+              )}
             </div>
 
             {/* Turnstile Widget */}
