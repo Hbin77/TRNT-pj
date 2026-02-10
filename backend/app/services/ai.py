@@ -162,6 +162,109 @@ class AIService:
 
     # ── 사용자 프로필/서사 구조 ──
 
+    # 시나리오 질문별 설명 매핑 (구조화 포맷 → 자연어)
+    _SCENARIO_LABELS = {
+        "결정": "의사결정 성향",
+        "변화": "변화 대응 방식",
+        "관계": "대인관계 성향",
+        "실패": "좌절/실패 대응",
+    }
+    _SCENARIO_DESC = {
+        # 의사결정
+        "직감형": "직감을 따르며, 느낌이 오면 바로 행동하는 스타일",
+        "분석형": "장단점을 꼼꼼히 분석하고 비교한 후 결정",
+        "의견수렴형": "신뢰하는 사람들과 상의하며 의견을 수렴",
+        "신중형": "서두르지 않고 충분히 시간을 두고 결정",
+        # 변화
+        "설렘형": "새로운 변화에 설레고 기대하며, 기회로 받아들임",
+        "도전형": "불안하지만 일단 도전하는 편",
+        "안전형": "안전한 선택을 우선시하며 신중하게 대처",
+        "관찰형": "충분히 상황을 관찰한 후 판단",
+        # 관계
+        "다양형": "다양한 사람들과 어울리며 새로운 만남을 즐김",
+        "소수깊게": "소수의 사람과 깊은 관계를 유지하는 것을 선호",
+        "독립형": "혼자만의 시간을 중요시하며 독립적",
+        "유연형": "상황에 따라 유연하게 관계를 조절",
+        # 실패
+        "회복형": "빠르게 회복하고 다시 도전하는 회복탄력성이 높은 편",
+        "분석개선": "실패 원인을 분석하고 개선하여 같은 실수를 반복하지 않음",
+        "성찰형": "오래 고민하고 깊이 성찰하는 시간이 필요",
+        "방향전환": "완전히 새로운 방향을 모색하며 다른 길을 찾음",
+    }
+
+    @staticmethod
+    def _parse_structured_personality(raw: str) -> str:
+        """구조화된 personality 필드 → AI 친화적 자연어"""
+        if not raw or "|" not in raw:
+            # 자유 텍스트(기존 데이터) → 그대로 반환
+            return raw
+
+        parts = raw.split("|")
+        lines = []
+
+        # 시나리오 응답 파싱
+        if parts[0]:
+            for pair in parts[0].split("/"):
+                if ":" in pair:
+                    key, val = pair.split(":", 1)
+                    label = AIService._SCENARIO_LABELS.get(key, key)
+                    desc = AIService._SCENARIO_DESC.get(val, val)
+                    lines.append(f"- {label}: {desc}")
+
+        # MBTI
+        if len(parts) > 1 and parts[1]:
+            mbti = parts[1].strip()
+            if re.match(r'^[EI][SN][TF][JP]$', mbti):
+                lines.append(f"- MBTI: {mbti}")
+
+        # 성격 키워드
+        if len(parts) > 2 and parts[2]:
+            keywords = [k.strip() for k in parts[2].split(",") if k.strip()]
+            if keywords:
+                lines.append(f"- 성격 키워드: {', '.join(keywords)}")
+
+        return "\n".join(lines) if lines else raw
+
+    @staticmethod
+    def _parse_structured_values(raw: str) -> str:
+        """구조화된 values 필드 → AI 친화적 자연어"""
+        if not raw or "|" not in raw:
+            return raw
+
+        parts = raw.split("|")
+        lines = []
+
+        # 핵심 가치
+        if parts[0]:
+            values = [v.strip() for v in parts[0].split(",") if v.strip()]
+            if values:
+                lines.append(f"- 핵심 가치: {', '.join(values)}")
+
+        # 나머지 파트
+        for part in parts[1:]:
+            if part.startswith("삶의중심:"):
+                lines.append(f"- 삶의 중심: {part.replace('삶의중심:', '').strip()}")
+            elif part.startswith("10년후:"):
+                lines.append(f"- 10년 후 비전: {part.replace('10년후:', '').strip()}")
+
+        return "\n".join(lines) if lines else raw
+
+    @staticmethod
+    def _parse_structured_background(raw: str) -> str:
+        """구조화된 life_background 필드 → AI 친화적 자연어"""
+        if not raw or raw == "프로필을 완성해주세요.":
+            return "(프로필 미완성)"
+
+        # 이미 태그 형식이면 더 읽기 좋게 변환
+        if "[인생 전환점]" in raw or "[현재 고민]" in raw:
+            result = raw
+            result = result.replace("[인생 전환점]", "인생의 가장 큰 전환점:")
+            result = result.replace("[현재 고민]", "현재 가장 큰 고민:")
+            result = result.replace("[다시 선택한다면]", "과거로 돌아간다면:")
+            return result
+
+        return raw
+
     def _build_user_profile(self, user: User) -> str:
         """
         사용자 프로필을 서사에 활용할 수 있는 형태로 구성 (보안 강화)
@@ -187,20 +290,24 @@ class AIService:
         if user.residence:
             lines.append(f"거주지: {user.residence}")
         if user.relationship_status:
-            status_map = {
-                "single": "미혼", "dating": "연애 중",
-                "married": "기혼", "etc": "기타"
-            }
-            lines.append(f"연애/결혼: {status_map.get(user.relationship_status, user.relationship_status)}")
+            lines.append(f"연애/결혼: {user.relationship_status}")
 
-        lines.append(f"\n[인생 배경]\n{user.life_background}")
+        # 인생 배경 (구조화 포맷 지원)
+        bg = self._parse_structured_background(user.life_background)
+        lines.append(f"\n[인생 배경]\n{bg}")
 
         if user.key_events:
-            lines.append(f"\n[주요 사건들]\n{user.key_events}")
+            lines.append(f"\n[주요 사건/전환점]\n{user.key_events}")
+
+        # 심리 프로파일링 (구조화 포맷 → 자연어)
         if user.personality:
-            lines.append(f"\n[성격/MBTI]: {user.personality}")
+            parsed = self._parse_structured_personality(user.personality)
+            lines.append(f"\n[성격 및 행동 패턴]\n{parsed}")
+
+        # 가치관 (구조화 포맷 → 자연어)
         if user.values:
-            lines.append(f"[가치관]: {user.values}")
+            parsed = self._parse_structured_values(user.values)
+            lines.append(f"\n[가치관 및 삶의 방향]\n{parsed}")
 
         return "\n".join(lines)
 
