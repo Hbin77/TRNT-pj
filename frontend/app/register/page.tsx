@@ -7,13 +7,113 @@ import { useForm } from 'react-hook-form';
 import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Textarea } from '@/components/ui/Textarea';
 import { Turnstile } from '@marsidev/react-turnstile';
 import { Logo } from '@/components/ui/Logo';
 import { GlassCard } from '@/components/ui/GlassCard';
 import type { RegisterRequest } from '@/types';
 import { AxiosError } from 'axios';
 import VerificationModal from '@/components/auth/VerificationModal';
+import {
+  GENDER_OPTIONS,
+  OCCUPATION_OPTIONS,
+  EDUCATION_OPTIONS,
+  EDUCATION_WITH_MAJOR,
+  RESIDENCE_OPTIONS,
+  RELATIONSHIP_OPTIONS,
+} from '@/lib/profileConstants';
+import { cn } from '@/lib/utils';
+
+// 드롭다운 select 스타일 (Input과 동일한 톤)
+const selectClass = cn(
+  'w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white',
+  'transition-all duration-200 appearance-none',
+  'focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 focus:bg-white/10',
+  'hover:border-white/20'
+);
+
+function Select({
+  label,
+  required,
+  error,
+  options,
+  placeholder,
+  ...props
+}: {
+  label: string;
+  required?: boolean;
+  error?: string;
+  options: readonly { value: string; label: string }[];
+  placeholder?: string;
+} & React.SelectHTMLAttributes<HTMLSelectElement>) {
+  return (
+    <div className="w-full">
+      <label className="block text-sm font-medium text-gray-300 mb-2 ml-1">
+        {label}
+        {required && <span className="text-accent ml-1">*</span>}
+      </label>
+      <select className={cn(selectClass, !props.value && 'text-gray-500')} {...props}>
+        <option value="" className="bg-gray-900">{placeholder || '선택'}</option>
+        {options.map((opt) => (
+          <option key={opt.value} value={opt.value} className="bg-gray-900">{opt.label}</option>
+        ))}
+      </select>
+      {error && <p className="mt-1 text-sm text-red-400 ml-1">{error}</p>}
+    </div>
+  );
+}
+
+// 라디오 그룹
+function RadioGroup({
+  label,
+  options,
+  value,
+  onChange,
+  required,
+  error,
+}: {
+  label: string;
+  options: readonly { value: string; label: string }[];
+  value: string;
+  onChange: (v: string) => void;
+  required?: boolean;
+  error?: string;
+}) {
+  return (
+    <div className="w-full">
+      <label className="block text-sm font-medium text-gray-300 mb-2 ml-1">
+        {label}
+        {required && <span className="text-accent ml-1">*</span>}
+      </label>
+      <div className="flex flex-wrap gap-2">
+        {options.map((opt) => (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => onChange(opt.value)}
+            className={cn(
+              'px-4 py-2 rounded-xl text-sm font-medium transition-all border',
+              value === opt.value
+                ? 'bg-primary/20 border-primary/50 text-primary'
+                : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20'
+            )}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+      {error && <p className="mt-1 text-sm text-red-400 ml-1">{error}</p>}
+    </div>
+  );
+}
+
+type RegisterFormData = Omit<RegisterRequest, 'life_background' | 'personality' | 'values'> & {
+  gender: string;
+  occupation: string;
+  education: string;
+  major: string;
+  residence: string;
+  relationship_status: string;
+};
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -24,18 +124,46 @@ export default function RegisterPage() {
   const [showVerification, setShowVerification] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState('');
 
+  // 라디오/셀렉트 상태 (react-hook-form register가 까다로우므로 별도 관리)
+  const [gender, setGender] = useState('');
+  const [occupation, setOccupation] = useState('');
+  const [education, setEducation] = useState('');
+  const [residence, setResidence] = useState('');
+  const [relationship, setRelationship] = useState('');
+
+  const showMajor = EDUCATION_WITH_MAJOR.includes(education);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<RegisterRequest>();
+  } = useForm<RegisterFormData>();
 
-  const onSubmit = async (data: RegisterRequest) => {
+  const onSubmit = async (data: RegisterFormData) => {
+    if (!gender) { setError('성별을 선택해주세요.'); return; }
+    if (!occupation) { setError('직업을 선택해주세요.'); return; }
+
     setIsLoading(true);
     setError('');
 
     try {
-      await registerUser({ ...data, turnstile_token: turnstileToken || undefined });
+      const payload: RegisterRequest = {
+        email: data.email,
+        password: data.password,
+        name: data.name,
+        birth_year: data.birth_year,
+        gender,
+        occupation,
+        education: education || undefined,
+        major: showMajor ? data.major : undefined,
+        residence: residence || undefined,
+        relationship_status: relationship || undefined,
+        life_background: '프로필을 완성해주세요.',
+        personality: '',
+        values: '',
+        turnstile_token: turnstileToken || undefined,
+      };
+      await registerUser(payload);
       setRegisteredEmail(data.email);
       setShowVerification(true);
     } catch (err: unknown) {
@@ -43,19 +171,13 @@ export default function RegisterPage() {
       let errorMessage = '회원가입에 실패했습니다.';
 
       if (error.response) {
-        // FastAPI Pydantic validation error (422)
         if (error.response.status === 422 && error.response.data?.detail) {
           errorMessage = `입력값이 올바르지 않습니다: ${JSON.stringify(error.response.data.detail)}`;
-        }
-        // Custom API Exception
-        else if (error.response.data?.error?.message) {
+        } else if (error.response.data?.error?.message) {
           errorMessage = error.response.data.error.message;
-        }
-        // Generic detail message
-        else if (typeof error.response.data?.detail === 'string') {
+        } else if (typeof error.response.data?.detail === 'string') {
           errorMessage = error.response.data.detail;
-        }
-        else {
+        } else {
           errorMessage = `오류 발생 (${error.response.status}): ${error.message}`;
         }
       } else {
@@ -88,7 +210,7 @@ export default function RegisterPage() {
             <Logo size="large" />
           </Link>
           <h2 className="text-2xl font-bold text-white mb-2">새로운 여정의 시작</h2>
-          <p className="text-gray-400">당신의 이야기를 들려주세요</p>
+          <p className="text-gray-400">간단한 정보만 입력하면 바로 시작할 수 있어요</p>
         </div>
 
         <GlassCard>
@@ -177,7 +299,7 @@ export default function RegisterPage() {
             <div className="space-y-4">
               <h3 className="font-semibold text-lg text-white border-b border-white/10 pb-2">기본 정보</h3>
 
-              <div className="grid md:grid-cols-3 gap-4">
+              <div className="grid md:grid-cols-2 gap-4">
                 <Input
                   label="이름"
                   placeholder="이름/닉네임"
@@ -199,45 +321,56 @@ export default function RegisterPage() {
                     max: { value: new Date().getFullYear(), message: '올바른 연도' },
                   })}
                 />
-
-                <Input
-                  label="직업"
-                  placeholder="현재 직업"
-                  required
-                  error={errors.occupation?.message}
-                  {...register('occupation', { required: '직업을 입력해주세요' })}
-                />
               </div>
-            </div>
 
-            {/* 인생 배경 */}
-            <div className="space-y-4">
-              <h3 className="font-semibold text-lg text-white border-b border-white/10 pb-2">인생 배경</h3>
-
-              <Textarea
-                label="배경 스토리 (핵심)"
-                placeholder="인생의 주요 분기점이나 현재 상황을 간략히 설명해주세요. 이 내용은 AI가 당신의 캐릭터를 이해하는 데 사용됩니다."
-                rows={4}
+              <RadioGroup
+                label="성별"
+                options={GENDER_OPTIONS}
+                value={gender}
+                onChange={setGender}
                 required
-                error={errors.life_background?.message}
-                {...register('life_background', {
-                  required: '배경 스토리를 입력해주세요',
-                })}
               />
 
               <div className="grid md:grid-cols-2 gap-4">
-                <Textarea
-                  label="성격/MBTI"
-                  placeholder="예: ENFP, 외향적임"
-                  rows={2}
-                  {...register('personality')}
+                <Select
+                  label="직업"
+                  options={OCCUPATION_OPTIONS}
+                  value={occupation}
+                  onChange={(e) => setOccupation(e.target.value)}
+                  required
                 />
 
-                <Textarea
-                  label="가치관"
-                  placeholder="예: 자유, 도전"
-                  rows={2}
-                  {...register('values')}
+                <Select
+                  label="학력"
+                  options={EDUCATION_OPTIONS}
+                  value={education}
+                  onChange={(e) => setEducation(e.target.value)}
+                  placeholder="선택 (선택사항)"
+                />
+              </div>
+
+              {showMajor && (
+                <Input
+                  label="전공"
+                  placeholder="전공을 입력해주세요"
+                  {...register('major')}
+                />
+              )}
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <Select
+                  label="거주지"
+                  options={RESIDENCE_OPTIONS}
+                  value={residence}
+                  onChange={(e) => setResidence(e.target.value)}
+                  placeholder="선택 (선택사항)"
+                />
+
+                <RadioGroup
+                  label="교제 상태"
+                  options={RELATIONSHIP_OPTIONS}
+                  value={relationship}
+                  onChange={setRelationship}
                 />
               </div>
             </div>
@@ -250,7 +383,7 @@ export default function RegisterPage() {
                   onSuccess={(token) => setTurnstileToken(token)}
                   onError={() => setError('로봇 인증에 실패했습니다.')}
                   className="mx-auto"
-                  options={{ theme: 'dark' }} // Force dark theme for widget
+                  options={{ theme: 'dark' }}
                 />
               </div>
             </div>

@@ -35,8 +35,8 @@ export default function VerificationModal({ email, isOpen, onClose }: Verificati
 
         try {
             await verifyEmail(email, data.code);
-            // 성공 시 대시보드로 이동
-            router.push('/dashboard');
+            // 성공 시 프로필 완성 위저드로 이동
+            router.push('/profile/edit?setup=true');
         } catch (err) {
             const error = err as AxiosError<{ detail?: string; error?: { message?: string } }>;
             const errorMessage = error.response?.data?.detail || error.response?.data?.error?.message || '인증에 실패했습니다.';
