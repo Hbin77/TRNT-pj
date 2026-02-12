@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { GlassCard } from '@/components/ui/GlassCard';
@@ -157,9 +158,12 @@ export default function Home() {
                 <div className="absolute inset-0 bg-blue-500/10 mix-blend-overlay z-10" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent z-10" />
 
-                <img
-                  src="/hero-visual.png"
+                <Image
+                  src="/hero-visual.webp"
                   alt="Infinite Possibilities"
+                  width={2400}
+                  height={1792}
+                  priority
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
               </motion.div>

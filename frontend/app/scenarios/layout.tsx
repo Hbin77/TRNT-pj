@@ -6,13 +6,13 @@ export const metadata: Metadata = {
   openGraph: {
     title: '나의 평행세계 시나리오 | TRNT',
     description: 'AI가 생성한 평행세계 시나리오를 확인하세요.',
-    images: ['/hero-visual.png'],
+    images: ['/ogtag.png'],
   },
   twitter: {
     card: 'summary_large_image',
     title: '나의 평행세계 시나리오 | TRNT',
     description: 'AI가 생성한 평행세계 시나리오를 확인하세요.',
-    images: ['/hero-visual.png'],
+    images: ['/ogtag.png'],
   },
 };
 

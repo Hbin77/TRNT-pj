@@ -135,6 +135,14 @@ class AIService:
         except (FileNotFoundError, OSError):
             return ""
 
+    def _load_writing_guide(self) -> str:
+        """문체/톤/장르 심화 가이드 로드"""
+        filepath = self._novels_dir / "settings" / "writing_guide.md"
+        try:
+            return filepath.read_text(encoding="utf-8")
+        except (FileNotFoundError, OSError):
+            return ""
+
     def _load_example_scenario(self, genre: str, tone: str) -> str:
         """장르/톤에 매칭되는 예시 시나리오 로드"""
         examples_dir = self._novels_dir / "contents" / "examples"
@@ -466,7 +474,11 @@ class AIService:
                 era_context = self._load_era_context(era)
                 example_excerpt = self._load_example_scenario(genre, tone)
 
+                writing_guide = self._load_writing_guide()
+
                 parts = []
+                if writing_guide:
+                    parts.append(f"## 문체/톤/장르 심화 가이드\n{writing_guide}")
                 if era_context:
                     parts.append(f"## 시대적 참고 자료 ({branch.occurred_at} 전후)\n{era_context}")
                 if example_excerpt:
@@ -672,8 +684,13 @@ class AIService:
         """
         # 기존 시나리오 마지막 4000자를 컨텍스트로 사용
         context_text = existing_text[-4000:] if len(existing_text) > 4000 else existing_text
+        user_profile = self._build_user_profile(user)
 
         prompt = f"""기존 시나리오를 이어서 작성해주세요.
+
+<user_profile>
+{user_profile}
+</user_profile>
 
 <existing_scenario>
 {context_text}
@@ -691,7 +708,8 @@ class AIService:
 
 위 시나리오의 톤({tone})과 장르({genre})를 유지하면서,
 사용자가 제시한 방향으로 이야기를 자연스럽게 이어가십시오.
-기존 이야기의 마지막 장면에서 자연스럽게 연결되어야 합니다."""
+기존 이야기의 마지막 장면에서 자연스럽게 연결되어야 합니다.
+<user_profile>의 성격·가치관이 후속 이야기에서도 일관되게 반영되어야 합니다."""
 
         if not self.groq_api_key:
             return f"""[목업 이어쓰기 - API 키 설정 후 실제 생성됩니다]
@@ -773,8 +791,13 @@ class AIService:
         기존 시나리오 이어쓰기 (스트리밍)
         """
         context_text = existing_text[-4000:] if len(existing_text) > 4000 else existing_text
+        user_profile = self._build_user_profile(user)
 
         prompt = f"""기존 시나리오를 이어서 작성해주세요.
+
+<user_profile>
+{user_profile}
+</user_profile>
 
 <existing_scenario>
 {context_text}
@@ -792,7 +815,8 @@ class AIService:
 
 위 시나리오의 톤({tone})과 장르({genre})를 유지하면서,
 사용자가 제시한 방향으로 이야기를 자연스럽게 이어가십시오.
-기존 이야기의 마지막 장면에서 자연스럽게 연결되어야 합니다."""
+기존 이야기의 마지막 장면에서 자연스럽게 연결되어야 합니다.
+<user_profile>의 성격·가치관이 후속 이야기에서도 일관되게 반영되어야 합니다."""
 
         if not self.groq_api_key:
             mock = f"[목업 이어쓰기] {continuation_direction} (테스트용)"

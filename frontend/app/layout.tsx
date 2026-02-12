@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     description: '만약 다른 선택을 했다면? AI가 그려주는 당신의 또 다른 삶.',
     images: [
       {
-        url: '/hero-visual.png',
+        url: '/ogtag.png',
         width: 1200,
         height: 630,
         alt: 'TRNT - The Road Not Taken',
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'TRNT - AI 평행세계 시뮬레이터',
     description: '만약 다른 선택을 했다면? AI가 그려주는 당신의 또 다른 삶.',
-    images: ['/hero-visual.png'],
+    images: ['/ogtag.png'],
   },
   robots: {
     index: true,

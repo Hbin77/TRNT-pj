@@ -28,6 +28,7 @@ export default function NewScenarioPage() {
     tone: 'realistic' | 'optimistic' | 'pessimistic';
     genre: 'drama' | 'success' | 'healing' | 'romance';
     detail_level: 'normal' | 'summary' | 'novel';
+    scope: 'short' | 'medium' | 'long';
   }>({
     occurred_at: '',
     original_choice: '',
@@ -36,6 +37,7 @@ export default function NewScenarioPage() {
     tone: 'realistic',
     genre: 'drama',
     detail_level: 'normal',
+    scope: 'medium',
   });
 
   useEffect(() => {
@@ -67,6 +69,7 @@ export default function NewScenarioPage() {
       tone: formData.tone,
       genre: formData.genre,
       detail_level: formData.detail_level,
+      scope: formData.scope,
     };
 
     try {
@@ -282,6 +285,61 @@ export default function NewScenarioPage() {
                               }`}
                           >
                             <span className={`font-bold ${formData.tone === option.value ? 'text-purple-300' : ''}`}>
+                              {option.label}
+                            </span>
+                            <span className="text-xs opacity-60">{option.sub}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Scope & Detail Level */}
+                  <div className="grid md:grid-cols-2 gap-6 mt-6">
+                    <div>
+                      <label className="block text-sm font-medium text-purple-200 mb-3 ml-1">시간 범위</label>
+                      <div className="space-y-3">
+                        {([
+                          { value: 'short', label: '1년', sub: '선택 직후의 변화' },
+                          { value: 'medium', label: '5년', sub: '인생 궤도의 분기' },
+                          { value: 'long', label: '10년+', sub: '완전히 달라진 인생' },
+                        ] as const).map((option) => (
+                          <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, scope: option.value })}
+                            className={`w-full p-3 rounded-xl border flex items-center justify-between transition-all ${formData.scope === option.value
+                              ? 'bg-purple-500/20 border-purple-500/50 text-white shadow-[0_0_15px_rgba(168,85,247,0.3)]'
+                              : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10 hover:border-white/20'
+                              }`}
+                          >
+                            <span className={`font-bold ${formData.scope === option.value ? 'text-purple-300' : ''}`}>
+                              {option.label}
+                            </span>
+                            <span className="text-xs opacity-60">{option.sub}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-purple-200 mb-3 ml-1">분량</label>
+                      <div className="space-y-3">
+                        {([
+                          { value: 'summary', label: '요약본', sub: '핵심만 간결하게' },
+                          { value: 'normal', label: '일반', sub: '적당한 분량' },
+                          { value: 'novel', label: '소설형', sub: '풍부한 서사' },
+                        ] as const).map((option) => (
+                          <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, detail_level: option.value })}
+                            className={`w-full p-3 rounded-xl border flex items-center justify-between transition-all ${formData.detail_level === option.value
+                              ? 'bg-purple-500/20 border-purple-500/50 text-white shadow-[0_0_15px_rgba(168,85,247,0.3)]'
+                              : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10 hover:border-white/20'
+                              }`}
+                          >
+                            <span className={`font-bold ${formData.detail_level === option.value ? 'text-purple-300' : ''}`}>
                               {option.label}
                             </span>
                             <span className="text-xs opacity-60">{option.sub}</span>
