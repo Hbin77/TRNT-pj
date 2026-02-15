@@ -156,13 +156,13 @@ export const STORY_QUESTIONS = [
     id: 'turning_point',
     label: '인생에서 가장 큰 전환점은?',
     placeholder: '예: 대학교 때 전공을 바꿨어요 / 3년 전 회사를 그만두고 창업했어요',
-    required: true,
+    required: false,
   },
   {
     id: 'current_concern',
     label: '요즘 가장 고민하는 것은?',
     placeholder: '예: 이직을 할지 말지 / 결혼을 앞두고 불안해요',
-    required: true,
+    required: false,
   },
   {
     id: 'if_again',

@@ -238,8 +238,7 @@ function ProfileEditContent() {
       if (!step2.lifePriority) return '삶에서 가장 중요한 것을 선택해주세요.';
     }
     if (s === 2) {
-      if (!step3.turningPoint.trim()) return '인생 전환점을 입력해주세요.';
-      if (!step3.currentConcern.trim()) return '현재 고민을 입력해주세요.';
+      // 나의 이야기는 선택사항 — 유효성 검사 없음
     }
     return null;
   };
@@ -429,8 +428,8 @@ function ProfileEditContent() {
             className="space-y-6"
           >
             <div>
-              <h3 className="font-semibold text-lg text-white mb-1">나의 이야기</h3>
-              <p className="text-sm text-gray-400">간단한 질문에 답해주세요. 더 깊이있는 시나리오를 만들 수 있어요.</p>
+              <h3 className="font-semibold text-lg text-white mb-1">나의 이야기 <span className="text-gray-500 text-sm font-normal">(선택)</span></h3>
+              <p className="text-sm text-gray-400">작성하면 더 깊이있는 시나리오를 만들 수 있어요. 건너뛰어도 괜찮아요.</p>
             </div>
 
             {STORY_QUESTIONS.map((q) => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
@@ -8,6 +8,22 @@ import { userAPI } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 import { Sparkles, BookOpen, LogOut, User } from 'lucide-react';
 import { Logo } from '@/components/ui/Logo';
+
+/** personality raw 문자열에서 MBTI와 성격 키워드를 추출 */
+function parsePersonality(raw: string | undefined) {
+  if (!raw) return { mbti: '-', keywords: [] };
+  const parts = raw.split('|');
+  const mbti = (parts.length > 1 && /^[EI][SN][TF][JP]$/.test(parts[1]?.trim())) ? parts[1].trim() : '-';
+  const keywords = parts.length > 2 ? parts[2].split(',').map(k => k.trim()).filter(Boolean) : [];
+  return { mbti, keywords };
+}
+
+/** values raw 문자열에서 핵심 가치를 추출 */
+function parseCoreValues(raw: string | undefined) {
+  if (!raw || !raw.includes('|')) return [];
+  const first = raw.split('|')[0];
+  return first.split(',').map(v => v.trim()).filter(Boolean);
+}
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -55,7 +71,14 @@ export default function DashboardPage() {
     );
   }
 
-  if (!user) {
+  const profile = useMemo(() => {
+    if (!user) return null;
+    const { mbti, keywords } = parsePersonality(user.personality);
+    const coreValues = parseCoreValues(user.values);
+    return { mbti, keywords, coreValues };
+  }, [user]);
+
+  if (!user || !profile) {
     return null;
   }
 
@@ -170,7 +193,8 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                {/* 기본 정보 */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                   <div className="bg-white/5 rounded-xl p-4 border border-white/5">
                     <div className="text-xs text-white/40 mb-1">출생연도</div>
                     <div className="text-lg font-bold text-white/90">{user.birth_year}년</div>
@@ -181,7 +205,7 @@ export default function DashboardPage() {
                   </div>
                   <div className="bg-white/5 rounded-xl p-4 border border-white/5">
                     <div className="text-xs text-white/40 mb-1">MBTI</div>
-                    <div className="text-lg font-bold text-white/90">{user.personality || '-'}</div>
+                    <div className="text-lg font-bold text-white/90">{profile.mbti}</div>
                   </div>
                   <div className="bg-white/5 rounded-xl p-4 border border-white/5">
                     <div className="text-xs text-white/40 mb-1">거주지</div>
@@ -189,12 +213,35 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <div>
-                  <h4 className="text-sm font-bold text-white/40 uppercase tracking-wider mb-4">배경 스토리</h4>
-                  <div className="bg-black/20 rounded-xl p-5 border border-white/5 text-white/70 leading-relaxed text-sm">
-                    {user.life_background || '등록된 배경 스토리가 없습니다.'}
+                {/* 성격 키워드 + 핵심 가치 */}
+                {(profile.keywords.length > 0 || profile.coreValues.length > 0) && (
+                  <div className="space-y-4 mb-6">
+                    {profile.keywords.length > 0 && (
+                      <div>
+                        <div className="text-xs text-white/40 mb-2">성격 키워드</div>
+                        <div className="flex flex-wrap gap-2">
+                          {profile.keywords.map((kw) => (
+                            <span key={kw} className="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs font-medium">
+                              {kw}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {profile.coreValues.length > 0 && (
+                      <div>
+                        <div className="text-xs text-white/40 mb-2">핵심 가치</div>
+                        <div className="flex flex-wrap gap-2">
+                          {profile.coreValues.map((v) => (
+                            <span key={v} className="px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-medium">
+                              {v}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </div>
+                )}
               </div>
             </div>
 
