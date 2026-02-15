@@ -133,8 +133,13 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
       const blob = await scenarioAPI.getTTS(resolvedParams.id);
       const url = URL.createObjectURL(blob);
       setAudioUrl(url);
-    } catch {
-      alert('음성 생성에 실패했습니다.');
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      if (/quota|billing|insufficient_quota|rate_limit/i.test(errorMsg)) {
+        alert('API 크레딧이 부족합니다. 관리자에게 문의해주세요.');
+      } else {
+        alert('음성 생성에 실패했습니다. 잠시 후 다시 시도해주세요.');
+      }
     } finally {
       setIsTTSLoading(false);
     }
@@ -251,24 +256,6 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
             </GlassCard>
           </motion.div>
 
-          {/* Cover Image */}
-          {scenario.cover_image_url && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.15 }}
-              className="relative w-full aspect-square max-w-2xl mx-auto rounded-2xl overflow-hidden border border-white/10"
-            >
-              <Image
-                src={scenario.cover_image_url}
-                alt="시나리오 커버 이미지"
-                fill
-                className="object-cover"
-                unoptimized
-              />
-            </motion.div>
-          )}
-
           {/* Scenario Text Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -290,6 +277,19 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
                   </div>
                 </div>
               </div>
+
+              {/* Cover Image */}
+              {scenario.cover_image_url && (
+                <div className="relative w-full aspect-video max-w-4xl mx-auto rounded-2xl overflow-hidden border border-white/10 mb-10">
+                  <Image
+                    src={scenario.cover_image_url}
+                    alt="시나리오 커버 이미지"
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                </div>
+              )}
 
               <div className="prose prose-invert prose-lg max-w-none">
                 <p className="text-gray-300 leading-loose font-serif tracking-wide whitespace-pre-wrap">
