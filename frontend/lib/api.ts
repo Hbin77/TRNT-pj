@@ -161,6 +161,50 @@ export const authAPI = {
   },
 };
 
+/**
+ * 스트리밍 요청 전 토큰 유효성 확인 및 갱신
+ * fetch는 axios 인터셉터를 거치지 않으므로 수동으로 처리
+ */
+async function ensureFreshToken(): Promise<string | null> {
+  if (typeof window === 'undefined') return null;
+
+  const token = localStorage.getItem('access_token');
+  if (!token) return null;
+
+  // JWT payload 디코딩하여 만료 시간 확인
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const exp = payload.exp * 1000; // seconds → ms
+    const now = Date.now();
+
+    // 만료 2분 전이면 미리 갱신
+    if (exp - now > 2 * 60 * 1000) {
+      return token; // 아직 유효
+    }
+  } catch {
+    // 디코딩 실패 시 갱신 시도
+  }
+
+  // 토큰 갱신
+  const refreshToken = localStorage.getItem('refresh_token');
+  if (!refreshToken) return null;
+
+  try {
+    const response = await api.post<TokenResponse>('/auth/refresh', {
+      refresh_token: refreshToken,
+    });
+    const { access_token, refresh_token: newRefreshToken } = response.data;
+    localStorage.setItem('access_token', access_token);
+    localStorage.setItem('refresh_token', newRefreshToken);
+    return access_token;
+  } catch {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    window.location.href = '/login';
+    return null;
+  }
+}
+
 // 시나리오 API
 export const scenarioAPI = {
   generate: async (data: ScenarioRequest, save = true): Promise<Scenario> => {
@@ -174,7 +218,7 @@ export const scenarioAPI = {
     onDone: (scenarioId: string) => void,
     onError?: (message: string) => void
   ): Promise<void> => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+    const token = await ensureFreshToken();
     const response = await fetch(`${API_URL}/api/v1/scenarios/generate/stream`, {
       method: 'POST',
       headers: {
@@ -266,7 +310,7 @@ export const scenarioAPI = {
     onDone: (scenarioId: string) => void,
     onError?: (message: string) => void
   ): Promise<void> => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+    const token = await ensureFreshToken();
     const response = await fetch(`${API_URL}/api/v1/scenarios/${id}/continue/stream`, {
       method: 'POST',
       headers: {
