@@ -42,6 +42,13 @@ export default function DashboardPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const profile = useMemo(() => {
+    if (!user) return { mbti: '-', keywords: [] as string[], coreValues: [] as string[] };
+    const { mbti, keywords } = parsePersonality(user.personality);
+    const coreValues = parseCoreValues(user.values);
+    return { mbti, keywords, coreValues };
+  }, [user]);
+
   const handleLogout = async () => {
     await logout();
     router.push('/');
@@ -71,14 +78,7 @@ export default function DashboardPage() {
     );
   }
 
-  const profile = useMemo(() => {
-    if (!user) return null;
-    const { mbti, keywords } = parsePersonality(user.personality);
-    const coreValues = parseCoreValues(user.values);
-    return { mbti, keywords, coreValues };
-  }, [user]);
-
-  if (!user || !profile) {
+  if (!user) {
     return null;
   }
 
