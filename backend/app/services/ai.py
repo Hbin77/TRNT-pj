@@ -1,11 +1,9 @@
 from typing import Optional, AsyncGenerator
 import re
-import os
-import json
 import logging
 import asyncio
-import httpx
 from pathlib import Path
+from openai import AsyncOpenAI
 from app.config import settings
 from app.models.user import User
 from app.schemas.scenario import BranchInput
@@ -58,14 +56,15 @@ class AIService:
     """
     AI 시나리오 생성 서비스
 
-    Groq API를 사용하여 사용자의 인생 분기점을 기반으로
+    OpenAI API를 사용하여 사용자의 인생 분기점을 기반으로
     평행세계 시나리오를 생성합니다.
     """
 
     def __init__(self):
         """AIService 초기화"""
-        self.groq_api_key = settings.GROQ_API_KEY
-        self.base_url = "https://api.groq.com/openai/v1/chat/completions"
+        self.openai_api_key = settings.OPENAI_API_KEY
+        self.client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY) if settings.OPENAI_API_KEY else None
+        self.model = "gpt-4o-mini"
         self._novels_dir = self._resolve_novels_dir()
 
     def _resolve_novels_dir(self) -> Path:
@@ -539,66 +538,43 @@ class AIService:
         prompt = self.build_prompt(user, branch, tone, genre, detail_level, scope)
         max_tokens = self._get_max_tokens(detail_level)
 
-        if not self.groq_api_key:
+        if not self.client:
             return self._mock_response(user, branch, scope)
 
         last_error = None
         for attempt in range(3):
             try:
-                async with httpx.AsyncClient() as client:
-                    response = await client.post(
-                        self.base_url,
-                        headers={
-                            "Authorization": f"Bearer {self.groq_api_key}",
-                            "Content-Type": "application/json"
-                        },
-                        json={
-                            "model": "qwen/qwen3-32b",
-                            "messages": [
-                                {"role": "system", "content": SYSTEM_PROMPT},
-                                {"role": "user", "content": prompt}
-                            ],
-                            "temperature": 0.85,
-                            "top_p": 0.9,
-                            "max_tokens": max_tokens
-                        },
-                        timeout=120.0
-                    )
+                response = await self.client.chat.completions.create(
+                    model=self.model,
+                    messages=[
+                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=0.8,
+                    top_p=0.9,
+                    max_tokens=max_tokens,
+                )
+                content = response.choices[0].message.content or ""
+                content = self._strip_think_tags(content)
+                return self._clean_foreign_chars(content)
 
-                    if response.status_code == 200:
-                        data = response.json()
-                        content = data["choices"][0]["message"]["content"]
-                        content = self._strip_think_tags(content)
-                        return self._clean_foreign_chars(content)
-
-                    # 재시도 가능한 에러
-                    if response.status_code in [429, 500, 502, 503, 504]:
-                        last_error = f"AI API 오류: HTTP {response.status_code}"
-                        if attempt < 2:
-                            await asyncio.sleep(2 ** (attempt + 1))
-                            continue
-
-                    raise AIServiceException(
-                        message=f"AI API 오류: HTTP {response.status_code}",
-                        details={"status_code": response.status_code, "response": response.text[:200]}
-                    )
-
-            except httpx.TimeoutException:
-                last_error = "AI 서버 응답 시간이 초과되었습니다."
-                if attempt < 2:
-                    await asyncio.sleep(2 ** (attempt + 1))
-                    continue
-            except httpx.RequestError as e:
-                last_error = f"AI 서버 연결에 실패했습니다: {str(e)}"
-                if attempt < 2:
-                    await asyncio.sleep(2 ** (attempt + 1))
-                    continue
-            except AIServiceException:
-                raise
             except Exception as e:
+                error_str = str(e)
+                # 재시도 가능한 에러 (rate limit, server errors)
+                if any(code in error_str for code in ["429", "500", "502", "503", "504"]):
+                    last_error = f"AI API 오류: {error_str[:200]}"
+                    if attempt < 2:
+                        await asyncio.sleep(2 ** (attempt + 1))
+                        continue
+                if isinstance(e, AIServiceException):
+                    raise
+                if attempt < 2:
+                    last_error = f"AI 시나리오 생성 오류: {error_str[:200]}"
+                    await asyncio.sleep(2 ** (attempt + 1))
+                    continue
                 raise AIServiceException(
                     message="AI 시나리오 생성 중 오류가 발생했습니다.",
-                    details={"error": str(e)}
+                    details={"error": error_str[:200]}
                 )
 
         # 3회 재시도 모두 실패
@@ -621,54 +597,29 @@ class AIService:
         prompt = self.build_prompt(user, branch, tone, genre, detail_level, scope)
         max_tokens = self._get_max_tokens(detail_level)
 
-        if not self.groq_api_key:
+        if not self.client:
             mock = self._mock_response(user, branch, scope)
             for chunk in [mock[i:i+20] for i in range(0, len(mock), 20)]:
                 yield chunk
                 await asyncio.sleep(0.05)
             return
 
-        async with httpx.AsyncClient() as client:
-            async with client.stream(
-                "POST",
-                self.base_url,
-                headers={
-                    "Authorization": f"Bearer {self.groq_api_key}",
-                    "Content-Type": "application/json"
-                },
-                json={
-                    "model": "qwen/qwen3-32b",
-                    "messages": [
-                        {"role": "system", "content": SYSTEM_PROMPT},
-                        {"role": "user", "content": prompt}
-                    ],
-                    "temperature": 0.85,
-                    "top_p": 0.9,
-                    "max_tokens": max_tokens,
-                    "stream": True
-                },
-                timeout=180.0
-            ) as response:
-                if response.status_code != 200:
-                    raise AIServiceException(
-                        message=f"AI API 오류: HTTP {response.status_code}",
-                        details={"status_code": response.status_code}
-                    )
+        stream = await self.client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.8,
+            top_p=0.9,
+            max_tokens=max_tokens,
+            stream=True,
+        )
 
-                async for line in response.aiter_lines():
-                    if not line.startswith("data: "):
-                        continue
-                    data_str = line[6:]
-                    if data_str.strip() == "[DONE]":
-                        break
-                    try:
-                        data = json.loads(data_str)
-                        delta = data.get("choices", [{}])[0].get("delta", {})
-                        content = delta.get("content", "")
-                        if content:
-                            yield content
-                    except (json.JSONDecodeError, IndexError, KeyError):
-                        continue
+        async for chunk in stream:
+            delta = chunk.choices[0].delta if chunk.choices else None
+            if delta and delta.content:
+                yield delta.content
 
     async def continue_scenario(
         self,
@@ -711,7 +662,7 @@ class AIService:
 기존 이야기의 마지막 장면에서 자연스럽게 연결되어야 합니다.
 <user_profile>의 성격·가치관이 후속 이야기에서도 일관되게 반영되어야 합니다."""
 
-        if not self.groq_api_key:
+        if not self.client:
             return f"""[목업 이어쓰기 - API 키 설정 후 실제 생성됩니다]
 이야기가 계속됩니다... {continuation_direction}
 (이하 생략 - 테스트용)"""
@@ -719,59 +670,36 @@ class AIService:
         last_error = None
         for attempt in range(3):
             try:
-                async with httpx.AsyncClient() as client:
-                    response = await client.post(
-                        self.base_url,
-                        headers={
-                            "Authorization": f"Bearer {self.groq_api_key}",
-                            "Content-Type": "application/json"
-                        },
-                        json={
-                            "model": "qwen/qwen3-32b",
-                            "messages": [
-                                {"role": "system", "content": CONTINUATION_PROMPT},
-                                {"role": "user", "content": prompt}
-                            ],
-                            "temperature": 0.85,
-                            "top_p": 0.9,
-                            "max_tokens": 4096
-                        },
-                        timeout=120.0
-                    )
+                response = await self.client.chat.completions.create(
+                    model=self.model,
+                    messages=[
+                        {"role": "system", "content": CONTINUATION_PROMPT},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=0.8,
+                    top_p=0.9,
+                    max_tokens=4096,
+                )
+                content = response.choices[0].message.content or ""
+                content = self._strip_think_tags(content)
+                return self._clean_foreign_chars(content)
 
-                    if response.status_code == 200:
-                        data = response.json()
-                        content = data["choices"][0]["message"]["content"]
-                        content = self._strip_think_tags(content)
-                        return self._clean_foreign_chars(content)
-
-                    if response.status_code in [429, 500, 502, 503, 504]:
-                        last_error = f"AI API 오류: HTTP {response.status_code}"
-                        if attempt < 2:
-                            await asyncio.sleep(2 ** (attempt + 1))
-                            continue
-
-                    raise AIServiceException(
-                        message=f"AI API 오류: HTTP {response.status_code}",
-                        details={"status_code": response.status_code, "response": response.text[:200]}
-                    )
-
-            except httpx.TimeoutException:
-                last_error = "AI 서버 응답 시간이 초과되었습니다."
-                if attempt < 2:
-                    await asyncio.sleep(2 ** (attempt + 1))
-                    continue
-            except httpx.RequestError as e:
-                last_error = f"AI 서버 연결에 실패했습니다: {str(e)}"
-                if attempt < 2:
-                    await asyncio.sleep(2 ** (attempt + 1))
-                    continue
-            except AIServiceException:
-                raise
             except Exception as e:
+                error_str = str(e)
+                if any(code in error_str for code in ["429", "500", "502", "503", "504"]):
+                    last_error = f"AI API 오류: {error_str[:200]}"
+                    if attempt < 2:
+                        await asyncio.sleep(2 ** (attempt + 1))
+                        continue
+                if isinstance(e, AIServiceException):
+                    raise
+                if attempt < 2:
+                    last_error = f"AI 이어쓰기 오류: {error_str[:200]}"
+                    await asyncio.sleep(2 ** (attempt + 1))
+                    continue
                 raise AIServiceException(
                     message="AI 시나리오 이어쓰기 중 오류가 발생했습니다.",
-                    details={"error": str(e)}
+                    details={"error": error_str[:200]}
                 )
 
         raise AIServiceException(
@@ -818,54 +746,29 @@ class AIService:
 기존 이야기의 마지막 장면에서 자연스럽게 연결되어야 합니다.
 <user_profile>의 성격·가치관이 후속 이야기에서도 일관되게 반영되어야 합니다."""
 
-        if not self.groq_api_key:
+        if not self.client:
             mock = f"[목업 이어쓰기] {continuation_direction} (테스트용)"
             for chunk in [mock[i:i+20] for i in range(0, len(mock), 20)]:
                 yield chunk
                 await asyncio.sleep(0.05)
             return
 
-        async with httpx.AsyncClient() as client:
-            async with client.stream(
-                "POST",
-                self.base_url,
-                headers={
-                    "Authorization": f"Bearer {self.groq_api_key}",
-                    "Content-Type": "application/json"
-                },
-                json={
-                    "model": "qwen/qwen3-32b",
-                    "messages": [
-                        {"role": "system", "content": CONTINUATION_PROMPT},
-                        {"role": "user", "content": prompt}
-                    ],
-                    "temperature": 0.85,
-                    "top_p": 0.9,
-                    "max_tokens": 4096,
-                    "stream": True
-                },
-                timeout=180.0
-            ) as response:
-                if response.status_code != 200:
-                    raise AIServiceException(
-                        message=f"AI API 오류: HTTP {response.status_code}",
-                        details={"status_code": response.status_code}
-                    )
+        stream = await self.client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {"role": "system", "content": CONTINUATION_PROMPT},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.8,
+            top_p=0.9,
+            max_tokens=4096,
+            stream=True,
+        )
 
-                async for line in response.aiter_lines():
-                    if not line.startswith("data: "):
-                        continue
-                    data_str = line[6:]
-                    if data_str.strip() == "[DONE]":
-                        break
-                    try:
-                        data = json.loads(data_str)
-                        delta = data.get("choices", [{}])[0].get("delta", {})
-                        content = delta.get("content", "")
-                        if content:
-                            yield content
-                    except (json.JSONDecodeError, IndexError, KeyError):
-                        continue
+        async for chunk in stream:
+            delta = chunk.choices[0].delta if chunk.choices else None
+            if delta and delta.content:
+                yield delta.content
 
     def _mock_response(self, user: User, branch: BranchInput, scope: str) -> str:
         """테스트용 목업 응답"""

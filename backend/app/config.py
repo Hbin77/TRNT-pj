@@ -10,7 +10,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql://user:pass@localhost:5432/trnt"
 
     # AI API
-    GROQ_API_KEY: str = ""
+    OPENAI_API_KEY: str = ""
+    GROQ_API_KEY: str = ""  # 폴백용 유지
 
     # Rate Limiting
     DAILY_FREE_LIMIT: int = 3

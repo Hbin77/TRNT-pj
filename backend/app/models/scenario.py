@@ -29,6 +29,9 @@ class Scenario(Base):
     # 피드백
     rating = Column(String(10), nullable=True)  # "like" / "dislike"
 
+    # 커버 이미지
+    cover_image_url = Column(String(500), nullable=True)
+
     # 이어쓰기
     parent_scenario_id = Column(GUID(), ForeignKey("scenarios.id"), nullable=True)
 

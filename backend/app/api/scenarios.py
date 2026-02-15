@@ -24,6 +24,8 @@ from app.schemas.scenario import (
     ContinuationRequest,
 )
 from app.services.ai import AIService
+from app.services.tts import TTSService
+from app.services.image import ImageService
 from app.services.rate_limiter import RateLimiterService
 from app.dependencies.auth import get_current_active_user
 from app.dependencies.profile import require_complete_profile
@@ -34,6 +36,8 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/scenarios", tags=["Scenarios"])
 
 ai_service = AIService()
+tts_service = TTSService()
+image_service = ImageService()
 
 
 @router.post("/generate", response_model=ScenarioResponse)
@@ -481,3 +485,70 @@ async def continue_scenario_stream(
             "X-Accel-Buffering": "no",
         }
     )
+
+
+# Phase 6: TTS 오디오 낭독
+@router.post("/{scenario_id}/tts")
+async def generate_tts(
+    scenario_id: UUID,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """시나리오 텍스트를 음성으로 변환 (OpenAI TTS)"""
+
+    scenario = db.query(Scenario).filter(Scenario.id == scenario_id).first()
+    if not scenario:
+        raise ScenarioNotFoundException(scenario_id=str(scenario_id))
+
+    if scenario.user_id != current_user.id:
+        raise PermissionDeniedException(message="다른 사용자의 시나리오에 접근할 수 없습니다.")
+
+    try:
+        audio_bytes = await tts_service.generate_audio(scenario.scenario_text)
+    except Exception as e:
+        logger.error(f"TTS generation failed: {type(e).__name__}: {e}", exc_info=True)
+        raise AIServiceException(
+            message="음성 생성 중 오류가 발생했습니다.",
+            details={"error": str(e)}
+        )
+
+    return StreamingResponse(
+        iter([audio_bytes]),
+        media_type="audio/mpeg",
+        headers={"Content-Disposition": f"inline; filename=scenario_{scenario_id}.mp3"}
+    )
+
+
+# Phase 7: DALL-E 커버 이미지
+@router.post("/{scenario_id}/generate-cover")
+async def generate_cover(
+    scenario_id: UUID,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """시나리오 커버 이미지 생성 (DALL-E)"""
+
+    scenario = db.query(Scenario).filter(Scenario.id == scenario_id).first()
+    if not scenario:
+        raise ScenarioNotFoundException(scenario_id=str(scenario_id))
+
+    if scenario.user_id != current_user.id:
+        raise PermissionDeniedException(message="다른 사용자의 시나리오에 접근할 수 없습니다.")
+
+    try:
+        cover_url = await image_service.generate_cover(
+            scenario_text=scenario.scenario_text,
+            genre=scenario.genre,
+            tone=scenario.tone,
+        )
+    except Exception as e:
+        logger.error(f"Cover generation failed: {type(e).__name__}: {e}", exc_info=True)
+        raise AIServiceException(
+            message="커버 이미지 생성 중 오류가 발생했습니다.",
+            details={"error": str(e)}
+        )
+
+    scenario.cover_image_url = cover_url
+    db.commit()
+
+    return {"cover_image_url": cover_url}

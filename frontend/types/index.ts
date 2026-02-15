@@ -98,6 +98,7 @@ export interface ScenarioListItem {
   scope: string;
   word_count: number;
   rating?: string | null;
+  cover_image_url?: string | null;
   parent_scenario_id?: string | null;
   created_at: string;
 }

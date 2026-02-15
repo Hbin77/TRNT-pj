@@ -8,7 +8,8 @@ import { scenarioAPI } from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Textarea';
-import { ArrowLeft, Calendar, Share2, Trash2, BookOpen, Sparkles, Quote, ThumbsUp, ThumbsDown, PenLine, X, Loader2 } from 'lucide-react';
+import Image from 'next/image';
+import { ArrowLeft, Calendar, Share2, Trash2, BookOpen, Sparkles, Quote, ThumbsUp, ThumbsDown, PenLine, X, Loader2, Volume2, ImageIcon } from 'lucide-react';
 import type { ScenarioDetail } from '@/types';
 import { GlassCard } from '@/components/ui/GlassCard';
 
@@ -20,6 +21,13 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
   const [isLoading, setIsLoading] = useState(true);
   const [rating, setRating] = useState<string | null>(null);
   const [isFeedbackLoading, setIsFeedbackLoading] = useState(false);
+
+  // TTS 상태
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [isTTSLoading, setIsTTSLoading] = useState(false);
+
+  // 커버 이미지 상태
+  const [isCoverLoading, setIsCoverLoading] = useState(false);
 
   // 이어쓰기 상태
   const [showContinueModal, setShowContinueModal] = useState(false);
@@ -116,6 +124,32 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
       alert(message);
       setIsContinuing(false);
       setIsStreamingContinuation(false);
+    }
+  };
+
+  const handleTTS = async () => {
+    setIsTTSLoading(true);
+    try {
+      const blob = await scenarioAPI.getTTS(resolvedParams.id);
+      const url = URL.createObjectURL(blob);
+      setAudioUrl(url);
+    } catch {
+      alert('음성 생성에 실패했습니다.');
+    } finally {
+      setIsTTSLoading(false);
+    }
+  };
+
+  const handleGenerateCover = async () => {
+    if (!scenario) return;
+    setIsCoverLoading(true);
+    try {
+      const result = await scenarioAPI.generateCover(resolvedParams.id);
+      setScenario({ ...scenario, cover_image_url: result.cover_image_url });
+    } catch {
+      alert('커버 이미지 생성에 실패했습니다.');
+    } finally {
+      setIsCoverLoading(false);
     }
   };
 
@@ -217,6 +251,24 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
             </GlassCard>
           </motion.div>
 
+          {/* Cover Image */}
+          {scenario.cover_image_url && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.15 }}
+              className="relative w-full aspect-square max-w-2xl mx-auto rounded-2xl overflow-hidden border border-white/10"
+            >
+              <Image
+                src={scenario.cover_image_url}
+                alt="시나리오 커버 이미지"
+                fill
+                className="object-cover"
+                unoptimized
+              />
+            </motion.div>
+          )}
+
           {/* Scenario Text Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -243,6 +295,50 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
                 <p className="text-gray-300 leading-loose font-serif tracking-wide whitespace-pre-wrap">
                   {scenario.scenario_text}
                 </p>
+              </div>
+
+              {/* TTS 오디오 플레이어 + 커버 이미지 생성 */}
+              <div className="mt-12 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-center gap-4">
+                {audioUrl ? (
+                  <audio controls src={audioUrl} className="w-full max-w-md" />
+                ) : (
+                  <button
+                    onClick={handleTTS}
+                    disabled={isTTSLoading}
+                    className="flex items-center gap-2 px-6 py-3 rounded-xl border bg-white/5 border-white/10 text-white/60 hover:bg-blue-500/10 hover:border-blue-500/30 hover:text-blue-300 transition-all disabled:opacity-50"
+                  >
+                    {isTTSLoading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        음성을 생성하고 있습니다...
+                      </>
+                    ) : (
+                      <>
+                        <Volume2 className="w-5 h-5" />
+                        이 이야기 들어보기
+                      </>
+                    )}
+                  </button>
+                )}
+                {!scenario.cover_image_url && (
+                  <button
+                    onClick={handleGenerateCover}
+                    disabled={isCoverLoading}
+                    className="flex items-center gap-2 px-6 py-3 rounded-xl border bg-white/5 border-white/10 text-white/60 hover:bg-purple-500/10 hover:border-purple-500/30 hover:text-purple-300 transition-all disabled:opacity-50"
+                  >
+                    {isCoverLoading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        커버 이미지 생성 중...
+                      </>
+                    ) : (
+                      <>
+                        <ImageIcon className="w-5 h-5" />
+                        커버 이미지 생성
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
 
               {/* 피드백 섹션 */}

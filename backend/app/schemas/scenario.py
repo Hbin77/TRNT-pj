@@ -50,6 +50,7 @@ class ScenarioDBResponse(BaseModel):
     scenario_text: str
     word_count: int
     rating: Optional[str] = None
+    cover_image_url: Optional[str] = None
     parent_scenario_id: Optional[UUID] = None
     created_at: datetime
 
@@ -68,6 +69,7 @@ class ScenarioListItem(BaseModel):
     scope: str
     word_count: int
     rating: Optional[str] = None
+    cover_image_url: Optional[str] = None
     parent_scenario_id: Optional[UUID] = None
     created_at: datetime
 

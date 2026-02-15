@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { scenarioAPI } from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/Button';
+import Image from 'next/image';
 import { Sparkles, Calendar, BookOpen, Trash2, ArrowLeft } from 'lucide-react';
 import type { ScenarioListItem } from '@/types';
 import { GlassCard } from '@/components/ui/GlassCard';
@@ -122,10 +123,24 @@ export default function ScenariosPage() {
                   >
                     <Link href={`/scenarios/${scenario.id}`} className="block h-full group">
                       <div className="h-full relative p-[1px] rounded-2xl bg-gradient-to-br from-white/10 to-transparent hover:from-blue-500/50 hover:to-purple-500/50 transition-all duration-300">
-                        <div className="bg-[#12121A]/80 backdrop-blur-xl p-6 rounded-2xl h-full flex flex-col relative overflow-hidden group-hover:bg-[#12121A]/60 transition-all">
+                        <div className="bg-[#12121A]/80 backdrop-blur-xl rounded-2xl h-full flex flex-col relative overflow-hidden group-hover:bg-[#12121A]/60 transition-all">
+
+                          {/* Cover Image Thumbnail */}
+                          {scenario.cover_image_url && (
+                            <div className="relative w-full h-40 overflow-hidden">
+                              <Image
+                                src={scenario.cover_image_url}
+                                alt="커버 이미지"
+                                fill
+                                className="object-cover"
+                                unoptimized
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#12121A]/80" />
+                            </div>
+                          )}
 
                           {/* Card Content Top */}
-                          <div className="flex justify-between items-start mb-6">
+                          <div className={`flex justify-between items-start ${scenario.cover_image_url ? 'px-6 pt-4' : 'p-6 pb-0'} mb-6`}>
                             <div className="flex items-center space-x-2">
                               <div className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-blue-300">
                                 {scenario.genre.toUpperCase()}
@@ -142,7 +157,7 @@ export default function ScenariosPage() {
                             </button>
                           </div>
 
-                          <div className="mb-6 flex-grow">
+                          <div className={`mb-6 flex-grow ${scenario.cover_image_url ? 'px-6' : 'px-6'}`}>
                             <div className="flex items-center text-xs text-white/40 mb-3 font-mono">
                               <Calendar className="w-3 h-3 mr-1.5 opacity-70" />
                               {new Date(scenario.created_at).toLocaleDateString()}
@@ -156,7 +171,7 @@ export default function ScenariosPage() {
                             </div>
                           </div>
 
-                          <div className="pt-4 border-t border-white/5 flex items-center justify-between text-sm">
+                          <div className="mx-6 pt-4 pb-6 border-t border-white/5 flex items-center justify-between text-sm">
                             <span className="text-white/30 truncate max-w-[150px] italic">
                               &quot;{scenario.branch_data.context ? scenario.branch_data.context.substring(0, 15) + '...' : '새로운 운명의 시작'}&quot;
                             </span>

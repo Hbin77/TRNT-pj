@@ -247,6 +247,18 @@ export const scenarioAPI = {
     return response.data;
   },
 
+  getTTS: async (id: string): Promise<Blob> => {
+    const response = await api.post(`/scenarios/${id}/tts`, null, {
+      responseType: 'blob',
+    });
+    return response.data;
+  },
+
+  generateCover: async (id: string): Promise<{ cover_image_url: string }> => {
+    const response = await api.post<{ cover_image_url: string }>(`/scenarios/${id}/generate-cover`);
+    return response.data;
+  },
+
   continueScenarioStream: async (
     id: string,
     data: ContinuationRequest,
