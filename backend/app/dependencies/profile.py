@@ -21,12 +21,11 @@ async def require_complete_profile(
     Raises:
         IncompleteProfileException: 프로필이 완성되지 않은 경우
     """
-    # 필수 필드 목록
+    # 필수 필드 목록 (life_background는 선택사항)
     required_fields = {
         'name': '이름',
         'birth_year': '출생연도',
         'occupation': '직업',
-        'life_background': '배경 스토리'
     }
 
     for field, label in required_fields.items():
