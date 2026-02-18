@@ -26,70 +26,70 @@ const floatingCards = [
     persona: "평행세계의 직장인",
     context: "커리어의 분기점",
     emoji: "💼",
-    left: '2%', duration: 55, delay: 0, direction: 'diagonal-drift-down', opacity: 0.28,
+    left: '2%', duration: 55, direction: 'diagonal-drift-down', opacity: 0.28,
   },
   {
     quote: "처음 좋아했던 그 사람에게 먼저 고백했다면, 우리의 이야기는 어떻게 달라졌을까?",
     persona: "또 다른 나",
     context: "사랑의 순간",
     emoji: "💙",
-    left: '58%', duration: 68, delay: 16, direction: 'diagonal-drift-up', opacity: 0.18,
+    left: '58%', duration: 68, direction: 'diagonal-drift-up', opacity: 0.18,
   },
   {
     quote: "대학원 진학을 포기하지 않았다면, 지금의 나는 어떤 연구자가 되어 있을까?",
     persona: "학문의 길 위에서",
     context: "지식의 갈림길",
     emoji: "🎓",
-    left: '30%', duration: 50, delay: 7, direction: 'diagonal-drift-down', opacity: 0.22,
+    left: '30%', duration: 50, direction: 'diagonal-drift-down', opacity: 0.22,
   },
   {
     quote: "그 도시를 떠나지 않고 계속 그곳에 머물렀다면, 지금 내 삶은 어떠할까?",
     persona: "그 도시의 나",
     context: "공간의 선택",
     emoji: "🏙️",
-    left: '74%', duration: 62, delay: 30, direction: 'diagonal-drift-up', opacity: 0.16,
+    left: '74%', duration: 62, direction: 'diagonal-drift-up', opacity: 0.16,
   },
   {
     quote: "부모님의 반대를 무릅쓰고 내가 원하던 예술의 길을 걸었다면?",
     persona: "예술가의 삶",
     context: "열정의 갈림길",
     emoji: "🎨",
-    left: '14%', duration: 47, delay: 10, direction: 'diagonal-drift-up', opacity: 0.24,
+    left: '14%', duration: 47, direction: 'diagonal-drift-up', opacity: 0.24,
   },
   {
     quote: "그 여행을 취소하지 않았더라면, 어떤 우연한 만남이 기다리고 있었을까?",
     persona: "여행자의 나",
     context: "우연의 순간",
     emoji: "✈️",
-    left: '44%', duration: 58, delay: 4, direction: 'diagonal-drift-up', opacity: 0.20,
+    left: '44%', duration: 58, direction: 'diagonal-drift-up', opacity: 0.20,
   },
   {
     quote: "창업을 결심하고 그 아이디어를 실행에 옮겼다면, 내 회사는 지금 어떤 모습일까?",
     persona: "창업가의 삶",
     context: "도전의 분기점",
     emoji: "🚀",
-    left: '80%', duration: 60, delay: 24, direction: 'diagonal-drift-down', opacity: 0.18,
+    left: '80%', duration: 60, direction: 'diagonal-drift-down', opacity: 0.18,
   },
   {
     quote: "그날 그 말을 꺼내지 않았다면, 우리는 지금도 가장 친한 친구였을까?",
     persona: "그날의 우리",
     context: "관계의 순간",
     emoji: "🤝",
-    left: '6%', duration: 53, delay: 44, direction: 'diagonal-drift-down', opacity: 0.22,
+    left: '6%', duration: 53, direction: 'diagonal-drift-down', opacity: 0.22,
   },
   {
     quote: "유학을 결심하고 낯선 나라로 떠났다면, 나의 세계는 얼마나 넓어졌을까?",
     persona: "세계를 넓힌 나",
     context: "경계 너머의 삶",
     emoji: "🌍",
-    left: '42%', duration: 65, delay: 56, direction: 'diagonal-drift-up', opacity: 0.16,
+    left: '42%', duration: 65, direction: 'diagonal-drift-up', opacity: 0.16,
   },
   {
     quote: "그때의 나에게 지금 알고 있는 것을 말해줄 수 있었다면, 무엇을 달리 했을까?",
     persona: "과거로 보낸 편지",
     context: "시간의 역설",
     emoji: "✉️",
-    left: '26%', duration: 72, delay: 62, direction: 'diagonal-drift-down', opacity: 0.14,
+    left: '26%', duration: 72, direction: 'diagonal-drift-down', opacity: 0.14,
   },
 ];
 
@@ -123,6 +123,17 @@ export default function DashboardPage() {
     const coreValues = parseCoreValues(user.values);
     return { mbti, keywords, coreValues };
   }, [user]);
+
+  // 카드마다 애니메이션 사이클 중간부터 시작해 화면 전체에 분산
+  // 음수 딜레이 = "이미 X초 전에 시작됐다"는 의미 → 처음부터 퍼져 보임
+  const cardOffsets = useMemo(() =>
+    floatingCards.map(card => {
+      // 10%~90% 구간 시작 → opacity가 살아있는 구간에서만 등장
+      const min = card.duration * 0.10;
+      const max = card.duration * 0.90;
+      return (min + Math.random() * (max - min)).toFixed(1);
+    }),
+  []);
 
   const handleLogout = async () => {
     await logout();
@@ -174,7 +185,7 @@ export default function DashboardPage() {
             style={{
               left: item.left,
               animation: `${item.direction} ${item.duration}s linear infinite`,
-              animationDelay: `${item.delay}s`,
+              animationDelay: `-${cardOffsets[i]}s`,
               opacity: item.opacity,
             }}
           >
