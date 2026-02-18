@@ -19,66 +19,77 @@ function parsePersonality(raw: string | undefined) {
 }
 
 /** 배경에 흐르는 평행세계 분기점 질문들 */
-const floatingQuestions = [
+/** 배경에 흐르는 평행세계 분기점 카드들 */
+const floatingCards = [
   {
-    text: "그때 그 회사 제안을 받아들였다면, 지금 나는 어디서 무엇을 하고 있을까?",
-    left: '4%', duration: 52, delay: 0, direction: 'diagonal-drift-down',
-    fontSize: '0.9375rem', className: 'text-white/[0.18] font-light tracking-wide',
+    quote: "그때 그 회사 제안을 받아들였다면, 지금 나는 어디서 무엇을 하고 있을까?",
+    persona: "평행세계의 직장인",
+    context: "커리어의 분기점",
+    emoji: "💼",
+    left: '2%', duration: 55, delay: 0, direction: 'diagonal-drift-down', opacity: 0.28,
   },
   {
-    text: "처음 좋아했던 그 사람에게 먼저 고백했다면, 우리의 이야기는 어떻게 달라졌을까?",
-    left: '22%', duration: 65, delay: 14, direction: 'diagonal-drift-up',
-    fontSize: '0.875rem', className: 'text-blue-300/[0.13] font-light tracking-wide',
+    quote: "처음 좋아했던 그 사람에게 먼저 고백했다면, 우리의 이야기는 어떻게 달라졌을까?",
+    persona: "또 다른 나",
+    context: "사랑의 순간",
+    emoji: "💙",
+    left: '58%', duration: 68, delay: 16, direction: 'diagonal-drift-up', opacity: 0.18,
   },
   {
-    text: "대학원 진학을 포기하지 않았다면, 지금의 나는 어떤 연구자가 되어 있을까?",
-    left: '48%', duration: 48, delay: 5, direction: 'diagonal-drift-down',
-    fontSize: '0.9375rem', className: 'text-white/[0.14] font-light tracking-wide',
+    quote: "대학원 진학을 포기하지 않았다면, 지금의 나는 어떤 연구자가 되어 있을까?",
+    persona: "학문의 길 위에서",
+    context: "지식의 갈림길",
+    emoji: "🎓",
+    left: '30%', duration: 50, delay: 7, direction: 'diagonal-drift-down', opacity: 0.22,
   },
   {
-    text: "그 도시를 떠나지 않고 계속 그곳에 머물렀다면, 지금 내 삶은 어떠할까?",
-    left: '68%', duration: 58, delay: 28, direction: 'diagonal-drift-up',
-    fontSize: '0.875rem', className: 'text-purple-300/[0.12] font-light tracking-wide',
+    quote: "그 도시를 떠나지 않고 계속 그곳에 머물렀다면, 지금 내 삶은 어떠할까?",
+    persona: "그 도시의 나",
+    context: "공간의 선택",
+    emoji: "🏙️",
+    left: '74%', duration: 62, delay: 30, direction: 'diagonal-drift-up', opacity: 0.16,
   },
   {
-    text: "부모님의 반대를 무릅쓰고 내가 원하던 예술의 길을 걸었다면?",
-    left: '12%', duration: 44, delay: 9, direction: 'diagonal-drift-up',
-    fontSize: '0.9375rem', className: 'text-white/[0.16] font-light tracking-wide',
+    quote: "부모님의 반대를 무릅쓰고 내가 원하던 예술의 길을 걸었다면?",
+    persona: "예술가의 삶",
+    context: "열정의 갈림길",
+    emoji: "🎨",
+    left: '14%', duration: 47, delay: 10, direction: 'diagonal-drift-up', opacity: 0.24,
   },
   {
-    text: "10년 전 포기했던 그 꿈을 계속 붙잡고 있었다면, 지금 나는 어떤 사람이었을까?",
-    left: '58%', duration: 68, delay: 36, direction: 'diagonal-drift-down',
-    fontSize: '0.875rem', className: 'text-white/[0.10] font-light tracking-wide',
+    quote: "그 여행을 취소하지 않았더라면, 어떤 우연한 만남이 기다리고 있었을까?",
+    persona: "여행자의 나",
+    context: "우연의 순간",
+    emoji: "✈️",
+    left: '44%', duration: 58, delay: 4, direction: 'diagonal-drift-up', opacity: 0.20,
   },
   {
-    text: "그 여행을 취소하지 않았더라면, 어떤 우연한 만남이 기다리고 있었을까?",
-    left: '35%', duration: 50, delay: 3, direction: 'diagonal-drift-up',
-    fontSize: '0.9375rem', className: 'text-blue-200/[0.14] font-light tracking-wide',
+    quote: "창업을 결심하고 그 아이디어를 실행에 옮겼다면, 내 회사는 지금 어떤 모습일까?",
+    persona: "창업가의 삶",
+    context: "도전의 분기점",
+    emoji: "🚀",
+    left: '80%', duration: 60, delay: 24, direction: 'diagonal-drift-down', opacity: 0.18,
   },
   {
-    text: "창업을 결심하고 그 아이디어를 실행에 옮겼다면, 내 회사는 지금 어떤 모습일까?",
-    left: '78%', duration: 55, delay: 22, direction: 'diagonal-drift-down',
-    fontSize: '0.875rem', className: 'text-white/[0.11] font-light tracking-wide',
+    quote: "그날 그 말을 꺼내지 않았다면, 우리는 지금도 가장 친한 친구였을까?",
+    persona: "그날의 우리",
+    context: "관계의 순간",
+    emoji: "🤝",
+    left: '6%', duration: 53, delay: 44, direction: 'diagonal-drift-down', opacity: 0.22,
   },
   {
-    text: "그날 그 말을 꺼내지 않았다면, 우리는 지금도 가장 친한 친구였을까?",
-    left: '8%', duration: 47, delay: 42, direction: 'diagonal-drift-down',
-    fontSize: '0.9375rem', className: 'text-purple-200/[0.12] font-light tracking-wide',
+    quote: "유학을 결심하고 낯선 나라로 떠났다면, 나의 세계는 얼마나 넓어졌을까?",
+    persona: "세계를 넓힌 나",
+    context: "경계 너머의 삶",
+    emoji: "🌍",
+    left: '42%', duration: 65, delay: 56, direction: 'diagonal-drift-up', opacity: 0.16,
   },
   {
-    text: "유학을 결심하고 낯선 나라로 떠났다면, 나의 세계는 얼마나 넓어졌을까?",
-    left: '44%', duration: 62, delay: 55, direction: 'diagonal-drift-up',
-    fontSize: '0.875rem', className: 'text-white/[0.09] font-light tracking-wide',
-  },
-  {
-    text: "그 오디션에 포기하지 않고 끝까지 도전했다면, 지금 무대 위에 서 있을까?",
-    left: '88%', duration: 54, delay: 17, direction: 'diagonal-drift-up',
-    fontSize: '0.9375rem', className: 'text-white/[0.13] font-light tracking-wide',
-  },
-  {
-    text: "그때의 나에게 지금 알고 있는 것을 말해줄 수 있었다면, 무엇을 달리 했을까?",
-    left: '28%', duration: 70, delay: 60, direction: 'diagonal-drift-down',
-    fontSize: '0.875rem', className: 'text-blue-300/[0.10] font-light tracking-wide',
+    quote: "그때의 나에게 지금 알고 있는 것을 말해줄 수 있었다면, 무엇을 달리 했을까?",
+    persona: "과거로 보낸 편지",
+    context: "시간의 역설",
+    emoji: "✉️",
+    left: '26%', duration: 72, delay: 62, direction: 'diagonal-drift-down', opacity: 0.14,
   },
 ];
 
@@ -154,22 +165,40 @@ export default function DashboardPage() {
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-900/20 rounded-full blur-[120px]" />
       </div>
 
-      {/* Floating Questions Background */}
+      {/* Floating Quote Cards Background */}
       <div className="fixed inset-0 z-0 pointer-events-none select-none overflow-hidden">
-        {floatingQuestions.map((item, i) => (
-          <span
+        {floatingCards.map((item, i) => (
+          <div
             key={i}
-            className={`absolute whitespace-nowrap ${item.className}`}
+            className="absolute w-[268px]"
             style={{
               left: item.left,
               animation: `${item.direction} ${item.duration}s linear infinite`,
               animationDelay: `${item.delay}s`,
-              fontSize: item.fontSize,
-              letterSpacing: '0.03em',
+              opacity: item.opacity,
             }}
           >
-            {item.text}
-          </span>
+            <div className="rounded-2xl border border-white/15 bg-[#0c1020]/80 backdrop-blur-sm p-5 shadow-2xl">
+              {/* 따옴표 */}
+              <div className="text-5xl text-blue-400/70 font-serif leading-none mb-1 -mt-1 select-none">❝</div>
+
+              {/* 질문 텍스트 */}
+              <p className="text-white/85 text-[0.8125rem] font-light italic leading-relaxed mb-4">
+                {item.quote}
+              </p>
+
+              {/* 구분선 + 페르소나 */}
+              <div className="border-t border-white/10 pt-3 flex items-center justify-between">
+                <div>
+                  <div className="text-white/75 text-xs font-semibold">{item.persona}</div>
+                  <div className="text-white/35 text-[0.6rem] tracking-widest uppercase mt-0.5">{item.context}</div>
+                </div>
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500/30 to-purple-600/30 border border-white/15 flex items-center justify-center text-base">
+                  {item.emoji}
+                </div>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
 
