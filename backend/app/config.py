@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     GROQ_API_KEY: str = ""  # 폴백용 유지
 
     # Rate Limiting
-    DAILY_FREE_LIMIT: int = 3
+    DAILY_FREE_LIMIT: int = 2
     MASTER_EMAILS: str = ""  # 쉼표 구분 이메일 목록 (일일 제한 면제)
 
     # JWT 인증

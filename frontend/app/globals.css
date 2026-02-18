@@ -61,3 +61,38 @@ body {
   transform: translateY(-2px);
   box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
 }
+
+/* Diagonal Rain Animation */
+@keyframes diagonal-rain-down {
+  0% {
+    transform: translate(0, -100%) rotate(-15deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-200px, 100vh) rotate(-15deg);
+    opacity: 0;
+  }
+}
+
+@keyframes diagonal-rain-up {
+  0% {
+    transform: translate(0, 100vh) rotate(15deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(200px, -100%) rotate(15deg);
+    opacity: 0;
+  }
+}

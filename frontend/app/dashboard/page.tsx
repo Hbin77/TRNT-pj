@@ -18,6 +18,22 @@ function parsePersonality(raw: string | undefined) {
   return { mbti, keywords };
 }
 
+/** 대각선 시나리오 비 애니메이션 아이템 */
+const rainItems = [
+  { text: '만약 그때 다른 선택을 했다면...', left: '5%', duration: 22, delay: 0, direction: 'diagonal-rain-down', fontSize: '0.75rem', className: 'text-white/[0.04]' },
+  { text: '평행세계의 나는 어떤 삶을 살고 있을까', left: '25%', duration: 28, delay: 4, direction: 'diagonal-rain-up', fontSize: '0.8125rem', className: 'text-white/[0.03]' },
+  { text: '후회 없는 선택은 없다', left: '50%', duration: 18, delay: 8, direction: 'diagonal-rain-down', fontSize: '0.875rem', className: 'text-white/[0.05]' },
+  { text: '1998년, 서울의 어느 골목길에서', left: '70%', duration: 25, delay: 2, direction: 'diagonal-rain-up', fontSize: '0.75rem', className: 'text-white/[0.04]' },
+  { text: '돌아갈 수 없는 그 순간으로', left: '15%', duration: 20, delay: 12, direction: 'diagonal-rain-up', fontSize: '0.8125rem', className: 'text-white/[0.06]' },
+  { text: '당신의 이야기는 아직 끝나지 않았다', left: '85%', duration: 30, delay: 6, direction: 'diagonal-rain-down', fontSize: '0.75rem', className: 'text-white/[0.03]' },
+  { text: '선택의 갈림길', left: '40%', duration: 16, delay: 10, direction: 'diagonal-rain-down', fontSize: '0.875rem', className: 'text-white/[0.05]' },
+  { text: '또 다른 가능성', left: '60%', duration: 24, delay: 14, direction: 'diagonal-rain-up', fontSize: '0.75rem', className: 'text-white/[0.04]' },
+  { text: '그날의 선택이 모든 것을 바꿨다', left: '35%', duration: 26, delay: 3, direction: 'diagonal-rain-down', fontSize: '0.8125rem', className: 'text-white/[0.03]' },
+  { text: '시간을 되돌릴 수 있다면', left: '90%', duration: 19, delay: 9, direction: 'diagonal-rain-up', fontSize: '0.75rem', className: 'text-white/[0.05]' },
+  { text: '운명의 분기점에서', left: '10%', duration: 27, delay: 7, direction: 'diagonal-rain-down', fontSize: '0.875rem', className: 'text-white/[0.04]' },
+  { text: '다시 한번, 그 길 위에 서다', left: '75%', duration: 21, delay: 11, direction: 'diagonal-rain-up', fontSize: '0.8125rem', className: 'text-white/[0.03]' },
+];
+
 /** values raw 문자열에서 핵심 가치를 추출 */
 function parseCoreValues(raw: string | undefined) {
   if (!raw || !raw.includes('|')) return [];
@@ -88,6 +104,24 @@ export default function DashboardPage() {
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-900/20 rounded-full blur-[120px]" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-900/20 rounded-full blur-[120px]" />
+      </div>
+
+      {/* Scenario Rain Background */}
+      <div className="fixed inset-0 z-0 pointer-events-none select-none overflow-hidden">
+        {rainItems.map((item, i) => (
+          <span
+            key={i}
+            className={`absolute whitespace-nowrap ${item.className}`}
+            style={{
+              left: item.left,
+              animation: `${item.direction} ${item.duration}s linear infinite`,
+              animationDelay: `${item.delay}s`,
+              fontSize: item.fontSize,
+            }}
+          >
+            {item.text}
+          </span>
+        ))}
       </div>
 
       {/* Header */}
