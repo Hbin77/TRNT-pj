@@ -505,11 +505,23 @@ async def generate_tts(
 
     try:
         audio_bytes = await tts_service.generate_audio(scenario.scenario_text)
+    except AIServiceException:
+        raise
     except Exception as e:
         logger.error(f"TTS generation failed: {type(e).__name__}: {e}", exc_info=True)
+        error_str = str(e).lower()
+        if any(kw in error_str for kw in ['quota', 'billing', 'insufficient_quota']):
+            message = "API 크레딧이 부족합니다. 관리자에게 문의해주세요."
+            error_type = "quota"
+        elif 'rate_limit' in error_str or '429' in error_str:
+            message = "요청이 너무 많습니다. 잠시 후 다시 시도해주세요."
+            error_type = "rate_limit"
+        else:
+            message = "음성 생성 중 오류가 발생했습니다."
+            error_type = "server_error"
         raise AIServiceException(
-            message="음성 생성 중 오류가 발생했습니다.",
-            details={"error": str(e)}
+            message=message,
+            details={"error": str(e), "error_type": error_type}
         )
 
     return StreamingResponse(

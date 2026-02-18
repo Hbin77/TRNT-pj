@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { scenarioAPI } from '@/lib/api';
+import { scenarioAPI, parseBlobError } from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Textarea';
@@ -134,9 +134,9 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
       const url = URL.createObjectURL(blob);
       setAudioUrl(url);
     } catch (err: unknown) {
-      const errorMsg = err instanceof Error ? err.message : String(err);
-      if (/quota|billing|insufficient_quota|rate_limit/i.test(errorMsg)) {
-        alert('API 크레딧이 부족합니다. 관리자에게 문의해주세요.');
+      const { message, errorType } = await parseBlobError(err);
+      if (errorType === 'quota' || errorType === 'rate_limit') {
+        alert(message);
       } else {
         alert('음성 생성에 실패했습니다. 잠시 후 다시 시도해주세요.');
       }

@@ -205,6 +205,28 @@ async function ensureFreshToken(): Promise<string | null> {
   }
 }
 
+/**
+ * Blob 응답에서 에러 정보 추출 (responseType: 'blob' 요청의 에러 파싱용)
+ */
+export async function parseBlobError(err: unknown): Promise<{ message: string; errorType: string }> {
+  if (axios.isAxiosError(err) && err.response?.data instanceof Blob) {
+    try {
+      const text = await err.response.data.text();
+      const json = JSON.parse(text);
+      return {
+        message: json?.error?.message || err.message,
+        errorType: json?.error?.details?.error_type || 'unknown',
+      };
+    } catch {
+      // Blob 파싱 실패 시 fallback
+    }
+  }
+  return {
+    message: err instanceof Error ? err.message : String(err),
+    errorType: 'unknown',
+  };
+}
+
 // 시나리오 API
 export const scenarioAPI = {
   generate: async (data: ScenarioRequest, save = true): Promise<Scenario> => {
