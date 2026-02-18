@@ -22,62 +22,62 @@ function parsePersonality(raw: string | undefined) {
 const floatingQuestions = [
   {
     text: "그때 그 회사 제안을 받아들였다면, 지금 나는 어디서 무엇을 하고 있을까?",
-    top: '6%', duration: 52, delay: 0, direction: 'float-left',
+    left: '4%', duration: 52, delay: 0, direction: 'diagonal-drift-down',
     fontSize: '0.9375rem', className: 'text-white/[0.18] font-light tracking-wide',
   },
   {
     text: "처음 좋아했던 그 사람에게 먼저 고백했다면, 우리의 이야기는 어떻게 달라졌을까?",
-    top: '14%', duration: 65, delay: 18, direction: 'float-right',
+    left: '22%', duration: 65, delay: 14, direction: 'diagonal-drift-up',
     fontSize: '0.875rem', className: 'text-blue-300/[0.13] font-light tracking-wide',
   },
   {
     text: "대학원 진학을 포기하지 않았다면, 지금의 나는 어떤 연구자가 되어 있을까?",
-    top: '23%', duration: 48, delay: 6, direction: 'float-left',
+    left: '48%', duration: 48, delay: 5, direction: 'diagonal-drift-down',
     fontSize: '0.9375rem', className: 'text-white/[0.14] font-light tracking-wide',
   },
   {
     text: "그 도시를 떠나지 않고 계속 그곳에 머물렀다면, 지금 내 삶은 어떠할까?",
-    top: '32%', duration: 60, delay: 30, direction: 'float-right',
+    left: '68%', duration: 58, delay: 28, direction: 'diagonal-drift-up',
     fontSize: '0.875rem', className: 'text-purple-300/[0.12] font-light tracking-wide',
   },
   {
     text: "부모님의 반대를 무릅쓰고 내가 원하던 예술의 길을 걸었다면?",
-    top: '41%', duration: 45, delay: 10, direction: 'float-left',
-    fontSize: '0.9375rem', className: 'text-white/[0.17] font-light tracking-wide',
+    left: '12%', duration: 44, delay: 9, direction: 'diagonal-drift-up',
+    fontSize: '0.9375rem', className: 'text-white/[0.16] font-light tracking-wide',
   },
   {
     text: "10년 전 포기했던 그 꿈을 계속 붙잡고 있었다면, 지금 나는 어떤 사람이었을까?",
-    top: '50%', duration: 70, delay: 38, direction: 'float-right',
+    left: '58%', duration: 68, delay: 36, direction: 'diagonal-drift-down',
     fontSize: '0.875rem', className: 'text-white/[0.10] font-light tracking-wide',
   },
   {
     text: "그 여행을 취소하지 않았더라면, 어떤 우연한 만남이 기다리고 있었을까?",
-    top: '59%', duration: 54, delay: 4, direction: 'float-left',
+    left: '35%', duration: 50, delay: 3, direction: 'diagonal-drift-up',
     fontSize: '0.9375rem', className: 'text-blue-200/[0.14] font-light tracking-wide',
   },
   {
     text: "창업을 결심하고 그 아이디어를 실행에 옮겼다면, 내 회사는 지금 어떤 모습일까?",
-    top: '68%', duration: 58, delay: 24, direction: 'float-right',
+    left: '78%', duration: 55, delay: 22, direction: 'diagonal-drift-down',
     fontSize: '0.875rem', className: 'text-white/[0.11] font-light tracking-wide',
   },
   {
     text: "그날 그 말을 꺼내지 않았다면, 우리는 지금도 가장 친한 친구였을까?",
-    top: '77%', duration: 50, delay: 44, direction: 'float-left',
+    left: '8%', duration: 47, delay: 42, direction: 'diagonal-drift-down',
     fontSize: '0.9375rem', className: 'text-purple-200/[0.12] font-light tracking-wide',
   },
   {
     text: "유학을 결심하고 낯선 나라로 떠났다면, 나의 세계는 얼마나 넓어졌을까?",
-    top: '86%', duration: 63, delay: 56, direction: 'float-right',
+    left: '44%', duration: 62, delay: 55, direction: 'diagonal-drift-up',
     fontSize: '0.875rem', className: 'text-white/[0.09] font-light tracking-wide',
   },
   {
     text: "그 오디션에 포기하지 않고 끝까지 도전했다면, 지금 무대 위에 서 있을까?",
-    top: '10%', duration: 57, delay: 48, direction: 'float-right',
+    left: '88%', duration: 54, delay: 17, direction: 'diagonal-drift-up',
     fontSize: '0.9375rem', className: 'text-white/[0.13] font-light tracking-wide',
   },
   {
     text: "그때의 나에게 지금 알고 있는 것을 말해줄 수 있었다면, 무엇을 달리 했을까?",
-    top: '45%', duration: 72, delay: 62, direction: 'float-left',
+    left: '28%', duration: 70, delay: 60, direction: 'diagonal-drift-down',
     fontSize: '0.875rem', className: 'text-blue-300/[0.10] font-light tracking-wide',
   },
 ];
@@ -161,7 +161,7 @@ export default function DashboardPage() {
             key={i}
             className={`absolute whitespace-nowrap ${item.className}`}
             style={{
-              top: item.top,
+              left: item.left,
               animation: `${item.direction} ${item.duration}s linear infinite`,
               animationDelay: `${item.delay}s`,
               fontSize: item.fontSize,

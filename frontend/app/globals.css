@@ -62,29 +62,29 @@ body {
   box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
 }
 
-/* Floating Questions Background Animation */
-@keyframes float-left {
+/* Diagonal Drift Animation */
+@keyframes diagonal-drift-down {
   0% {
-    transform: translateX(110vw) translateY(0px);
+    transform: translate(0, -140px) rotate(-7deg);
     opacity: 0;
   }
-  5% { opacity: 1; }
-  95% { opacity: 1; }
+  8% { opacity: 1; }
+  92% { opacity: 1; }
   100% {
-    transform: translateX(-100%) translateY(-12px);
+    transform: translate(-180px, 110vh) rotate(-7deg);
     opacity: 0;
   }
 }
 
-@keyframes float-right {
+@keyframes diagonal-drift-up {
   0% {
-    transform: translateX(-100%) translateY(0px);
+    transform: translate(0, 110vh) rotate(7deg);
     opacity: 0;
   }
-  5% { opacity: 1; }
-  95% { opacity: 1; }
+  8% { opacity: 1; }
+  92% { opacity: 1; }
   100% {
-    transform: translateX(110vw) translateY(12px);
+    transform: translate(180px, -140px) rotate(7deg);
     opacity: 0;
   }
 }
