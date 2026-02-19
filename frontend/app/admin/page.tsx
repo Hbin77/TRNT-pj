@@ -70,7 +70,7 @@ export default function AdminPage() {
   useEffect(() => { fetchUser(); }, [fetchUser]);
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) router.push('/login');
+    if (!isLoading && !isAuthenticated) router.push('/login?returnUrl=/admin');
   }, [isLoading, isAuthenticated, router]);
 
   const loadData = useCallback(async () => {

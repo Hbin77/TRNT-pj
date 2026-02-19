@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { useAuthStore } from '@/store/authStore';
@@ -14,6 +14,8 @@ import { AxiosError } from 'axios';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnUrl = searchParams.get('returnUrl') || '/dashboard';
   const login = useAuthStore((state) => state.login);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -30,7 +32,7 @@ export default function LoginPage() {
 
     try {
       await login(data);
-      router.push('/dashboard');
+      router.push(returnUrl);
     } catch (err: unknown) {
       const error = err as AxiosError<{ error: { message: string } }>;
       const errorMessage = error.response?.data?.error?.message || '로그인에 실패했습니다.';
