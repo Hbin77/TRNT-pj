@@ -22,11 +22,14 @@ from app.schemas.scenario import (
     FeedbackRequest,
     FeedbackResponse,
     ContinuationRequest,
+    PreviewRequest,
+    PreviewResponse,
 )
 from app.services.ai import AIService
 from app.services.tts import TTSService
 from app.services.image import ImageService
 from app.services.rate_limiter import RateLimiterService
+from app.services.subscription import SubscriptionService
 from app.dependencies.auth import get_current_active_user
 from app.dependencies.profile import require_complete_profile
 from app.exceptions import UserNotFoundException, ScenarioNotFoundException, PermissionDeniedException, AIServiceException, TRNTException
@@ -38,6 +41,26 @@ router = APIRouter(prefix="/scenarios", tags=["Scenarios"])
 ai_service = AIService()
 tts_service = TTSService()
 image_service = ImageService()
+
+
+@router.post("/preview", response_model=PreviewResponse)
+async def generate_preview(request: PreviewRequest):
+    """비로그인 맛보기 시나리오 생성 (인증 불필요)"""
+    try:
+        preview_text = await ai_service.generate_preview(
+            original_choice=request.original_choice,
+            alternative_choice=request.alternative_choice,
+        )
+    except TRNTException:
+        raise
+    except Exception as e:
+        logger.error(f"Preview generation failed: {type(e).__name__}: {e}", exc_info=True)
+        raise AIServiceException(
+            message=f"맛보기 시나리오 생성 중 오류가 발생했습니다: {type(e).__name__}",
+            details={"error": str(e)},
+        )
+
+    return PreviewResponse(preview_text=preview_text)
 
 
 @router.post("/generate", response_model=ScenarioResponse)
@@ -52,9 +75,13 @@ async def generate_scenario(
     # 토큰에서 추출한 사용자 사용
     user = current_user
 
+    # 구독 플랜 조회 → daily_limit 결정
+    sub_service = SubscriptionService(db)
+    plan = sub_service.get_user_plan(user.id)
+
     # 일일 사용량 제한 체크 및 기록
     rate_limiter = RateLimiterService(db)
-    rate_limiter.check_and_record(user_id=user.id, email=user.email)
+    rate_limiter.check_and_record(user_id=user.id, email=user.email, plan_daily_limit=plan.daily_limit)
 
     # 시나리오 생성
     try:
@@ -117,9 +144,13 @@ async def generate_scenario_stream(
 
     user = current_user
 
+    # 구독 플랜 조회 → daily_limit 결정
+    sub_service = SubscriptionService(db)
+    plan = sub_service.get_user_plan(user.id)
+
     # 일일 사용량 제한 체크 및 기록
     rate_limiter = RateLimiterService(db)
-    rate_limiter.check_and_record(user_id=user.id, email=user.email)
+    rate_limiter.check_and_record(user_id=user.id, email=user.email, plan_daily_limit=plan.daily_limit)
 
     # StreamingResponse 반환 후 DB 세션이 닫히므로,
     # generator 진입 전에 필요한 데이터를 모두 추출
@@ -338,9 +369,13 @@ async def continue_scenario(
     if scenario.user_id != current_user.id:
         raise PermissionDeniedException(message="다른 사용자의 시나리오를 이어쓸 수 없습니다.")
 
+    # 구독 플랜 조회 → daily_limit 결정
+    sub_service = SubscriptionService(db)
+    plan = sub_service.get_user_plan(current_user.id)
+
     # 일일 사용량 제한 체크 및 기록
     rate_limiter = RateLimiterService(db)
-    rate_limiter.check_and_record(user_id=current_user.id, email=current_user.email)
+    rate_limiter.check_and_record(user_id=current_user.id, email=current_user.email, plan_daily_limit=plan.daily_limit)
 
     branch = BranchInput(**scenario.branch_data)
 
@@ -407,8 +442,12 @@ async def continue_scenario_stream(
     if scenario.user_id != current_user.id:
         raise PermissionDeniedException(message="다른 사용자의 시나리오를 이어쓸 수 없습니다.")
 
+    # 구독 플랜 조회 → daily_limit 결정
+    sub_service = SubscriptionService(db)
+    plan = sub_service.get_user_plan(current_user.id)
+
     rate_limiter = RateLimiterService(db)
-    rate_limiter.check_and_record(user_id=current_user.id, email=current_user.email)
+    rate_limiter.check_and_record(user_id=current_user.id, email=current_user.email, plan_daily_limit=plan.daily_limit)
 
     # StreamingResponse 반환 후 DB 세션이 닫히므로,
     # generator 진입 전에 필요한 데이터를 모두 추출
@@ -502,6 +541,12 @@ async def generate_tts(
 
     if scenario.user_id != current_user.id:
         raise PermissionDeniedException(message="다른 사용자의 시나리오에 접근할 수 없습니다.")
+
+    # 구독 플랜의 TTS 권한 확인
+    sub_service = SubscriptionService(db)
+    plan = sub_service.get_user_plan(current_user.id)
+    if not plan.tts_enabled:
+        raise PermissionDeniedException(message="프리미엄 구독이 필요합니다.")
 
     try:
         audio_bytes = await tts_service.generate_audio(scenario.scenario_text)

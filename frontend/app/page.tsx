@@ -2,17 +2,44 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { GlassCard } from '@/components/ui/GlassCard';
+import { Input } from '@/components/ui/Input';
 import { Logo } from '@/components/ui/Logo';
-import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles, BookOpen, Compass, PlayCircle, GitBranch, Quote } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight, Sparkles, BookOpen, Compass, PlayCircle, GitBranch, Quote, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
+import { previewAPI } from '@/lib/api';
 
 export default function Home() {
   const { t } = useLanguage();
+
+  const [originalChoice, setOriginalChoice] = useState('');
+  const [alternativeChoice, setAlternativeChoice] = useState('');
+  const [previewText, setPreviewText] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [previewError, setPreviewError] = useState('');
+
+  const handlePreviewGenerate = async () => {
+    if (!originalChoice.trim() || !alternativeChoice.trim()) return;
+    setIsGenerating(true);
+    setPreviewText('');
+    setPreviewError('');
+    try {
+      const result = await previewAPI.generate({
+        original_choice: originalChoice,
+        alternative_choice: alternativeChoice,
+      });
+      setPreviewText(result.preview_text);
+    } catch {
+      setPreviewError('미리보기 생성에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -289,6 +316,109 @@ export default function Home() {
               </Link>
             </GlassCard>
 
+          </div>
+        </section>
+
+        {/* Try It Section */}
+        <section className="mt-32">
+          <div className="text-center mb-12">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-3xl md:text-5xl font-bold mb-4"
+            >
+              지금 바로 체험해보세요
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-gray-400 text-lg"
+            >
+              로그인 없이 당신의 평행세계를 엿볼 수 있어요
+            </motion.p>
+          </div>
+
+          <div className="max-w-2xl mx-auto">
+            <GlassCard className="p-8 border-white/10">
+              <div className="space-y-4">
+                <Input
+                  placeholder="예: 서울에서 취업했다"
+                  label="실제로 했던 선택"
+                  value={originalChoice}
+                  onChange={(e) => setOriginalChoice(e.target.value)}
+                />
+                <Input
+                  placeholder="예: 제주도로 이주했다"
+                  label="하지 않았던 다른 선택"
+                  value={alternativeChoice}
+                  onChange={(e) => setAlternativeChoice(e.target.value)}
+                />
+                <Button
+                  size="lg"
+                  className="w-full mt-2 shadow-lg shadow-primary/20"
+                  onClick={handlePreviewGenerate}
+                  disabled={!originalChoice.trim() || !alternativeChoice.trim() || isGenerating}
+                  isLoading={isGenerating}
+                >
+                  {isGenerating ? '평행세계 생성 중...' : '평행세계 엿보기'}
+                  {!isGenerating && <Sparkles className="ml-2 w-5 h-5" />}
+                </Button>
+              </div>
+            </GlassCard>
+
+            <AnimatePresence>
+              {isGenerating && !previewText && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="mt-6 flex items-center justify-center space-x-3 text-gray-400"
+                >
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>당신의 평행세계를 구성하고 있어요...</span>
+                </motion.div>
+              )}
+
+              {previewError && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="mt-6 text-center text-red-400 text-sm"
+                >
+                  {previewError}
+                </motion.div>
+              )}
+
+              {previewText && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="mt-6"
+                >
+                  <div className="relative p-[1px] rounded-2xl bg-gradient-to-br from-primary/40 to-accent/40">
+                    <div className="bg-[#0A0A0F]/90 backdrop-blur-xl rounded-2xl p-8">
+                      <p className="text-white/90 leading-relaxed whitespace-pre-line">
+                        {previewText}
+                      </p>
+                      <div className="mt-8 pt-6 border-t border-white/10 text-center space-y-3">
+                        <p className="text-gray-400 text-sm">뒷이야기가 궁금하다면?</p>
+                        <Link href="/register">
+                          <Button className="shadow-lg shadow-primary/20">
+                            회원가입하고 전체 스토리 보기
+                            <ArrowRight className="ml-2 w-4 h-4" />
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </section>
 

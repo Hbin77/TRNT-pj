@@ -2,7 +2,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import health, users, scenarios, auth, admin
+from app.api import health, users, scenarios, auth, admin, subscriptions
 from app.config import settings
 from app.middleware.error_handler import setup_exception_handlers
 from app.middleware.logging import logging_middleware
@@ -43,6 +43,7 @@ app.include_router(auth.router, prefix="/api/v1")
 app.include_router(users.router, prefix="/api/v1")
 app.include_router(scenarios.router, prefix="/api/v1")
 app.include_router(admin.router, prefix="/api/v1")
+app.include_router(subscriptions.router, prefix="/api/v1")
 
 
 @app.get("/")

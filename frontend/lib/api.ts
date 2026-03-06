@@ -380,6 +380,22 @@ export const scenarioAPI = {
   },
 };
 
+// 미리보기 API (인증 불필요)
+export const previewAPI = {
+  generate: (data: { original_choice: string; alternative_choice: string }) =>
+    axios.post<{ preview_text: string }>(`${API_URL}/api/v1/scenarios/preview`, data).then(res => res.data),
+};
+
+// 구독 API
+export const subscriptionAPI = {
+  getPlans: () => api.get('/subscriptions/plans').then(res => res.data),
+  getMySubscription: () => api.get('/subscriptions/me').then(res => res.data),
+  createSubscription: (data: { imp_uid: string; merchant_uid: string; plan_id: string }) =>
+    api.post('/subscriptions', data).then(res => res.data),
+  cancelSubscription: () => api.post('/subscriptions/cancel').then(res => res.data),
+  getPaymentHistory: () => api.get('/subscriptions/payments').then(res => res.data),
+};
+
 // 사용자 API
 export const userAPI = {
   get: async (id: string): Promise<User> => {

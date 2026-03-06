@@ -43,6 +43,11 @@ class Settings(BaseSettings):
     RAG_ENABLED: bool = True
     RAG_NOVELS_DIR: str = ""  # 기본: 프로젝트루트/novels/trnt_ref
 
+    # PortOne
+    PORTONE_API_KEY: str = ""
+    PORTONE_API_SECRET: str = ""
+    PORTONE_WEBHOOK_SECRET: str = ""
+
     # Email (Gmail SMTP)
     SMTP_SERVER: str = "smtp.gmail.com"
     SMTP_PORT: int = 587

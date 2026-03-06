@@ -27,17 +27,28 @@ class RateLimiterService:
         """마스터 계정 여부 확인"""
         return bool(email and email.lower() in self._master_emails)
 
-    def check_and_record(self, user_id: UUID, email: str | None = None, action: str = "scenario_generation") -> None:
+    def check_and_record(self, user_id: UUID, email: str | None = None, action: str = "scenario_generation", plan_daily_limit: int | None = None) -> None:
         """
         일일 사용량 체크 및 기록 (동시성 안전)
 
         Args:
             user_id: 사용자 ID
             action: 작업 유형 (기본값: "scenario_generation")
+            plan_daily_limit: 구독 플랜의 일일 제한 (-1이면 무제한, None이면 기본값 사용)
 
         Raises:
             RateLimitExceededException: 일일 제한 초과 시
         """
+        # 무제한 플랜이면 기록만 하고 리턴
+        if plan_daily_limit == -1:
+            log = UsageLog(user_id=user_id, action=action)
+            self.db.add(log)
+            self.db.commit()
+            return
+
+        # 적용할 일일 제한 결정
+        effective_limit = plan_daily_limit if plan_daily_limit is not None else self.daily_limit
+
         # 오늘 00:00:00부터의 사용량 조회
         today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
 
@@ -52,13 +63,13 @@ class RateLimiterService:
                 .scalar()
             )
 
-            if usage_count >= self.daily_limit and not self.is_master(email):
+            if usage_count >= effective_limit and not self.is_master(email):
                 # 다음 날 00:00:00 계산
                 tomorrow = today_start + timedelta(days=1)
                 hours_until_reset = int((tomorrow - datetime.utcnow()).total_seconds() / 3600)
                 reset_time = f"{hours_until_reset}시간 후" if hours_until_reset > 0 else "곧"
 
-                raise RateLimitExceededException(limit=self.daily_limit, reset_time=reset_time)
+                raise RateLimitExceededException(limit=effective_limit, reset_time=reset_time)
 
             # 사용 기록 저장
             log = UsageLog(user_id=user_id, action=action)
@@ -92,16 +103,20 @@ class RateLimiterService:
             .scalar()
         )
 
-    def get_remaining_count(self, user_id: UUID, action: str = "scenario_generation") -> int:
+    def get_remaining_count(self, user_id: UUID, action: str = "scenario_generation", plan_daily_limit: int | None = None) -> int:
         """
         남은 사용 가능 횟수
 
         Args:
             user_id: 사용자 ID
             action: 작업 유형
+            plan_daily_limit: 구독 플랜의 일일 제한 (-1이면 무제한)
 
         Returns:
-            남은 횟수
+            남은 횟수 (-1이면 무제한)
         """
+        if plan_daily_limit == -1:
+            return -1
+        effective_limit = plan_daily_limit if plan_daily_limit is not None else self.daily_limit
         used = self.get_usage_count(user_id, action)
-        return max(0, self.daily_limit - used)
+        return max(0, effective_limit - used)

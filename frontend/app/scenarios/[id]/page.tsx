@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { scenarioAPI, parseBlobError } from '@/lib/api';
+import { scenarioAPI, subscriptionAPI, parseBlobError } from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Textarea';
@@ -25,6 +25,7 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
   // TTS 상태
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isTTSLoading, setIsTTSLoading] = useState(false);
+  const [ttsEnabled, setTtsEnabled] = useState(false);
 
   // 커버 이미지 상태
   const [isCoverLoading, setIsCoverLoading] = useState(false);
@@ -46,9 +47,15 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
   useEffect(() => {
     const fetchScenario = async () => {
       try {
-        const data = await scenarioAPI.get(resolvedParams.id);
+        const [data, subscription] = await Promise.all([
+          scenarioAPI.get(resolvedParams.id),
+          subscriptionAPI.getMySubscription().catch(() => null),
+        ]);
         setScenario(data);
         setRating(data.rating || null);
+        if (subscription?.plan?.tts_enabled) {
+          setTtsEnabled(true);
+        }
       } catch (error) {
         console.error('Failed to fetch scenario:', error);
         alert('시나리오를 불러오는 데 실패했습니다.');
@@ -299,21 +306,45 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
 
               {/* TTS 오디오 플레이어 + 커버 이미지 생성 */}
               <div className="mt-12 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-center gap-4">
-                <div className="relative group">
-                  <button
-                    disabled
-                    className="flex items-center gap-2 px-6 py-3 rounded-xl border bg-white/3 border-white/8 text-white/25 cursor-not-allowed"
-                  >
-                    <Lock className="w-4 h-4" />
-                    <Volume2 className="w-5 h-5" />
-                    이 이야기 들어보기
-                  </button>
-                  {/* 호버 시 프리미엄 안내 툴팁 */}
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 rounded-lg bg-[#1a1a2e] border border-yellow-500/30 text-yellow-300 text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg">
-                    ✦ 프리미엄 구독 시 이용 가능
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#1a1a2e]" />
+                {ttsEnabled ? (
+                  <div className="flex flex-col items-center gap-3">
+                    <button
+                      onClick={handleTTS}
+                      disabled={isTTSLoading || !!audioUrl}
+                      className="flex items-center gap-2 px-6 py-3 rounded-xl border bg-white/5 border-white/10 text-white/60 hover:bg-blue-500/10 hover:border-blue-500/30 hover:text-blue-300 transition-all disabled:opacity-50"
+                    >
+                      {isTTSLoading ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          음성 생성 중...
+                        </>
+                      ) : (
+                        <>
+                          <Volume2 className="w-5 h-5" />
+                          이 이야기 들어보기
+                        </>
+                      )}
+                    </button>
+                    {audioUrl && (
+                      <audio controls src={audioUrl} className="w-full max-w-md" />
+                    )}
                   </div>
-                </div>
+                ) : (
+                  <div className="relative group">
+                    <button
+                      disabled
+                      className="flex items-center gap-2 px-6 py-3 rounded-xl border bg-white/3 border-white/8 text-white/25 cursor-not-allowed"
+                    >
+                      <Lock className="w-4 h-4" />
+                      <Volume2 className="w-5 h-5" />
+                      이 이야기 들어보기
+                    </button>
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 rounded-lg bg-[#1a1a2e] border border-yellow-500/30 text-yellow-300 text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg">
+                      프리미엄 구독 시 이용 가능
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#1a1a2e]" />
+                    </div>
+                  </div>
+                )}
                 {!scenario.cover_image_url && (
                   <button
                     onClick={handleGenerateCover}

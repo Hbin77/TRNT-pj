@@ -100,3 +100,15 @@ class FeedbackResponse(BaseModel):
 class ContinuationRequest(BaseModel):
     """시나리오 이어쓰기 요청"""
     continuation_direction: str = Field(..., min_length=1, max_length=2000, description="이어쓰기 방향")
+
+
+# 비로그인 맛보기
+class PreviewRequest(BaseModel):
+    """비로그인 맛보기 시나리오 요청"""
+    original_choice: str = Field(..., min_length=2, max_length=200, description="실제로 한 선택")
+    alternative_choice: str = Field(..., min_length=2, max_length=200, description="만약 이렇게 했다면?")
+
+
+class PreviewResponse(BaseModel):
+    """비로그인 맛보기 시나리오 응답"""
+    preview_text: str
