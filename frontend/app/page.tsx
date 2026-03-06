@@ -365,7 +365,7 @@ export default function Home() {
                         />
                         <Input
                           placeholder="예: 제주도로 이주했다"
-                          label="하지 않았던 다른 선택"
+                          label="만약 이렇게 했다면?"
                           value={alternativeChoice}
                           onChange={(e) => setAlternativeChoice(e.target.value)}
                         />
@@ -381,9 +381,9 @@ export default function Home() {
                         </Button>
 
                         {isGenerating && (
-                          <div className="flex items-center justify-center space-x-3 text-gray-400 pt-2">
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            <span className="text-sm">당신의 평행세계를 구성하고 있어요...</span>
+                          <div className="flex flex-col items-center space-y-2 pt-4">
+                            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                            <span className="text-sm text-gray-400">당신의 평행세계를 열고 있어요...</span>
                           </div>
                         )}
 
@@ -395,22 +395,31 @@ export default function Home() {
                       <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        transition={{ duration: 0.5 }}
+                        transition={{ duration: 0.8 }}
                       >
-                        <p className="text-white/90 leading-relaxed whitespace-pre-line text-[15px]">
-                          {previewText}
-                        </p>
-                        <div className="mt-8 pt-6 border-t border-white/10 text-center space-y-3">
-                          <p className="text-gray-400 text-sm">뒷이야기가 궁금하다면?</p>
+                        {/* 결과 텍스트 — 서서히 드러나는 느낌 */}
+                        <div className="relative">
+                          <p className="text-white/95 leading-[1.9] whitespace-pre-line text-[16px] font-[350] tracking-wide">
+                            {previewText}
+                          </p>
+                          {/* 하단 페이드 그라디언트 — 더 읽고 싶게 */}
+                          <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#0A0A0F] to-transparent pointer-events-none" />
+                        </div>
+
+                        <div className="mt-6 pt-6 border-t border-white/10 text-center space-y-4">
+                          <div className="space-y-1">
+                            <p className="text-white font-semibold text-lg">이 뒤에 무슨 일이 벌어질까요?</p>
+                            <p className="text-gray-500 text-sm">전체 시나리오는 수천 자의 몰입형 소설로 이어집니다</p>
+                          </div>
                           <Link href="/register">
-                            <Button className="shadow-lg shadow-primary/20">
-                              회원가입하고 전체 스토리 보기
-                              <ArrowRight className="ml-2 w-4 h-4" />
+                            <Button size="lg" className="w-full shadow-lg shadow-primary/25 text-base h-12">
+                              무료로 전체 스토리 보기
+                              <ArrowRight className="ml-2 w-5 h-5" />
                             </Button>
                           </Link>
                           <button
                             onClick={() => { setPreviewText(''); setOriginalChoice(''); setAlternativeChoice(''); }}
-                            className="block mx-auto text-gray-500 hover:text-gray-300 text-sm transition-colors mt-2"
+                            className="block mx-auto text-gray-600 hover:text-gray-400 text-xs transition-colors mt-1"
                           >
                             다른 선택으로 다시 해보기
                           </button>

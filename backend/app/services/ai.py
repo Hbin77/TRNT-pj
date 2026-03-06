@@ -783,23 +783,13 @@ class AIService:
                 yield delta.content
 
     async def generate_preview(self, original_choice: str, alternative_choice: str) -> str:
-        """비로그인 맛보기 시나리오 생성 (짧은 버전)"""
-        system_msg = (
-            "당신은 평행세계 인생 소설 작가입니다. "
-            "사용자가 입력한 선택을 바탕으로 짧지만 몰입감 있는 미리보기를 작성합니다."
-        )
-        user_msg = f"""다음 두 가지 선택을 바탕으로 평행세계 미리보기를 작성해주세요.
+        """비로그인 맛보기 시나리오 생성 (짧은 버전, 토큰 최소화)"""
+        user_msg = f"""평행세계 소설 인트로를 써줘.
 
-- 실제로 한 선택: {original_choice}
-- 만약 이렇게 했다면: {alternative_choice}
+실제 선택: {original_choice}
+대안 선택: {alternative_choice}
 
-규칙:
-- 반드시 한국어로 작성
-- 1인칭('나') 시점
-- 200~300자의 인트로만 작성
-- 몰입감 있고 생생한 장면 묘사
-- 마지막은 반드시 "..."로 끝내서 뒷이야기가 궁금하게 유도
-- 주인공은 "{alternative_choice}"를 선택한 사람입니다"""
+규칙: 한국어, 1인칭('나'), 100~150자만, 감각묘사+감정 한 장면만. 가장 극적인 순간에서 끊어. 반드시 "—" 로 문장 중간에서 끊어서 다음이 미치도록 궁금하게. 마크다운 금지."""
 
         if not self.client:
             return f"만약 내가 \"{alternative_choice}\"를 선택했다면... 그날 이후 모든 것이 달라졌을 것이다..."
@@ -808,11 +798,10 @@ class AIService:
             response = await self.client.chat.completions.create(
                 model=self.model,
                 messages=[
-                    {"role": "system", "content": system_msg},
                     {"role": "user", "content": user_msg},
                 ],
-                temperature=0.85,
-                max_tokens=512,
+                temperature=0.9,
+                max_tokens=200,
             )
             content = response.choices[0].message.content or ""
             content = self._strip_think_tags(content)
