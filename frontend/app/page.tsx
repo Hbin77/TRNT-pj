@@ -8,7 +8,7 @@ import { GlassCard } from '@/components/ui/GlassCard';
 import { Input } from '@/components/ui/Input';
 import { Logo } from '@/components/ui/Logo';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Sparkles, BookOpen, Compass, PlayCircle, GitBranch, Quote, Loader2 } from 'lucide-react';
+import { ArrowRight, Sparkles, BookOpen, Compass, PlayCircle, GitBranch, Quote, Loader2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
@@ -17,6 +17,7 @@ import { previewAPI } from '@/lib/api';
 export default function Home() {
   const { t } = useLanguage();
 
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [originalChoice, setOriginalChoice] = useState('');
   const [alternativeChoice, setAlternativeChoice] = useState('');
   const [previewText, setPreviewText] = useState('');
@@ -113,12 +114,14 @@ export default function Home() {
             </motion.p>
 
             <motion.div variants={itemVariants} className="flex flex-wrap gap-4 pt-4">
-              <Link href="/register" className="w-full sm:w-auto">
-                <Button size="lg" className="w-full sm:w-auto text-lg h-14 px-8 shadow-xl shadow-primary/25 hover:shadow-primary/40 transition-shadow">
-                  {t('hero.start_btn')}
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-              </Link>
+              <Button
+                size="lg"
+                className="w-full sm:w-auto text-lg h-14 px-8 shadow-xl shadow-primary/25 hover:shadow-primary/40 transition-shadow"
+                onClick={() => setShowPreviewModal(true)}
+              >
+                {t('hero.start_btn')}
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
               <Button
                 size="lg"
                 variant="secondary"
@@ -319,108 +322,107 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Try It Section */}
-        <section className="mt-32">
-          <div className="text-center mb-12">
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-3xl md:text-5xl font-bold mb-4"
+        {/* Preview Modal */}
+        <AnimatePresence>
+          {showPreviewModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center px-4"
+              onClick={(e) => { if (e.target === e.currentTarget && !isGenerating) setShowPreviewModal(false); }}
             >
-              지금 바로 체험해보세요
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="text-gray-400 text-lg"
-            >
-              로그인 없이 당신의 평행세계를 엿볼 수 있어요
-            </motion.p>
-          </div>
+              <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                transition={{ duration: 0.3 }}
+                className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto"
+              >
+                <div className="relative p-[1px] rounded-2xl bg-gradient-to-br from-primary/30 to-accent/30">
+                  <div className="bg-[#0A0A0F]/95 backdrop-blur-xl rounded-2xl p-8">
+                    {/* Close Button */}
+                    <button
+                      onClick={() => { if (!isGenerating) { setShowPreviewModal(false); setPreviewText(''); setPreviewError(''); } }}
+                      className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
 
-          <div className="max-w-2xl mx-auto">
-            <GlassCard className="p-8 border-white/10">
-              <div className="space-y-4">
-                <Input
-                  placeholder="예: 서울에서 취업했다"
-                  label="실제로 했던 선택"
-                  value={originalChoice}
-                  onChange={(e) => setOriginalChoice(e.target.value)}
-                />
-                <Input
-                  placeholder="예: 제주도로 이주했다"
-                  label="하지 않았던 다른 선택"
-                  value={alternativeChoice}
-                  onChange={(e) => setAlternativeChoice(e.target.value)}
-                />
-                <Button
-                  size="lg"
-                  className="w-full mt-2 shadow-lg shadow-primary/20"
-                  onClick={handlePreviewGenerate}
-                  disabled={!originalChoice.trim() || !alternativeChoice.trim() || isGenerating}
-                  isLoading={isGenerating}
-                >
-                  {isGenerating ? '평행세계 생성 중...' : '평행세계 엿보기'}
-                  {!isGenerating && <Sparkles className="ml-2 w-5 h-5" />}
-                </Button>
-              </div>
-            </GlassCard>
-
-            <AnimatePresence>
-              {isGenerating && !previewText && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  className="mt-6 flex items-center justify-center space-x-3 text-gray-400"
-                >
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>당신의 평행세계를 구성하고 있어요...</span>
-                </motion.div>
-              )}
-
-              {previewError && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  className="mt-6 text-center text-red-400 text-sm"
-                >
-                  {previewError}
-                </motion.div>
-              )}
-
-              {previewText && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="mt-6"
-                >
-                  <div className="relative p-[1px] rounded-2xl bg-gradient-to-br from-primary/40 to-accent/40">
-                    <div className="bg-[#0A0A0F]/90 backdrop-blur-xl rounded-2xl p-8">
-                      <p className="text-white/90 leading-relaxed whitespace-pre-line">
-                        {previewText}
-                      </p>
-                      <div className="mt-8 pt-6 border-t border-white/10 text-center space-y-3">
-                        <p className="text-gray-400 text-sm">뒷이야기가 궁금하다면?</p>
-                        <Link href="/register">
-                          <Button className="shadow-lg shadow-primary/20">
-                            회원가입하고 전체 스토리 보기
-                            <ArrowRight className="ml-2 w-4 h-4" />
-                          </Button>
-                        </Link>
-                      </div>
+                    <div className="text-center mb-6">
+                      <h3 className="text-2xl font-bold text-white mb-2">내 평행세계 엿보기</h3>
+                      <p className="text-gray-400 text-sm">로그인 없이 당신의 평행세계를 미리 체험해보세요</p>
                     </div>
+
+                    {!previewText ? (
+                      <div className="space-y-4">
+                        <Input
+                          placeholder="예: 서울에서 취업했다"
+                          label="실제로 했던 선택"
+                          value={originalChoice}
+                          onChange={(e) => setOriginalChoice(e.target.value)}
+                        />
+                        <Input
+                          placeholder="예: 제주도로 이주했다"
+                          label="하지 않았던 다른 선택"
+                          value={alternativeChoice}
+                          onChange={(e) => setAlternativeChoice(e.target.value)}
+                        />
+                        <Button
+                          size="lg"
+                          className="w-full mt-2 shadow-lg shadow-primary/20"
+                          onClick={handlePreviewGenerate}
+                          disabled={!originalChoice.trim() || !alternativeChoice.trim() || isGenerating}
+                          isLoading={isGenerating}
+                        >
+                          {isGenerating ? '평행세계 생성 중...' : '평행세계 엿보기'}
+                          {!isGenerating && <Sparkles className="ml-2 w-5 h-5" />}
+                        </Button>
+
+                        {isGenerating && (
+                          <div className="flex items-center justify-center space-x-3 text-gray-400 pt-2">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span className="text-sm">당신의 평행세계를 구성하고 있어요...</span>
+                          </div>
+                        )}
+
+                        {previewError && (
+                          <p className="text-center text-red-400 text-sm pt-2">{previewError}</p>
+                        )}
+                      </div>
+                    ) : (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        <p className="text-white/90 leading-relaxed whitespace-pre-line text-[15px]">
+                          {previewText}
+                        </p>
+                        <div className="mt-8 pt-6 border-t border-white/10 text-center space-y-3">
+                          <p className="text-gray-400 text-sm">뒷이야기가 궁금하다면?</p>
+                          <Link href="/register">
+                            <Button className="shadow-lg shadow-primary/20">
+                              회원가입하고 전체 스토리 보기
+                              <ArrowRight className="ml-2 w-4 h-4" />
+                            </Button>
+                          </Link>
+                          <button
+                            onClick={() => { setPreviewText(''); setOriginalChoice(''); setAlternativeChoice(''); }}
+                            className="block mx-auto text-gray-500 hover:text-gray-300 text-sm transition-colors mt-2"
+                          >
+                            다른 선택으로 다시 해보기
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </section>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Footer */}
         <footer className="mt-32 pt-16 border-t border-white/5 text-center text-gray-500 pb-8">
