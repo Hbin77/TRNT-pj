@@ -20,10 +20,11 @@ export const useSubscriptionStore = create<SubscriptionState>((set) => ({
     set({ isLoading: true });
     try {
       const data = await subscriptionAPI.getMySubscription();
+      // API returns SubscriptionResponse (with nested plan) or null
       set({
-        subscription: data.subscription,
-        plan: data.plan,
-        isPremium: data.plan?.tts_enabled === true,
+        subscription: data,
+        plan: data?.plan ?? null,
+        isPremium: data?.plan?.tts_enabled === true,
         isLoading: false,
       });
     } catch {

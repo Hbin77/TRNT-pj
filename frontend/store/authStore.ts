@@ -78,6 +78,9 @@ export const useAuthStore = create<AuthState>((set) => ({
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
       set({ user: null, isAuthenticated: false });
+      // 구독 상태 초기화
+      const { useSubscriptionStore } = await import('./subscriptionStore');
+      useSubscriptionStore.getState().clearSubscription();
     }
   },
 

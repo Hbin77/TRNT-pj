@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Script from 'next/script';
@@ -18,12 +18,31 @@ declare global {
   }
 }
 
-const plans = [
-  {
-    id: 'free',
-    name: 'Free',
-    price: 0,
-    yearlyPrice: 0,
+interface BackendPlan {
+  id: string;
+  name: string;
+  display_name: string;
+  price: number;
+  annual_price: number | null;
+  daily_limit: number;
+  monthly_tts_limit: number;
+  tts_enabled: boolean;
+  storage_limit: number;
+}
+
+// 플랜별 UI 설정 (name 기준 매칭)
+const planUI: Record<string, {
+  description: string;
+  badge?: string;
+  features: { text: string; included: boolean }[];
+  highlighted: boolean;
+  icon: typeof Sparkles;
+  gradient: string;
+  borderColor: string;
+  iconColor: string;
+  yearlyPrice: number;
+}> = {
+  free: {
     description: '가볍게 시작해보세요',
     features: [
       { text: '일 3회 시나리오 생성', included: true },
@@ -37,12 +56,9 @@ const plans = [
     gradient: 'from-gray-500/20 to-gray-600/20',
     borderColor: 'border-white/10',
     iconColor: 'text-gray-400',
+    yearlyPrice: 0,
   },
-  {
-    id: 'premium',
-    name: 'Premium',
-    price: 5900,
-    yearlyPrice: 4900,
+  premium: {
     description: '더 깊은 이야기를 경험하세요',
     badge: '추천',
     features: [
@@ -57,12 +73,9 @@ const plans = [
     gradient: 'from-purple-600/20 to-pink-600/20',
     borderColor: 'border-purple-500/30',
     iconColor: 'text-purple-400',
+    yearlyPrice: 4900,
   },
-  {
-    id: 'pro',
-    name: 'Pro',
-    price: 14900,
-    yearlyPrice: 12400,
+  pro: {
     description: '제한 없는 창작의 자유',
     features: [
       { text: '무제한 시나리오 생성', included: true },
@@ -76,8 +89,9 @@ const plans = [
     gradient: 'from-blue-600/20 to-cyan-600/20',
     borderColor: 'border-blue-500/20',
     iconColor: 'text-blue-400',
+    yearlyPrice: 12400,
   },
-];
+};
 
 export default function PricingPage() {
   const router = useRouter();
@@ -86,12 +100,38 @@ export default function PricingPage() {
   const [isYearly, setIsYearly] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [successModal, setSuccessModal] = useState(false);
+  const [backendPlans, setBackendPlans] = useState<BackendPlan[]>([]);
 
   useEffect(() => {
     if (isAuthenticated) {
       fetchSubscription();
     }
+    // 플랜 목록을 API에서 가져옴
+    subscriptionAPI.getPlans().then(setBackendPlans).catch(() => {});
   }, [isAuthenticated, fetchSubscription]);
+
+  // 백엔드 플랜 + UI 설정 결합
+  const plans = useMemo(() => {
+    if (backendPlans.length === 0) {
+      // API 로딩 전 fallback
+      return ['free', 'premium', 'pro'].map(name => ({
+        id: name,
+        name,
+        displayName: name.charAt(0).toUpperCase() + name.slice(1),
+        price: name === 'free' ? 0 : name === 'premium' ? 5900 : 14900,
+        ...planUI[name],
+      }));
+    }
+    return backendPlans
+      .filter(bp => planUI[bp.name])
+      .map(bp => ({
+        id: bp.id, // 실제 UUID
+        name: bp.name,
+        displayName: bp.display_name,
+        price: bp.price,
+        ...planUI[bp.name],
+      }));
+  }, [backendPlans]);
 
   const handlePayment = async (planId: string, amount: number, planName: string) => {
     if (!isAuthenticated) {
@@ -99,7 +139,7 @@ export default function PricingPage() {
       return;
     }
 
-    if (planId === 'free') return;
+    if (amount === 0) return;
 
     if (!window.IMP) {
       alert('결제 모듈을 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
@@ -142,16 +182,16 @@ export default function PricingPage() {
     );
   };
 
-  const getButtonProps = (planId: string) => {
-    const currentPlanId = currentPlan?.id || 'free';
+  const getButtonProps = (planName: string) => {
+    const currentPlanName = currentPlan?.name || 'free';
 
-    if (currentPlanId === planId) {
+    if (currentPlanName === planName) {
       return { label: '현재 플랜', disabled: true };
     }
-    if (planId === 'free') {
-      return { label: isAuthenticated ? '현재 플랜' : '시작하기', disabled: isAuthenticated && currentPlanId === 'free' };
+    if (planName === 'free') {
+      return { label: isAuthenticated ? '현재 플랜' : '시작하기', disabled: isAuthenticated && currentPlanName === 'free' };
     }
-    return { label: `${plans.find(p => p.id === planId)?.name} 시작`, disabled: false };
+    return { label: `${planName.charAt(0).toUpperCase() + planName.slice(1)} 시작`, disabled: false };
   };
 
   return (
@@ -236,7 +276,7 @@ export default function PricingPage() {
             {/* Plan Cards */}
             <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
               {plans.map((plan, index) => {
-                const { label, disabled } = getButtonProps(plan.id);
+                const { label, disabled } = getButtonProps(plan.name);
                 const displayPrice = isYearly ? plan.yearlyPrice : plan.price;
                 const Icon = plan.icon;
 
@@ -274,7 +314,7 @@ export default function PricingPage() {
                         </div>
 
                         {/* Plan Name */}
-                        <h3 className="text-xl font-bold text-white mb-1">{plan.name}</h3>
+                        <h3 className="text-xl font-bold text-white mb-1">{plan.displayName}</h3>
                         <p className="text-white/50 text-sm mb-6">{plan.description}</p>
 
                         {/* Price */}
@@ -317,10 +357,10 @@ export default function PricingPage() {
                         {/* CTA Button */}
                         <Button
                           onClick={() => {
-                            if (plan.id === 'free' && !isAuthenticated) {
+                            if (plan.name === 'free' && !isAuthenticated) {
                               router.push('/register');
                             } else {
-                              handlePayment(plan.id, displayPrice, plan.name);
+                              handlePayment(plan.id, displayPrice, plan.displayName);
                             }
                           }}
                           disabled={disabled || loadingPlan === plan.id}

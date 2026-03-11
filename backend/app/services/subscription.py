@@ -6,6 +6,7 @@ from uuid import UUID
 
 import httpx
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import OperationalError, ProgrammingError
 
 from app.config import settings
 from app.exceptions import AuthenticationException, PermissionDeniedException
@@ -28,36 +29,59 @@ class SubscriptionService:
 
     def get_user_subscription(self, user_id: UUID) -> Optional[Subscription]:
         """사용자의 현재 활성 구독"""
-        return self.db.query(Subscription).filter(
-            Subscription.user_id == user_id,
-            Subscription.status.in_(["active", "cancelled"]),
-            Subscription.current_period_end > datetime.utcnow()
-        ).first()
+        try:
+            return self.db.query(Subscription).filter(
+                Subscription.user_id == user_id,
+                Subscription.status.in_(["active", "cancelled"]),
+                Subscription.current_period_end > datetime.utcnow()
+            ).first()
+        except (OperationalError, ProgrammingError):
+            self.db.rollback()
+            return None
+
+    @staticmethod
+    def _default_free_plan() -> Plan:
+        """DB 없이 사용할 기본 무료 플랜 객체"""
+        plan = Plan.__new__(Plan)
+        plan.name = "free"
+        plan.display_name = "무료"
+        plan.price = 0
+        plan.daily_limit = 3
+        plan.monthly_tts_limit = 0
+        plan.tts_enabled = False
+        plan.storage_limit = 10
+        plan.is_active = True
+        return plan
 
     def get_user_plan(self, user_id: UUID) -> Plan:
-        """사용자의 현재 플랜 (구독 없으면 free plan 반환)"""
-        subscription = self.get_user_subscription(user_id)
-        if subscription:
-            return subscription.plan
+        """사용자의 현재 플랜 (구독 없으면 free plan 반환, plans 테이블 미존재 시 기본값)"""
+        try:
+            subscription = self.get_user_subscription(user_id)
+            if subscription:
+                return subscription.plan
 
-        # free plan 반환
-        free_plan = self.db.query(Plan).filter(Plan.name == "free").first()
-        if not free_plan:
-            # free plan이 DB에 없으면 기본값 생성
-            free_plan = Plan(
-                name="free",
-                display_name="무료",
-                price=0,
-                daily_limit=2,
-                monthly_tts_limit=0,
-                tts_enabled=False,
-                storage_limit=5,
-                is_active=True
-            )
-            self.db.add(free_plan)
-            self.db.commit()
-            self.db.refresh(free_plan)
-        return free_plan
+            # free plan 반환
+            free_plan = self.db.query(Plan).filter(Plan.name == "free").first()
+            if not free_plan:
+                free_plan = Plan(
+                    name="free",
+                    display_name="무료",
+                    price=0,
+                    daily_limit=3,
+                    monthly_tts_limit=0,
+                    tts_enabled=False,
+                    storage_limit=10,
+                    is_active=True
+                )
+                self.db.add(free_plan)
+                self.db.commit()
+                self.db.refresh(free_plan)
+            return free_plan
+        except (OperationalError, ProgrammingError) as e:
+            # plans/subscriptions 테이블이 아직 없는 경우 (마이그레이션 전)
+            logger.warning(f"Plans 테이블 조회 실패 (마이그레이션 필요): {e}")
+            self.db.rollback()
+            return self._default_free_plan()
 
     def create_subscription(
         self, user_id: UUID, plan_id: UUID, imp_uid: str, merchant_uid: str
@@ -177,6 +201,10 @@ class SubscriptionService:
             "amount": response["amount"],
             "status": response["status"],
         }
+
+    def verify_webhook_payment(self, imp_uid: str) -> dict:
+        """웹훅에서 PortOne API로 결제 상태 재검증"""
+        return self._verify_payment_with_portone(imp_uid)
 
     def process_webhook(self, imp_uid: str, merchant_uid: str, status: str):
         """PortOne 웹훅 처리: 결제 상태 업데이트"""

@@ -71,8 +71,8 @@ export default function SubscriptionPage() {
   }
 
   const currentPlanName = plan?.name || 'Free';
-  const nextBillingDate = subscription?.next_billing_date
-    ? new Date(subscription.next_billing_date).toLocaleDateString('ko-KR')
+  const nextBillingDate = subscription?.current_period_end
+    ? new Date(subscription.current_period_end).toLocaleDateString('ko-KR')
     : null;
 
   return (

@@ -14,7 +14,7 @@ class Subscription(Base):
     id = Column(GUID(), primary_key=True, default=uuid.uuid4)
 
     # FK
-    user_id = Column(GUID(), ForeignKey("users.id"), unique=True, nullable=False)
+    user_id = Column(GUID(), ForeignKey("users.id"), nullable=False, index=True)
     plan_id = Column(GUID(), ForeignKey("plans.id"), nullable=False)
 
     # 상태

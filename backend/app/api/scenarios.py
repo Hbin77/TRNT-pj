@@ -4,7 +4,10 @@ from typing import List, Optional
 from uuid import UUID
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, Query, status
+from collections import defaultdict
+from time import time
+
+from fastapi import APIRouter, Depends, Query, Request, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
@@ -32,7 +35,7 @@ from app.services.rate_limiter import RateLimiterService
 from app.services.subscription import SubscriptionService
 from app.dependencies.auth import get_current_active_user
 from app.dependencies.profile import require_complete_profile
-from app.exceptions import UserNotFoundException, ScenarioNotFoundException, PermissionDeniedException, AIServiceException, TRNTException
+from app.exceptions import UserNotFoundException, ScenarioNotFoundException, PermissionDeniedException, AIServiceException, TRNTException, RateLimitExceededException
 
 logger = logging.getLogger(__name__)
 
@@ -42,10 +45,23 @@ ai_service = AIService()
 tts_service = TTSService()
 image_service = ImageService()
 
+# Preview IP 기반 rate limiting (메모리 기반, 단일 프로세스 충분)
+_preview_requests: dict[str, list[float]] = defaultdict(list)
+PREVIEW_RATE_LIMIT = 10  # 분당 최대 횟수
+PREVIEW_RATE_WINDOW = 60  # 초
+
 
 @router.post("/preview", response_model=PreviewResponse)
-async def generate_preview(request: PreviewRequest):
-    """비로그인 맛보기 시나리오 생성 (인증 불필요)"""
+async def generate_preview(request: PreviewRequest, req: Request):
+    """비로그인 맛보기 시나리오 생성 (인증 불필요, IP rate limit 적용)"""
+    # IP 기반 rate limiting
+    client_ip = req.client.host if req.client else "unknown"
+    now = time()
+    _preview_requests[client_ip] = [t for t in _preview_requests[client_ip] if now - t < PREVIEW_RATE_WINDOW]
+    if len(_preview_requests[client_ip]) >= PREVIEW_RATE_LIMIT:
+        raise RateLimitExceededException(limit=PREVIEW_RATE_LIMIT, reset_time="1분 후")
+    _preview_requests[client_ip].append(now)
+
     try:
         preview_text = await ai_service.generate_preview(
             original_choice=request.original_choice,

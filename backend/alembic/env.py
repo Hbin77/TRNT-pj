@@ -6,6 +6,9 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from app.database import Base
 from app.models import User, Scenario, UsageLog
+from app.models.plan import Plan
+from app.models.subscription import Subscription
+from app.models.payment import Payment
 
 from logging.config import fileConfig
 

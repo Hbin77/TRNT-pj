@@ -71,7 +71,7 @@ def cancel_subscription(
 
 @router.post("/webhooks/portone")
 async def portone_webhook(request: Request, db: Session = Depends(get_db)):
-    """PortOne 웹훅 수신"""
+    """PortOne 웹훅 수신 (결제 상태를 PortOne API로 재검증)"""
     body = await request.json()
     imp_uid = body.get("imp_uid", "")
     merchant_uid = body.get("merchant_uid", "")
@@ -79,7 +79,22 @@ async def portone_webhook(request: Request, db: Session = Depends(get_db)):
 
     logger.info(f"PortOne 웹훅 수신: imp_uid={imp_uid}, status={webhook_status}")
 
+    if not imp_uid or not merchant_uid:
+        logger.warning("웹훅: imp_uid 또는 merchant_uid 누락")
+        return {"status": "ignored"}
+
     service = SubscriptionService(db)
+
+    # PortOne API로 실제 결제 상태 재검증 (웹훅 위조 방지)
+    try:
+        verified = service.verify_webhook_payment(imp_uid)
+        if verified["status"] != webhook_status:
+            logger.warning(f"웹훅 상태 불일치: webhook={webhook_status}, portone={verified['status']}")
+            webhook_status = verified["status"]  # PortOne 실제 상태 사용
+    except Exception as e:
+        logger.error(f"웹훅 결제 검증 실패: {e}")
+        return {"status": "error", "message": "결제 검증 실패"}
+
     service.process_webhook(imp_uid, merchant_uid, webhook_status)
 
     return {"status": "ok"}
