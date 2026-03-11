@@ -39,19 +39,21 @@ class SubscriptionService:
             self.db.rollback()
             return None
 
+    class _FreePlan:
+        """DB 없이 사용할 기본 무료 플랜 (plans 테이블 미존재 시)"""
+        name = "free"
+        display_name = "무료"
+        price = 0
+        daily_limit = 3
+        monthly_tts_limit = 0
+        tts_enabled = False
+        storage_limit = 10
+        is_active = True
+
     @staticmethod
-    def _default_free_plan() -> Plan:
+    def _default_free_plan():
         """DB 없이 사용할 기본 무료 플랜 객체"""
-        plan = Plan.__new__(Plan)
-        plan.name = "free"
-        plan.display_name = "무료"
-        plan.price = 0
-        plan.daily_limit = 3
-        plan.monthly_tts_limit = 0
-        plan.tts_enabled = False
-        plan.storage_limit = 10
-        plan.is_active = True
-        return plan
+        return SubscriptionService._FreePlan()
 
     def get_user_plan(self, user_id: UUID) -> Plan:
         """사용자의 현재 플랜 (구독 없으면 free plan 반환, plans 테이블 미존재 시 기본값)"""
