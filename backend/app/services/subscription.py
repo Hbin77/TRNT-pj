@@ -1,7 +1,8 @@
 """구독/결제 서비스"""
 import logging
+from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Optional, Union
 from uuid import UUID
 
 import httpx
@@ -15,6 +16,21 @@ from app.models.plan import Plan
 from app.models.subscription import Subscription
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class FreePlanDefaults:
+    """plans 테이블 미존재 시 사용하는 기본 무료 플랜"""
+    id: None = None
+    name: str = "free"
+    display_name: str = "무료"
+    price: int = 0
+    daily_limit: int = 3
+    monthly_tts_limit: int = 0
+    tts_enabled: bool = False
+    storage_limit: int = 10
+    is_active: bool = True
+    created_at: None = None
 
 
 class SubscriptionService:
@@ -39,23 +55,12 @@ class SubscriptionService:
             self.db.rollback()
             return None
 
-    class _FreePlan:
-        """DB 없이 사용할 기본 무료 플랜 (plans 테이블 미존재 시)"""
-        name = "free"
-        display_name = "무료"
-        price = 0
-        daily_limit = 3
-        monthly_tts_limit = 0
-        tts_enabled = False
-        storage_limit = 10
-        is_active = True
-
     @staticmethod
-    def _default_free_plan():
+    def _default_free_plan() -> 'FreePlanDefaults':
         """DB 없이 사용할 기본 무료 플랜 객체"""
-        return SubscriptionService._FreePlan()
+        return FreePlanDefaults()
 
-    def get_user_plan(self, user_id: UUID) -> Plan:
+    def get_user_plan(self, user_id: UUID) -> Union[Plan, FreePlanDefaults]:
         """사용자의 현재 플랜 (구독 없으면 free plan 반환, plans 테이블 미존재 시 기본값)"""
         try:
             subscription = self.get_user_subscription(user_id)
@@ -81,7 +86,7 @@ class SubscriptionService:
             return free_plan
         except (OperationalError, ProgrammingError) as e:
             # plans/subscriptions 테이블이 아직 없는 경우 (마이그레이션 전)
-            logger.warning(f"Plans 테이블 조회 실패 (마이그레이션 필요): {e}")
+            logger.warning(f"Plans 테이블 조회 실패 ({type(e).__name__}), 기본 무료 플랜 사용")
             self.db.rollback()
             return self._default_free_plan()
 

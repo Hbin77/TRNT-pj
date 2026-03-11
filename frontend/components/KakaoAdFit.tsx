@@ -1,6 +1,40 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { useSubscriptionStore } from '@/store/subscriptionStore';
+
+declare global {
+  interface Window {
+    adfit?: { display: (unit: string) => void };
+  }
+}
+
+// 전역 싱글턴: 스크립트 한 번만 로드
+let sdkLoaded = false;
+let sdkReady = false;
+const sdkCallbacks: (() => void)[] = [];
+
+function ensureSDK(callback: () => void) {
+  if (sdkReady) {
+    callback();
+    return;
+  }
+
+  sdkCallbacks.push(callback);
+
+  if (!sdkLoaded) {
+    sdkLoaded = true;
+    const script = document.createElement('script');
+    script.src = 'https://t1.daumcdn.net/kas/static/ba.min.js';
+    script.async = true;
+    script.onload = () => {
+      sdkReady = true;
+      sdkCallbacks.forEach((cb) => cb());
+      sdkCallbacks.length = 0;
+    };
+    document.body.appendChild(script);
+  }
+}
 
 interface KakaoAdFitProps {
   unit: string;
@@ -11,33 +45,18 @@ interface KakaoAdFitProps {
 
 export function KakaoAdFit({ unit, width, height, className = '' }: KakaoAdFitProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const loadedRef = useRef(false);
+  const displayedRef = useRef(false);
 
   useEffect(() => {
-    if (loadedRef.current) return;
-    loadedRef.current = true;
+    if (displayedRef.current) return;
 
-    const script = document.createElement('script');
-    script.src = '//t1.daumcdn.net/kas/static/ba.min.js';
-    script.async = true;
-    document.body.appendChild(script);
-
-    return () => {
-      // cleanup on unmount
-      try { document.body.removeChild(script); } catch {}
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!containerRef.current) return;
-    // SDK 로드 후 광고 렌더링
-    const timer = setTimeout(() => {
-      const ins = containerRef.current?.querySelector('ins');
-      if (ins && (window as any).adfit) {
-        (window as any).adfit.display(unit);
+    ensureSDK(() => {
+      if (displayedRef.current) return;
+      if (containerRef.current && window.adfit) {
+        window.adfit.display(unit);
+        displayedRef.current = true;
       }
-    }, 500);
-    return () => clearTimeout(timer);
+    });
   }, [unit]);
 
   return (
@@ -53,8 +72,12 @@ export function KakaoAdFit({ unit, width, height, className = '' }: KakaoAdFitPr
   );
 }
 
-// 기본 728x90 배너 (프로젝트 광고단위)
+// 기본 728x90 배너 (유료 구독자에게는 표시하지 않음)
 export function KakaoAdBanner({ className = '' }: { className?: string }) {
+  const { isPremium } = useSubscriptionStore();
+
+  if (isPremium) return null;
+
   return (
     <KakaoAdFit
       unit="DAN-zAViISprZ9Vafa2m"
