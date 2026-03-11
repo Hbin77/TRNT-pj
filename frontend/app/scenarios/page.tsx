@@ -11,6 +11,7 @@ import Image from 'next/image';
 import { Sparkles, Calendar, BookOpen, Trash2, ArrowLeft } from 'lucide-react';
 import type { ScenarioListItem } from '@/types';
 import { GlassCard } from '@/components/ui/GlassCard';
+import { KakaoAdBanner } from '@/components/KakaoAdFit';
 
 export default function ScenariosPage() {
   const router = useRouter();
@@ -190,6 +191,13 @@ export default function ScenariosPage() {
           )}
         </div>
       </main>
+
+      {/* 광고 */}
+      <div className="relative z-10 container mx-auto px-4 pb-8">
+        <div className="max-w-4xl mx-auto">
+          <KakaoAdBanner className="opacity-60 hover:opacity-100 transition-opacity" />
+        </div>
+      </div>
     </div>
   );
 }

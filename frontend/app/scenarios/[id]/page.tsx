@@ -12,6 +12,7 @@ import Image from 'next/image';
 import { ArrowLeft, Calendar, Share2, Trash2, BookOpen, Sparkles, Quote, ThumbsUp, ThumbsDown, PenLine, X, Loader2, Volume2, ImageIcon, Lock } from 'lucide-react';
 import type { ScenarioDetail } from '@/types';
 import { GlassCard } from '@/components/ui/GlassCard';
+import { KakaoAdBanner } from '@/components/KakaoAdFit';
 
 export default function ScenarioDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -442,6 +443,13 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
           </motion.div>
         </div>
       </main>
+
+      {/* 광고 */}
+      <div className="relative z-10 container mx-auto px-4 pb-8">
+        <div className="max-w-3xl mx-auto">
+          <KakaoAdBanner className="opacity-60 hover:opacity-100 transition-opacity" />
+        </div>
+      </div>
 
       {/* 이어쓰기 모달 */}
       {showContinueModal && (

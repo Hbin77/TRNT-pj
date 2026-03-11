@@ -8,6 +8,7 @@ import { userAPI } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 import { Sparkles, BookOpen, LogOut, User } from 'lucide-react';
 import { Logo } from '@/components/ui/Logo';
+import { KakaoAdBanner } from '@/components/KakaoAdFit';
 
 /** personality raw 문자열에서 MBTI와 성격 키워드를 추출 */
 function parsePersonality(raw: string | undefined) {
@@ -296,6 +297,13 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* 광고 */}
+      <div className="relative z-10 container mx-auto px-4 pb-8">
+        <div className="max-w-5xl mx-auto">
+          <KakaoAdBanner className="opacity-60 hover:opacity-100 transition-opacity" />
         </div>
       </div>
 
