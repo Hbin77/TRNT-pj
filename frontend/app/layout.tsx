@@ -66,6 +66,9 @@ export default function RootLayout({
         <Script
           src="https://t1.daumcdn.net/kas/static/ba.min.js"
           strategy="afterInteractive"
+          onReady={() => {
+            window.dispatchEvent(new Event('adfit-ready'));
+          }}
         />
         <LanguageProvider>
           {children}

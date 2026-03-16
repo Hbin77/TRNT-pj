@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { previewAPI } from '@/lib/api';
-import { KakaoAdBanner } from '@/components/KakaoAdFit';
+import { KakaoAdFit } from '@/components/KakaoAdFit';
 
 export default function Home() {
   const { t } = useLanguage();
@@ -436,7 +436,7 @@ export default function Home() {
 
         {/* 광고 */}
         <div className="mt-20 flex justify-center">
-          <KakaoAdBanner className="opacity-50 hover:opacity-100 transition-opacity" />
+          <KakaoAdFit unit="DAN-zAViISprZ9Vafa2m" width={728} height={90} className="opacity-70 hover:opacity-100 transition-opacity" />
         </div>
 
         {/* Footer */}

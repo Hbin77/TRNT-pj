@@ -21,8 +21,6 @@ export function KakaoAdFit({ unit, width, height, className = '' }: KakaoAdFitPr
   const displayedRef = useRef(false);
 
   useEffect(() => {
-    if (displayedRef.current) return;
-
     const tryDisplay = () => {
       if (displayedRef.current) return;
       if (containerRef.current && window.adfit) {
@@ -31,22 +29,25 @@ export function KakaoAdFit({ unit, width, height, className = '' }: KakaoAdFitPr
       }
     };
 
-    // SDK가 이미 로드되었으면 바로 실행, 아니면 대기
+    // SDK가 이미 로드되었으면 바로 실행
     if (window.adfit) {
       tryDisplay();
-    } else {
-      // layout.tsx의 Script가 로드될 때까지 폴링 (최대 5초)
-      let attempts = 0;
-      const interval = setInterval(() => {
-        attempts++;
-        if (window.adfit || attempts > 20) {
-          clearInterval(interval);
-          tryDisplay();
-        }
-      }, 250);
-      return () => clearInterval(interval);
+      return;
     }
+
+    // layout.tsx의 Script onReady가 발행하는 이벤트 대기
+    const handleReady = () => tryDisplay();
+    window.addEventListener('adfit-ready', handleReady);
+
+    return () => {
+      window.removeEventListener('adfit-ready', handleReady);
+    };
   }, [unit]);
+
+  // unmount 시 displayedRef 리셋 (remount 시 재표시 가능하도록)
+  useEffect(() => {
+    return () => { displayedRef.current = false; };
+  }, []);
 
   return (
     <div ref={containerRef} className={`flex justify-center ${className}`}>
