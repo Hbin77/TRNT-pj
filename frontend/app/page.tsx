@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { previewAPI } from '@/lib/api';
+import { KakaoAdBanner } from '@/components/KakaoAdFit';
 
 export default function Home() {
   const { t } = useLanguage();
@@ -433,8 +434,13 @@ export default function Home() {
           )}
         </AnimatePresence>
 
+        {/* 광고 */}
+        <div className="mt-20 flex justify-center">
+          <KakaoAdBanner className="opacity-50 hover:opacity-100 transition-opacity" />
+        </div>
+
         {/* Footer */}
-        <footer className="mt-32 pt-16 border-t border-white/5 text-center text-gray-500 pb-8">
+        <footer className="mt-12 pt-16 border-t border-white/5 text-center text-gray-500 pb-8">
           <div className="flex items-center justify-center space-x-2 mb-4 opacity-50">
             <Sparkles className="w-5 h-5" />
             <span className="font-bold text-lg">TRNT</span>

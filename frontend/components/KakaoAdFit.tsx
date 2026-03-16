@@ -9,33 +9,6 @@ declare global {
   }
 }
 
-// 전역 싱글턴: 스크립트 한 번만 로드
-let sdkLoaded = false;
-let sdkReady = false;
-const sdkCallbacks: (() => void)[] = [];
-
-function ensureSDK(callback: () => void) {
-  if (sdkReady) {
-    callback();
-    return;
-  }
-
-  sdkCallbacks.push(callback);
-
-  if (!sdkLoaded) {
-    sdkLoaded = true;
-    const script = document.createElement('script');
-    script.src = 'https://t1.daumcdn.net/kas/static/ba.min.js';
-    script.async = true;
-    script.onload = () => {
-      sdkReady = true;
-      sdkCallbacks.forEach((cb) => cb());
-      sdkCallbacks.length = 0;
-    };
-    document.body.appendChild(script);
-  }
-}
-
 interface KakaoAdFitProps {
   unit: string;
   width: number;
@@ -50,13 +23,29 @@ export function KakaoAdFit({ unit, width, height, className = '' }: KakaoAdFitPr
   useEffect(() => {
     if (displayedRef.current) return;
 
-    ensureSDK(() => {
+    const tryDisplay = () => {
       if (displayedRef.current) return;
       if (containerRef.current && window.adfit) {
         window.adfit.display(unit);
         displayedRef.current = true;
       }
-    });
+    };
+
+    // SDK가 이미 로드되었으면 바로 실행, 아니면 대기
+    if (window.adfit) {
+      tryDisplay();
+    } else {
+      // layout.tsx의 Script가 로드될 때까지 폴링 (최대 5초)
+      let attempts = 0;
+      const interval = setInterval(() => {
+        attempts++;
+        if (window.adfit || attempts > 20) {
+          clearInterval(interval);
+          tryDisplay();
+        }
+      }, 250);
+      return () => clearInterval(interval);
+    }
   }, [unit]);
 
   return (

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from '@/lib/i18n/LanguageContext';
@@ -62,6 +63,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <Script
+          src="https://t1.daumcdn.net/kas/static/ba.min.js"
+          strategy="afterInteractive"
+        />
         <LanguageProvider>
           {children}
         </LanguageProvider>
