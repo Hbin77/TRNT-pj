@@ -21,30 +21,33 @@ export function KakaoAdFit({ unit, width, height, className = '' }: KakaoAdFitPr
   const displayedRef = useRef(false);
 
   useEffect(() => {
+    if (displayedRef.current) return;
+
     const tryDisplay = () => {
       if (displayedRef.current) return;
       if (containerRef.current && window.adfit) {
         window.adfit.display(unit);
         displayedRef.current = true;
+        return true;
       }
+      return false;
     };
 
-    // SDK가 이미 로드되었으면 바로 실행
-    if (window.adfit) {
-      tryDisplay();
-      return;
-    }
+    // SDK 이미 로드됨
+    if (tryDisplay()) return;
 
-    // layout.tsx의 Script onReady가 발행하는 이벤트 대기
-    const handleReady = () => tryDisplay();
-    window.addEventListener('adfit-ready', handleReady);
+    // SDK 로드 대기 (script onload 감지용 간단 폴링, 최대 10초)
+    let attempts = 0;
+    const interval = setInterval(() => {
+      attempts++;
+      if (tryDisplay() || attempts > 40) {
+        clearInterval(interval);
+      }
+    }, 250);
 
-    return () => {
-      window.removeEventListener('adfit-ready', handleReady);
-    };
+    return () => clearInterval(interval);
   }, [unit]);
 
-  // unmount 시 displayedRef 리셋 (remount 시 재표시 가능하도록)
   useEffect(() => {
     return () => { displayedRef.current = false; };
   }, []);
@@ -62,18 +65,10 @@ export function KakaoAdFit({ unit, width, height, className = '' }: KakaoAdFitPr
   );
 }
 
-// 기본 728x90 배너 (유료 구독자에게는 표시하지 않음)
 export function KakaoAdBanner({ className = '' }: { className?: string }) {
   const { isPremium } = useSubscriptionStore();
-
   if (isPremium) return null;
-
   return (
-    <KakaoAdFit
-      unit="DAN-zAViISprZ9Vafa2m"
-      width={728}
-      height={90}
-      className={className}
-    />
+    <KakaoAdFit unit="DAN-zAViISprZ9Vafa2m" width={728} height={90} className={className} />
   );
 }
