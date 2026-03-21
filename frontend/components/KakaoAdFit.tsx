@@ -3,12 +3,6 @@
 import { useEffect, useRef } from 'react';
 import { useSubscriptionStore } from '@/store/subscriptionStore';
 
-declare global {
-  interface Window {
-    adfit?: { display: (unit: string) => void };
-  }
-}
-
 interface KakaoAdFitProps {
   unit: string;
   width: number;
@@ -24,19 +18,23 @@ export function KakaoAdFit({ unit, width, height, className = '' }: KakaoAdFitPr
     if (displayedRef.current) return;
 
     const tryDisplay = () => {
-      if (displayedRef.current) return;
-      if (containerRef.current && window.adfit) {
-        window.adfit.display(unit);
-        displayedRef.current = true;
-        return true;
+      if (displayedRef.current) return false;
+      try {
+        const adfit = (window as any).adfit;
+        if (containerRef.current && adfit && typeof adfit.display === 'function') {
+          adfit.display(unit);
+          displayedRef.current = true;
+          return true;
+        }
+      } catch {
+        // SDK 에러 무시 — 광고 실패가 앱을 크래시시키면 안 됨
       }
       return false;
     };
 
-    // SDK 이미 로드됨
     if (tryDisplay()) return;
 
-    // SDK 로드 대기 (script onload 감지용 간단 폴링, 최대 10초)
+    // SDK 로드 대기
     let attempts = 0;
     const interval = setInterval(() => {
       attempts++;
